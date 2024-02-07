@@ -1,27 +1,47 @@
-import { useLayoutEffect } from "react";
-import { useRouter } from "expo-router";
-import { useAuth } from "../hooks/Auth";
+import {useFocusEffect, useRouter} from "expo-router";
+import {View} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useAuth} from "../hooks/Auth";
 
 const Page = () => {
     const router = useRouter();
-    const { user } = useAuth();
+    const {user} = useAuth();
 
-
-    useLayoutEffect(() => {
-        navigateToNextPage(user); // Pass user data to the function
-    }, []);
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const user = JSON.parse(response);
+            navigateToNextPage(user);
+        }
+        fetchData();
+    });
 
     const navigateToNextPage = async (user) => {
         if (!user) {
-            await router.push('/login');
+            await router.push("/login");
         } else {
-            if (user.role === 'admin') {
-                await router.push('/cashier');
+            const allowedRoutes = {
+                chef: "/chef",
+                cashier: "/cashier",
+                admin: '/cashier'
+            }; // Define allowed routes based on roles
+            const route = allowedRoutes[user.role];
+
+            if (route) {
+                await router.navigate(route);
+            } else {
+                // Handle invalid roles (optional)
+                console.error("Invalid user role:", user.role);
+                await router.push("/error"); // Or redirect to a default route
             }
         }
     };
 
-    return null;
+    return (
+        <View>
+
+        </View>
+    );
 };
 
 export default Page;

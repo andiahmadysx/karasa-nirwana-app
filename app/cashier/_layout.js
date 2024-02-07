@@ -1,10 +1,9 @@
 import React from 'react';
 import {Link, Stack, useRouter} from "expo-router";
 import {COLORS, icons, SIZES} from "../../constants";
-import {DrawerToggleButton} from "@react-navigation/drawer";
 import {CloseIcon, Icon} from "@gluestack-ui/themed";
 import {Text, View} from "react-native";
-import {AntDesign} from "@expo/vector-icons";
+import Clock from "../../components/common/Clock";
 
 const Layout = () => {
 
@@ -12,20 +11,19 @@ const Layout = () => {
 
     return <Stack screenOptions={{
         headerBackImageSource: icons.chevronLeft,
-        headerTitleAlign: 'center'
-
+        headerTitleAlign: 'center',
     }}>
-        <Stack.Screen name={'index'} options={{
-            headerLeft: () => <DrawerToggleButton/>,
-            headerTitle: '',
-            headerTitleStyle: {
-                fontSize: SIZES.medium
-            },
-            headerStyle: {
-                backgroundColor: COLORS.bg,
-            },
-            headerShadowVisible: false
-        }}/>
+        <Stack.Screen name={'index'} options={
+            {
+                header: (props) =>
+                    (
+                        <View style={{height: 80, justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
+                            paddingHorizontal: SIZES.xxLarge, backgroundColor: COLORS.bg}}>
+                            <Clock/>
+                        </View>
+                    ),
+            }
+        }/>
 
         <Stack.Screen name={'select_table'} options={{
             headerTitle: 'Select Table',

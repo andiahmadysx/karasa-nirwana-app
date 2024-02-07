@@ -1,12 +1,9 @@
-import { useEffect, createContext, useContext, useState } from "react";
+import {useEffect, createContext, useContext, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { OrderProvider } from "./Order";
-import { GluestackUIProvider } from "@gluestack-ui/themed";
-import { config } from "@gluestack-ui/config";
 
 const AuthContext = createContext(null);
 
-export const Provider = ({ children }) => {
+export const Provider = ({children}) => {
     const [user, setUser] = useState(null);
 
     const getUserFromStorage = async () => {
@@ -22,10 +19,9 @@ export const Provider = ({ children }) => {
         }
     };
 
-
     useEffect(() => {
         getUserFromStorage();
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, [user]); // Empty dependency array means this effect runs once on mount
 
     const saveUserToStorage = async (value) => {
         try {
@@ -46,12 +42,8 @@ export const Provider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser: saveUserToStorage, removeUser }}>
-            <OrderProvider>
-                <GluestackUIProvider config={config}>
-                    {children}
-                </GluestackUIProvider>
-            </OrderProvider>
+        <AuthContext.Provider value={{user, setUser: saveUserToStorage, removeUser}}>
+            {children}
         </AuthContext.Provider>
     );
 };

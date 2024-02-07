@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     },
     tab: (activeCategory, item) => ({
         paddingVertical: SIZES.small / 2,
-        paddingHorizontal: SIZES.xxLarge,
+        paddingHorizontal: SIZES.xLarge,
         borderRadius: 100,
         borderWidth: 1,
         borderColor: activeCategory === item ? COLORS.primary : 'transparent'
@@ -43,14 +43,16 @@ const styles = StyleSheet.create({
     }),
     footerContainer: {
         flex: 1,
-        backgroundColor: COLORS.primary,
         position: 'absolute',
         bottom: 0,
         alignSelf: 'center',
-        padding: SIZES.xSmall,
         width: '100%',
         borderRadius: 100,
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginVertical: SIZES.small,
+        flexDirection: 'row',
+        gap: SIZES.medium,
     },
     footerLink: {
         alignSelf: 'center',

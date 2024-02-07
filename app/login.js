@@ -47,19 +47,33 @@ const Login = () => {
         if (response.success) {
             setIsLoading(false);
             const user = response.data.user;
-
             setUser(user);
 
-            router.navigate('/cashier');
+            switch (user.role) {
+                case "admin":
+                    router.navigate('/cashier');
+                    break;
+                case "chef":
+                    router.navigate('/chef');
+                    break;
+                case "waiter":
+                    router.navigate('/waiter');
+                    break;
+                case "cashier":
+                    router.navigate('/cashier');
+                    break;
+                default:
+                    router.navigate('/not-found');
+            }
 
             toast.show({
-                placement: "top",
+                placement: "bottom",
                 duration: 3000,
                 render: ({id}) => {
                     const toastId = "toast-" + id
                     return (
-                        <Toast bg="$success700" nativeID={toastId} p="$6" style={{
-                            marginTop: 60
+                        <Toast bg="$success500" nativeID={toastId} p="$6" style={{
+                            marginBottom: SIZES.xxLarge
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -75,20 +89,17 @@ const Login = () => {
                     )
                 },
             });
-
-
         } else
         {
             setIsLoading(false);
-
             toast.show({
-                placement: "top",
+                placement: "bottom",
                 duration: 3000,
                 render: ({id}) => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$error700" nativeID={toastId} p="$6" style={{
-                            marginTop: 60
+                            marginBottom: SIZES.xxLarge
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'

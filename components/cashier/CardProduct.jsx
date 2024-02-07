@@ -3,33 +3,44 @@ import {Image, Text, TouchableOpacity, View} from "react-native";
 import {COLORS, SIZES} from "../../constants";
 import {useOrder} from "../../hooks/Order";
 import {formatCurrency} from "../../utils/formatCurrency";
+import debounce from 'lodash/debounce';
+
 
 const CardProduct = ({item}) => {
     const {order, setOrder} = useOrder();
     const index = order.products.findIndex((p) => p.id === item.id);
 
+    const debouncedHandleAddProduct = debounce(handleAddProduct, 300);
+    const debouncedHandleDecreaseProduct = debounce(handleDecreaseProduct, 300);
 
-
-    const handleAddProduct = () => {
+    function handleAddProduct() {
         if (index === -1) {
             setOrder((prevState) => ({
                 ...prevState,
-                products: [...prevState.products, {
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    qty: 1,
-                    image_url: item.image_url
-                }],
+                products: [
+                    ...prevState.products,
+                    {
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        qty: 1,
+                        image_url: item.image_url
+                    },
+                ],
             }));
         } else {
-            const old = {...order};
-            old.products[index].qty += 1;
-            setOrder(old)
+            setOrder((prevOrder) => {
+                const updatedProducts = [...prevOrder.products];
+                updatedProducts[index].qty += 1;
+                return {
+                    ...prevOrder,
+                    products: updatedProducts,
+                };
+            });
         }
     }
 
-    const handleDecreaseProduct = () => {
+    function handleDecreaseProduct() {
         const qty = order?.products[index]?.qty;
 
         if (qty > 1) {
@@ -51,26 +62,29 @@ const CardProduct = ({item}) => {
                 };
             });
         }
-    };
+    }
+
 
     return (
-        <TouchableOpacity onPress={handleAddProduct} style={{
-            width: '45%',
-            alignItems: 'start',
-            borderRadius: SIZES.xxSmall,
-            marginHorizontal: 8,
-            backgroundColor: "#fff",
-            shadowColor: "rgba(0,0,0,0.28)",
-            shadowOffset: {
-                width: 2,
-                height: 2,
-            },
-            shadowOpacity: 0.10,
-            shadowRadius: 3.84,
-            elevation: 2,
-            paddingBottom: SIZES.small
-
-        }}>
+        <TouchableOpacity
+            onPress={debouncedHandleAddProduct}
+            style={{
+                width: '45%',
+                alignItems: 'start',
+                borderRadius: SIZES.xxSmall,
+                marginHorizontal: 8,
+                backgroundColor: "#fff",
+                shadowColor: "rgba(0,0,0,0.28)",
+                shadowOffset: {
+                    width: 2,
+                    height: 2,
+                },
+                shadowOpacity: 0.10,
+                shadowRadius: 3.84,
+                elevation: 2,
+                paddingBottom: SIZES.small
+            }}
+        >
             <Image
                 source={{uri: item.image_url}}
                 resizeMode={'cover'}
@@ -125,42 +139,39 @@ const CardProduct = ({item}) => {
 
 
             {order?.products[index]?.qty > 0 &&
-            <>
-                {/*  Product count  */}
-                <View style={{
-                    position: "absolute",
-                    left: SIZES.small,
-                    top: SIZES.small,
-                    backgroundColor: COLORS.bg,
-                    paddingHorizontal: SIZES.small,
-                    paddingVertical: SIZES.light,
-                    borderRadius: SIZES.light
+                <>
+                    <View style={{
+                        position: "absolute",
+                        left: SIZES.small,
+                        top: SIZES.small,
+                        backgroundColor: COLORS.bg,
+                        paddingHorizontal: SIZES.small,
+                        paddingVertical: SIZES.light,
+                        borderRadius: SIZES.light
+                    }}>
+                        <Text style={{
+                            fontWeight: "bold",
+                            fontSize: SIZES.medium
+                        }}>{order?.products[index]?.qty}</Text>
+                    </View>
 
-                }}>
-                    <Text style={{
-                        fontWeight: "bold",
-                        fontSize: SIZES.medium
-                    }}>{order?.products[index]?.qty}</Text>
-                </View>
-
-                {/* minus icon */}
-                <TouchableOpacity onPress={handleDecreaseProduct} style={{
-                    position: "absolute",
-                    right: SIZES.small,
-                    top: SIZES.small,
-                    backgroundColor: COLORS.danger,
-                    paddingHorizontal: SIZES.small,
-                    paddingVertical: SIZES.light,
-                    borderRadius: SIZES.light
-
-                }}>
-                    <Text style={{
-                        color: COLORS.white,
-                        fontWeight: "bold",
-                        fontSize: SIZES.medium
-                    }}>-</Text>
-                </TouchableOpacity>
-            </>
+                    {/* debounce handleDecreaseProduct */}
+                    <TouchableOpacity onPress={debouncedHandleDecreaseProduct} style={{
+                        position: "absolute",
+                        right: SIZES.small,
+                        top: SIZES.small,
+                        backgroundColor: COLORS.danger,
+                        paddingHorizontal: SIZES.small,
+                        paddingVertical: SIZES.light,
+                        borderRadius: SIZES.light
+                    }}>
+                        <Text style={{
+                            color: COLORS.white,
+                            fontWeight: "bold",
+                            fontSize: SIZES.medium
+                        }}>-</Text>
+                    </TouchableOpacity>
+                </>
             }
         </TouchableOpacity>
     );

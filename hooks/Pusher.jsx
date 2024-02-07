@@ -1,10 +1,8 @@
 // usePusher.js
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 import Pusher from 'pusher-js/react-native';
-import {useAuth} from "./Auth";
 
 const usePusher = (channelName, eventName, callback) => {
-    const {user} = useAuth();
 
     useEffect(() => {
         // Pusher setup

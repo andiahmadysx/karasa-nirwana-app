@@ -1,5 +1,6 @@
 import axios from "axios";
 import {useAuth} from "./Auth";
+import {useEffect} from "react";
 
 const Axios = axios.create({
     baseURL: 'http://' + process.env.BACKEND_HOST + '/karasa-nirwana-api/api',
@@ -10,7 +11,8 @@ export const usePost = (endpoint = '/') => {
 
     if (user) {
         Axios.defaults.headers.common = {
-            Authorization: `Bearer ${user.token}`
+            Authorization: `Bearer ${user.token}`,
+            Accept: 'application/json'
         }
     }
 
@@ -39,9 +41,9 @@ export const useUpdate = (endpoint = '/') => {
         }
     }
 
-    return async (value = {}) => {
+    return async (id, value = {}) => {
         try {
-            const response = await Axios.patch(endpoint, value);
+            const response = await Axios.put(endpoint + '/' + id, value);
             return {
                 success: true,
                 data: response.data
@@ -112,3 +114,19 @@ export const useDelete = (endpoint = '/')=> {
         }
     }
 }
+
+export const useFetch = async (getDataCallback, callback) => {
+    try {
+        const result = await getDataCallback();
+
+        if (result.success) {
+            return callback(result.data);
+        } else {
+            throw new Error(result.data);
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+

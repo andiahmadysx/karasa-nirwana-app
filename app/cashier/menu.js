@@ -1,14 +1,13 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Stack, useRouter} from 'expo-router';
 import {COLORS, icons, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
 import CardProduct from '../../components/cashier/CardProduct';
-import {useGet} from '../../hooks/Fetch';
+import {useFetch, useGet} from '../../hooks/Fetch';
 import {useOrder} from "../../hooks/Order";
 import usePusher from "../../hooks/Pusher";
-
 
 const Menu = () => {
     const router = useRouter();
@@ -21,17 +20,17 @@ const Menu = () => {
     const getCategories = useGet('/categories');
     const {order, reset} = useOrder();
 
-
-    const fetch = async () => {
-        const getProductsResponse = await getProducts();
-        const getCategoriesResponse = await getCategories();
-
-        setProducts(getProductsResponse.data.products);
-        setCategories(getCategoriesResponse.data.categories);
-    };
-
     useEffect(() => {
-        fetch();
+        if (order?.is_takeaway) {
+            reset();
+        }
+        useFetch(getProducts, (data) => {
+            setProducts(data.products);
+        });
+
+        useFetch(getCategories, (data) => {
+            setCategories(data.categories);
+        })
     }, []);
 
     usePusher('product-channel', 'App\\Events\\ProductCreated', (response) => {

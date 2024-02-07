@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {useRef, useState} from 'react';
+import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
     Button,
     ButtonText,
@@ -19,209 +19,203 @@ import {
     Textarea,
     TextareaInput,
 } from '@gluestack-ui/themed';
-import { useOrder } from '../../hooks/Order';
+import {useOrder} from '../../hooks/Order';
 import ProductList from '../../components/cashier/ProductList';
-import { useRouter } from 'expo-router';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { usePost } from '../../hooks/Fetch';
+import {useRouter} from 'expo-router';
+import {formatCurrency} from '../../utils/formatCurrency';
+import {usePost} from '../../hooks/Fetch';
 import {COLORS, SIZES} from "../../constants";
 import {mainStyles} from "../../styles";
 
 const Confirm = () => {
-    const { order, setOrder } = useOrder();
+    const {order, setOrder} = useOrder();
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
-    const ref = React.useRef(null);
+    const ref = useRef(null);
     const [notes, setNotes] = useState('');
-    const [customerName, setCustomerName] = useState(''); // New state for customer name
-
+    const [customerName, setCustomerName] = useState('');
     const [paymentAmount, setPaymentAmount] = useState(0);
 
     const postCreateTransactions = usePost('/transactions');
+
     // Calculate total price
     const calculateTotalPrice = () => {
         return order.products.reduce((total, product) => total + product.price * product.qty, 0);
     };
 
+    // Update payment_amount in order state
+    const handlePaymentAmountChange = (amount) => {
+        const parsedAmount = parseInt(amount) || 0;
+        const totalOrderPrice = calculateTotalPrice();
+        const changeAmount = parsedAmount - totalOrderPrice;
+
+        setPaymentAmount(parsedAmount);
+
+        setOrder((prevOrder) => ({
+            ...prevOrder,
+            payment_amount: parsedAmount,
+            total_price: totalOrderPrice,
+            change_amount: changeAmount > 0 ? changeAmount : 0,
+        }));
+    };
 
     const handleCreateTransactions = async () => {
         const transactionsResponse = await postCreateTransactions(order);
 
         if (transactionsResponse.success) {
-            setOrder((prevState) => ({ ...prevState, id: transactionsResponse.data.transaction.id }));
+            setOrder((prevState) => ({...prevState, id: transactionsResponse.data.transaction.id}));
         } else {
             console.log(transactionsResponse);
         }
     };
 
-    // Update payment_amount in order state
-    const handlePaymentAmountChange = (amount) => {
-        setPaymentAmount(amount);
-        setOrder((prevOrder) => ({
-            ...prevOrder,
-            payment_amount: amount,
-            total_price: calculateTotalPrice(),
-            change_amount: amount - calculateTotalPrice(),
-        }));
-    };
+    return (<SafeAreaView style={mainStyles.container}>
+        <FlatList
+            numColumns={1}
+            horizontal={false}
+            style={{
+                height: 'fit-content', flexGrow: 0, maxHeight: 350,
+            }}
+            renderItem={({item}) => {
+                return <ProductList item={item}/>;
+            }}
+            data={order?.products}
+            keyExtractor={(item) => item.id.toString()}
+        />
 
-    return (
-        <SafeAreaView style={mainStyles.container}>
-            <FlatList
-                numColumns={1}
-                horizontal={false}
+        <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
+            <Text
                 style={{
-                    height: 'fit-content',
-                    flexGrow: 0,
-                    maxHeight: 350,
+                    fontSize: SIZES.medium, fontWeight: 'light', marginVertical: SIZES.medium, color: COLORS.gray,
                 }}
-                renderItem={({ item }) => {
-                    return <ProductList item={item} />;
-                }}
-                data={order?.products}
-                keyExtractor={(item) => item.id.toString()}
-            />
+            >
+                {' '}
+                Total : {formatCurrency(calculateTotalPrice())}
+            </Text>
+        </View>
 
-            <View style={{ justifyContent: 'flex-end', flexDirection: 'row' }}>
-                <Text
-                    style={{
-                        fontSize: SIZES.medium,
-                        fontWeight: 'light',
-                        marginVertical: SIZES.medium,
-                        color: COLORS.gray,
+        {order.is_takeaway && (<View>
+            <Text style={{fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small}}>Customer
+                Name</Text>
+            <Input>
+                <InputField
+                    type={'text'}
+                    placeholder={'...'}
+                    value={customerName}
+                    onChangeText={(text) => {
+                        setCustomerName(text);
+                        setOrder((prevOrder) => ({
+                            ...prevOrder, customer_name: text,
+                        }));
                     }}
-                >
-                    {' '}
-                    Total : {formatCurrency(calculateTotalPrice())}
-                </Text>
-            </View>
+                />
+            </Input>
+        </View>)}
 
-            {order.is_takeaway && (
-                <View>
-                    <Text style={{ fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small }}>Customer Name</Text>
-                    <Input>
-                        <InputField
-                            type={'text'}
-                            placeholder={'...'}
-                            value={customerName}
-                            onChangeText={(text) => {
-                                setCustomerName(text);
-                                setOrder((prevOrder) => ({
-                                    ...prevOrder,
-                                    customer_name: text,
-                                }));
-                            }}
-                        />
-                    </Input>
-                </View>
-            )}
+        <View>
+            <Text style={{fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small}}>Notes</Text>
+        </View>
 
-            <View>
-                <Text style={{ fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small }}>Notes</Text>
-            </View>
-            <Textarea size="md" isReadOnly={false} isInvalid={false} isDisabled={false} w="$100" style={{ borderColor: COLORS.gray, marginBottom: 60 }}>
+        <View>
+            <Textarea size="md" isReadOnly={false} isInvalid={false} isDisabled={false} w="$100"
+                      style={{borderColor: COLORS.gray, marginBottom: 60}}>
                 <TextareaInput
                     value={notes}
                     onChangeText={(text) => {
                         setNotes(text);
-                        setOrder((prevOrder) => ({
-                            ...prevOrder,
-                            notes: text,
-                        }));
+                        setOrder((prevOrder) => ({...prevOrder, notes: text}));
                     }}
                     placeholder="..."
                 />
             </Textarea>
+        </View>
+
+        <View style={styles.buttonContainer}>
+            <TouchableOpacity
+                onPress={() => router.push({
+                    pathname: '/cashier/menu',
+                })}
+                style={styles.cancelButton}
+            >
+                <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+
+            <Button onPress={() => setShowModal(true)} ref={ref} style={styles.nextButton}>
+                <ButtonText style={[styles.buttonText, {color: '#fff', fontWeight: 'normal'}]}>Confirm</ButtonText>
+            </Button>
+        </View>
+
+        <Center>
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)} finalFocusRef={ref}>
+                <ModalBackdrop/>
+                <ModalContent>
+                    <ModalHeader>
+                        <Heading size="lg">Payment confirmation</Heading>
+                        <ModalCloseButton>
+                            <Icon as={CloseIcon}/>
+                        </ModalCloseButton>
+
+                    </ModalHeader>
+                    <ModalBody>
 
 
+                        <View>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={() =>
-                        router.push({
-                            pathname: '/cashier/menu',
-                        })
-                    }
-                    style={styles.cancelButton}
-                >
-                    <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <Button onPress={() => setShowModal(true)} ref={ref} style={styles.nextButton}>
-                    <ButtonText style={[styles.buttonText, { color: '#fff', fontWeight: 'normal' }]}>Confirm</ButtonText>
-                </Button>
-            </View>
-
-            <Center>
-                <Modal isOpen={showModal} onClose={() => setShowModal(false)} finalFocusRef={ref}>
-                    <ModalBackdrop />
-                    <ModalContent>
-                        <ModalHeader>
-                            <Heading size="lg">Payment confirmation</Heading>
-                            <ModalCloseButton>
-                                <Icon as={CloseIcon} />
-                            </ModalCloseButton>
-
-                        </ModalHeader>
-                        <ModalBody>
-
-
-                            <View>
-
-                                <Text style={{ marginVertical: SIZES.small, color: COLORS.darkGray, fontSize: SIZES.medium }}>
-                                    Please enter the payment amount :
-                                </Text>
-                                <Input>
-                                    <InputField
-                                        type={'text'}
-                                        placeholder={'Rp.'}
-                                        value={paymentAmount}
-                                        onChangeText={handlePaymentAmountChange}
-                                    />
-                                </Input>
-                            </View>
-
-
-                            <Text style={{ marginVertical: SIZES.light, color: COLORS.darkGray}}>
-                                Change : {formatCurrency(parseInt(paymentAmount) - calculateTotalPrice())}
+                            <Text style={{
+                                marginVertical: SIZES.small, color: COLORS.darkGray, fontSize: SIZES.medium
+                            }}>
+                                Please enter the payment amount :
                             </Text>
+                            <Input>
+                                <InputField
+                                    type={'text'}
+                                    placeholder={'Rp.'}
+                                    value={paymentAmount}
+                                    onChangeText={handlePaymentAmountChange}
+                                />
+                            </Input>
+                        </View>
 
-                        </ModalBody>
-                        <ModalFooter style={{ justifyContent: 'center' }}>
-                            <Button
-                                width={'40%'}
-                                size="sm"
-                                variant={'outline'}
-                                borderColor={COLORS.primary}
-                                borderRadius={100}
-                                mr="$3"
-                                onPress={() => {
-                                    setShowModal(false);
-                                }}
-                            >
-                                <ButtonText style={[styles.buttonText, {}]}>Cancel</ButtonText>
-                            </Button>
-                            <Button
-                                width={'50%'}
-                                size="sm"
-                                backgroundColor={COLORS.primary}
-                                variant={'filled'}
-                                borderColor={COLORS.primary}
-                                borderRadius={100}
-                                onPress={() => {
-                                    setShowModal(false);
-                                    handleCreateTransactions();
-                                    router.navigate({ pathname: '/cashier/invoice' });
-                                }}
-                            >
-                                <ButtonText>Pay</ButtonText>
-                            </Button>
-                        </ModalFooter>
-                    </ModalContent>
-                </Modal>
-            </Center>
-        </SafeAreaView>
-    );
+
+                        <Text style={{marginVertical: SIZES.light, color: COLORS.darkGray}}>
+                            Change : {formatCurrency(parseInt(paymentAmount) - calculateTotalPrice())}
+                        </Text>
+
+                    </ModalBody>
+                    <ModalFooter style={{justifyContent: 'center'}}>
+                        <Button
+                            width={'40%'}
+                            size="sm"
+                            variant={'outline'}
+                            borderColor={COLORS.primary}
+                            borderRadius={100}
+                            mr="$3"
+                            onPress={() => {
+                                setShowModal(false);
+                            }}
+                        >
+                            <ButtonText style={[styles.buttonText, {}]}>Cancel</ButtonText>
+                        </Button>
+                        <Button
+                            width={'50%'}
+                            size="sm"
+                            backgroundColor={COLORS.primary}
+                            variant={'filled'}
+                            borderColor={COLORS.primary}
+                            borderRadius={100}
+                            onPress={() => {
+                                setShowModal(false);
+                                handleCreateTransactions();
+                                router.navigate({pathname: '/cashier/invoice'});
+                            }}
+                        >
+                            <ButtonText>Pay</ButtonText>
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </Center>
+    </SafeAreaView>);
 };
 
 const styles = StyleSheet.create({
@@ -237,8 +231,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         gap: 10,
         backgroundColor: COLORS.bg,
-    },
-    cancelButton: {
+    }, cancelButton: {
         borderColor: COLORS.primary,
         borderStyle: 'solid',
         borderWidth: 1,
@@ -249,8 +242,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.bg,
-    },
-    nextButton: {
+    }, nextButton: {
         backgroundColor: COLORS.primary,
         padding: SIZES.xSmall,
         borderRadius: 100,
@@ -258,12 +250,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    buttonText: {
-        textAlignVertical: 'center',
-        textAlign: 'center',
-        fontSize: SIZES.medium,
-        color: COLORS.primary,
+    }, buttonText: {
+        textAlignVertical: 'center', textAlign: 'center', fontSize: SIZES.medium, color: COLORS.primary,
     },
 });
 

@@ -14,7 +14,7 @@ import { mainStyles, searchStyles } from '../../styles';
 import TableCustom from '../../components/common/TableCustom';
 import chunkArray from '../../utils/chunkArray';
 import { Icon, SearchIcon } from "@gluestack-ui/themed";
-import { useGet } from "../../hooks/Fetch";
+import {useFetch, useGet} from "../../hooks/Fetch";
 import NoDataFound from "../../components/common/NoDataFound";
 import {useOrder} from "../../hooks/Order";
 import usePusher from "../../hooks/Pusher";
@@ -24,20 +24,8 @@ const SelectTable = () => {
     const [selectedTable, setSelectedTable] = useState(null);
     const [notUsedTables, setNotUsedTable] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-
     const {setOrder, reset} = useOrder();
-
     const getNotUsedTables = useGet('/tables/not-used');
-
-    const fetch = async () => {
-        try {
-            const notUsedTableResponse = await getNotUsedTables();
-            setNotUsedTable(notUsedTableResponse.data.tables);
-        } catch (error) {
-            console.error("Error fetching not used tables:", error);
-        }
-    };
-
 
      usePusher('table-channel', 'App\\Events\\TableCreated', (response) => {
         setNotUsedTable((prevState) => [...prevState, response.data]);
@@ -46,7 +34,11 @@ const SelectTable = () => {
 
     useEffect(() => {
         reset();
-        fetch();
+
+
+        useFetch(getNotUsedTables, (data) => {
+            setNotUsedTable(data.tables);
+        })
     }, []);
 
     const handleSelectTable = (val) => {

@@ -6,6 +6,9 @@ import {Provider} from "../hooks/Auth";
 import {useFonts} from "expo-font";
 import CustomSplashScreen from "../components/common/CustomSplashScreen";
 import {LogBox} from "react-native";
+import {config} from "@gluestack-ui/config";
+import {OrderProvider} from "../hooks/Order";
+import {GluestackUIProvider} from "@gluestack-ui/themed";
 
 const Layout = () => {
     const [fonstLoaded] = useFonts({
@@ -18,7 +21,7 @@ const Layout = () => {
     useEffect(() => {
         const delay = setTimeout(() => {
             setAppIsReady(true);
-        }, 300);
+        }, 3000);
 
         return () => clearTimeout(delay);
     }, []);
@@ -27,30 +30,57 @@ const Layout = () => {
     LogBox.ignoreAllLogs();
 
     if (!appIsReady) return <CustomSplashScreen/>
+
     return <Provider>
-
-
-        <Drawer screenOptions={{
-            headerShown: false,
-            drawerActiveBackgroundColor: COLORS.primary,
-            drawerActiveTintColor: COLORS.white,
-            drawerLabelStyle: {
-                marginLeft: -SIZES.xLarge,
-                marginTop: SIZES.light
-            },
-        }} drawerContent={CustomDrawerContent}>
-            <Drawer.Screen
-                name={'cashier'}
-                options={{
-                    drawerLabel: 'Beranda',
-                    title: 'Beranda',
-                    headerStyle: {
-                        backgroundColor: COLORS.bg
+        <OrderProvider>
+            <GluestackUIProvider config={config}>
+                <Drawer screenOptions={{
+                    headerShown: false,
+                    drawerActiveBackgroundColor: COLORS.primary,
+                    drawerActiveTintColor: COLORS.white,
+                    drawerLabelStyle: {
+                        marginLeft: -SIZES.xLarge,
+                        marginTop: SIZES.light
                     },
-                    headerShadowVisible: false,
-                }}
-            />
-        </Drawer>
+                }} drawerContent={CustomDrawerContent}>
+                    <Drawer.Screen
+                        name={'cashier'}
+                        options={{
+                            drawerLabel: 'Beranda',
+                            title: 'Beranda',
+                            headerStyle: {
+                                backgroundColor: COLORS.bg
+                            },
+                            headerShadowVisible: false,
+                        }}
+                    />
+
+                    <Drawer.Screen
+                        name={'chef'}
+                        options={{
+                            drawerLabel: 'Beranda',
+                            title: 'Beranda',
+                            headerStyle: {
+                                backgroundColor: COLORS.bg
+                            },
+                            headerShadowVisible: false,
+                        }}
+                    />
+
+                    <Drawer.Screen
+                        name={'waiter'}
+                        options={{
+                            drawerLabel: 'Beranda',
+                            title: 'Beranda',
+                            headerStyle: {
+                                backgroundColor: COLORS.bg
+                            },
+                            headerShadowVisible: false,
+                        }}
+                    />
+                </Drawer>
+            </GluestackUIProvider>
+        </OrderProvider>
     </Provider>
 };
 

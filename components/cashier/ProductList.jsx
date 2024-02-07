@@ -1,15 +1,19 @@
 import React from 'react';
-import {Image, Text, TouchableOpacity, View} from "react-native";
-import {SIZES} from "../../constants";
-import {AddIcon, Icon, RemoveIcon} from "@gluestack-ui/themed";
-import {useOrder} from "../../hooks/Order";
-import {formatCurrency} from "../../utils/formatCurrency";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { SIZES } from "../../constants";
+import { AddIcon, Icon, RemoveIcon } from "@gluestack-ui/themed";
+import { useOrder } from "../../hooks/Order";
+import { formatCurrency } from "../../utils/formatCurrency";
+import debounce from 'lodash/debounce';
 
-const ProductList = ({item}) => {
-    const {order, setOrder} = useOrder();
+const ProductList = ({ item }) => {
+    const { order, setOrder } = useOrder();
     const index = order.products.findIndex((p) => p.id === item.id);
 
-    const handleAddProduct = () => {
+    const debouncedHandleAddProduct = debounce(handleAddProduct, 300);
+    const debouncedHandleDecreaseProduct = debounce(handleDecreaseProduct, 300);
+
+    function handleAddProduct() {
         if (index === -1) {
             setOrder((prevState) => ({
                 ...prevState,
@@ -18,17 +22,22 @@ const ProductList = ({item}) => {
                     name: item.name,
                     qty: 1,
                     price: item.price,
-                    image_url : item.image_url
+                    image_url: item.image_url
                 }],
             }));
         } else {
-            const old = {...order};
-            old.products[index].qty += 1;
-            setOrder(old)
+            setOrder((prevOrder) => {
+                const updatedProducts = [...prevOrder.products];
+                updatedProducts[index].qty += 1;
+                return {
+                    ...prevOrder,
+                    products: updatedProducts,
+                };
+            });
         }
     }
 
-    const handleDecreaseProduct = () => {
+    function handleDecreaseProduct() {
         const qty = order?.products[index]?.qty;
 
         if (qty > 1) {
@@ -50,8 +59,7 @@ const ProductList = ({item}) => {
                 };
             });
         }
-    };
-
+    }
 
     return (
         <View style={{
@@ -61,20 +69,19 @@ const ProductList = ({item}) => {
                 flexDirection: "row", gap: SIZES.small
             }}>
                 <Image
-                    source={{uri: item.image_url}}
+                    source={{ uri: item.image_url }}
                     resizeMode={'cover'}
                     style={{
                         width: 60,
                         height: 60,
                         borderRadius: SIZES.small
-                    }}/>
-
+                    }} />
 
                 <View style={{
                     gap: SIZES.light,
                     paddingTop: SIZES.light
                 }}>
-                    <Text  numberOfLines={1} ellipsizeMode="tail" style={{
+                    <Text numberOfLines={1} ellipsizeMode="tail" style={{
                         maxWidth: 190,
                         minWidth: 100,
                         fontSize: SIZES.medium,
@@ -83,10 +90,9 @@ const ProductList = ({item}) => {
 
                     <Text style={{
                         fontSize: SIZES.small,
-                    }}>{formatCurrency(order?.products[index].price * order?.products[index].qty )}</Text>
+                    }}>{formatCurrency(order?.products[index]?.price * order?.products[index]?.qty)}</Text>
                 </View>
             </View>
-
 
             <View style={{
                 alignItems: "center",
@@ -94,18 +100,16 @@ const ProductList = ({item}) => {
                 flexDirection: "row",
                 gap: SIZES.medium
             }}>
-
-                <TouchableOpacity onPress={handleDecreaseProduct}>
-
-                    <Icon as={RemoveIcon} w="$5" h="$5"/>
-
+                <TouchableOpacity onPress={debouncedHandleDecreaseProduct}>
+                    <Icon as={RemoveIcon} w="$5" h="$5" />
                 </TouchableOpacity>
+
                 <Text style={{
                     fontSize: SIZES.medium
                 }}>{item?.qty}</Text>
-                <TouchableOpacity onPress={handleAddProduct}>
-                    <Icon as={AddIcon} w="$5" h="$5"/>
 
+                <TouchableOpacity onPress={debouncedHandleAddProduct}>
+                    <Icon as={AddIcon} w="$5" h="$5" />
                 </TouchableOpacity>
             </View>
         </View>
