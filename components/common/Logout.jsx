@@ -27,8 +27,8 @@ const Logout = ({setShowModal, showModal}) => {
 
 
         if (response.success) {
-            router.navigate('/login');
             removeUser();
+            router.navigate('/login');
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -36,7 +36,7 @@ const Logout = ({setShowModal, showModal}) => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$success500" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge
+                            marginBottom: SIZES.xxLarge + 50
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'

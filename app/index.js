@@ -1,5 +1,5 @@
 import {useFocusEffect, useRouter} from "expo-router";
-import {View} from "react-native";
+import {Text, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useAuth} from "../hooks/Auth";
 
@@ -23,7 +23,8 @@ const Page = () => {
             const allowedRoutes = {
                 chef: "/chef",
                 cashier: "/cashier",
-                admin: '/cashier'
+                admin: '/cashier',
+                waiter: '/waiter'
             }; // Define allowed routes based on roles
             const route = allowedRoutes[user.role];
 
@@ -39,9 +40,10 @@ const Page = () => {
 
     return (
         <View>
-
+            <Text>Silence is golden.</Text>
         </View>
     );
 };
 
 export default Page;
+

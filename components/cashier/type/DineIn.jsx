@@ -22,31 +22,25 @@ const DineIn = () => {
         setCookingInProgress((prevState) => ([...prevState, response.data]))
     });
 
-    usePusher('ready-to-serve-transaction-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
+    usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
         setReadyToServe((prevState) => ([...prevState, response.data]))
     });
 
-    usePusher('transaction-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
+    usePusher('transactions-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
         setOrderPlaced((prevState) => ([...prevState, response.data]))
     });
 
     useEffect(() => {
         useFetch(getOrderPlaced, (data) => {
-            if (data.transactions?.length > 0) {
-                setOrderPlaced(data.transactions);
-            }
+            setOrderPlaced(data?.transactions);
         })
 
         useFetch(getReadyToServe, (data) => {
-            if (data.transactions?.length > 0) {
-                setReadyToServe(data.transactions);
-            }
+            setReadyToServe(data?.transactions);
         })
 
         useFetch(getCookingInProgress, (data) => {
-            if (data.transactions?.length > 0) {
-                setCookingInProgress(data.transactions);
-            }
+            setCookingInProgress(data?.transactions);
         })
     }, []);
 
@@ -80,65 +74,69 @@ const DineIn = () => {
                 />
             </View>
 
-
             {
-                activeCategory === 'Order Placed' && <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between'
-                }}>
-                    {orderPlaced?.length > 0 ? (
-                        orderPlaced.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                <TableCustom>{item.table.name}</TableCustom>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
+                activeCategory === 'Order Placed' && <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        marginTop: SIZES.small,
+                        justifyContent: 'space-between'
+                    }}>
+                        {orderPlaced?.length > 0 ? (
+                            orderPlaced.map((item, index) => (
+                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom>{item.table.name}</TableCustom>
+                                </View>
+                            ))
+                        ) : (
+                            <NoDataFound/>
+                        )}
+                    </View>
+                </ScrollView>
             }
 
 
             {
-                activeCategory === 'Cooking In Progress' && <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between'
-                }}>
-                    {cookingInProgress?.length > 0 ? (
-                        cookingInProgress.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                <TableCustom>{item.table.name}</TableCustom>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
+                activeCategory === 'Cooking In Progress' && <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        marginTop: SIZES.small,
+                        justifyContent: 'space-between'
+                    }}>
+                        {cookingInProgress?.length > 0 ? (
+                            cookingInProgress.map((item, index) => (
+                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom>{item.table.name}</TableCustom>
+                                </View>
+                            ))
+                        ) : (
+                            <NoDataFound/>
+                        )}
+                    </View>
+                </ScrollView>
             }
 
             {activeCategory === 'Ready To Serve' &&
-                <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between'
-                }}>
-                    {readyToServe?.length > 0 ? (
-                        readyToServe.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                <TableCustom>{item.table.name}</TableCustom>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        marginTop: SIZES.small,
+                        justifyContent: 'space-between'
+                    }}>
+                        {readyToServe?.length > 0 ? (
+                            readyToServe.map((item, index) => (
+                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom>{item.table.name}</TableCustom>
+                                </View>
+                            ))
+                        ) : (
+                            <NoDataFound/>
+                        )}
+                    </View>
+                </ScrollView>
             }
-
         </ScrollView>
     );
 };

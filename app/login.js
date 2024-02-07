@@ -47,6 +47,11 @@ const Login = () => {
         if (response.success) {
             setIsLoading(false);
             const user = response.data.user;
+
+            setCredentials({
+                username: '',
+                password: ''
+            });
             setUser(user);
 
             switch (user.role) {
@@ -73,7 +78,7 @@ const Login = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$success500" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge
+                            marginBottom: SIZES.xxLarge + 50
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -99,7 +104,7 @@ const Login = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$error700" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge
+                            marginBottom: SIZES.xxLarge + 50
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -143,7 +148,7 @@ const Login = () => {
                         <Input>
                             <InputField
                                 type="text"
-                                defaultValue=""
+                                defaultValue={credentials.username}
                                 placeholder="..."
                                 onChange={(e) => {
                                     setCredentials((prevState) => ({...prevState, username: e.nativeEvent.text}))
@@ -167,7 +172,7 @@ const Login = () => {
                         <Input>
                             <InputField
                                 type="password"
-                                defaultValue=""
+                                defaultValue={credentials.password}
                                 placeholder="..."
                                 onChange={(e) => {
                                     setCredentials((prevState) => ({...prevState, password: e.nativeEvent.text}))
@@ -186,7 +191,8 @@ const Login = () => {
 
 
                     <Button onPress={handleSubmit} isDisabled={isLoading} style={{
-                        backgroundColor: COLORS.primary
+                        backgroundColor: COLORS.primary,
+                        borderRadius: 100
                     }}>
                         <Text style={{
                             color: COLORS.white,

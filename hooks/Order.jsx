@@ -1,4 +1,4 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, useContext, useMemo, useState} from "react";
 
 const OrderContext = createContext({});
 
@@ -31,7 +31,13 @@ export const OrderProvider = ({children}) => {
         })
     }
 
-    return <OrderContext.Provider value={{order, setOrder, reset}}>
+    const contextValue = useMemo(() => ({ order, setOrder, reset }), [
+        order,
+        setOrder,
+        reset,
+    ]);
+
+    return <OrderContext.Provider value={contextValue}>
         {children}
     </OrderContext.Provider>
 }

@@ -27,6 +27,7 @@ const Layout = () => {
     }, []);
 
 
+    LogBox.ignoreLogs(['new NativeEventEmitter()']);
     LogBox.ignoreAllLogs();
 
     if (!appIsReady) return <CustomSplashScreen/>

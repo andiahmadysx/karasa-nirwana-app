@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SIZES } from "../../constants";
 import { AddIcon, Icon, RemoveIcon } from "@gluestack-ui/themed";
@@ -10,56 +10,61 @@ const ProductList = ({ item }) => {
     const { order, setOrder } = useOrder();
     const index = order.products.findIndex((p) => p.id === item.id);
 
-    const debouncedHandleAddProduct = debounce(handleAddProduct, 300);
-    const debouncedHandleDecreaseProduct = debounce(handleDecreaseProduct, 300);
+    const handleAddProduct = useCallback(() => {
+        setOrder((prevOrder) => {
+            const existingProductIndex = prevOrder.products.findIndex(
+                (p) => p.id === item.id
+            );
 
-    function handleAddProduct() {
-        if (index === -1) {
-            setOrder((prevState) => ({
-                ...prevState,
-                products: [...prevState.products, {
-                    id: item.id,
-                    name: item.name,
-                    qty: 1,
-                    price: item.price,
-                    image_url: item.image_url
-                }],
-            }));
-        } else {
-            setOrder((prevOrder) => {
+            if (existingProductIndex !== -1) {
+                // Product already exists, increase quantity
                 const updatedProducts = [...prevOrder.products];
-                updatedProducts[index].qty += 1;
+                updatedProducts[existingProductIndex].qty += 1;
+
                 return {
                     ...prevOrder,
                     products: updatedProducts,
                 };
-            });
-        }
-    }
+            } else {
+                // Product doesn't exist, add it to the order
+                return {
+                    ...prevOrder,
+                    products: [
+                        ...prevOrder.products,
+                        {
+                            id: item.id,
+                            name: item.name,
+                            qty: 1,
+                            price: item.price,
+                            image_url: item.image_url,
+                        },
+                    ],
+                };
+            }
+        });
+    }, [setOrder, item, order.products]);
 
-    function handleDecreaseProduct() {
-        const qty = order?.products[index]?.qty;
+    const handleDecreaseProduct = useCallback(() => {
+        setOrder((prevOrder) => {
+            const updatedProducts = [...prevOrder.products];
 
-        if (qty > 1) {
-            setOrder((prevOrder) => {
-                const updatedProducts = [...prevOrder.products];
+            if (updatedProducts[index]?.qty > 1) {
+                // Decrease quantity if greater than 1
                 updatedProducts[index].qty -= 1;
-                return {
-                    ...prevOrder,
-                    products: updatedProducts,
-                };
-            });
-        } else {
-            setOrder((prevOrder) => {
-                const updatedProducts = [...prevOrder.products];
+            } else {
+                // Remove the product if quantity is 1
                 updatedProducts.splice(index, 1);
-                return {
-                    ...prevOrder,
-                    products: updatedProducts,
-                };
-            });
-        }
-    }
+            }
+
+            return {
+                ...prevOrder,
+                products: updatedProducts,
+            };
+        });
+    }, [setOrder, index, order.products]);
+
+    const debouncedHandleAddProduct = debounce(handleAddProduct, 50);
+    const debouncedHandleDecreaseProduct = debounce(handleDecreaseProduct, 50);
 
     return (
         <View style={{

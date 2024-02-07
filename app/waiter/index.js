@@ -9,23 +9,30 @@ import NoDataFound from "../../components/common/NoDataFound";
 import {AntDesign} from "@expo/vector-icons";
 import Logout from "../../components/common/Logout";
 import {
-    Button, ButtonText,
-    Center, CloseIcon,
+    Button,
+    ButtonText,
+    Center,
+    CloseIcon,
     Heading,
     Icon,
     Modal,
-    ModalBackdrop, ModalBody,
+    ModalBackdrop,
+    ModalBody,
     ModalCloseButton,
-    ModalContent, ModalFooter,
-    ModalHeader, Toast, ToastTitle, useToast, VStack
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Toast,
+    ToastTitle,
+    useToast,
+    VStack
 } from "@gluestack-ui/themed";
-import {useRouter} from "expo-router";
+import {useNotification} from "../../hooks/Notification";
 
 const WaiterDashboard = () => {
     const [activeCategory, setCategory] = useState('Ready to Serve');
-    const [orderPlaced, setOrderPlaced] = useState(null);
-    const [served, setServed] = useState(null);
-    const [readyToServe, setReadyToServe] = useState(null);
+    const [served, setServed] = useState([]);
+    const [readyToServe, setReadyToServe] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [showModalTable, setShowModalTable] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState({});
@@ -34,10 +41,13 @@ const WaiterDashboard = () => {
     const getReadyToServe = useGet('/transactions/ready-to-serve');
     const updateTransaction = useUpdate('/transactions');
 
+    const {schedulePushNotification} = useNotification();
+
     const toast = useToast();
 
     usePusher('ready-to-serve-transaction-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
-        setReadyToServe((prevState) => ([...prevState, response.data]))
+        setReadyToServe((prevState) => ([...prevState, response.data]));
+        schedulePushNotification('New Order Ready', 'A new order is ready to be served!');
     });
 
     usePusher('served-transaction-channel', 'App\\Events\\SetServedEvent', (response) => {
@@ -46,15 +56,11 @@ const WaiterDashboard = () => {
 
     const fetch = () => {
         useFetch(getReadyToServe, (data) => {
-            if (data.transactions?.length > 0) {
-                setReadyToServe(data.transactions);
-            }
+                setReadyToServe(data?.transactions);
         })
 
         useFetch(getServed, (data) => {
-            if (data.transactions?.length > 0) {
-                setServed(data.transactions);
-            }
+                setServed(data?.transactions);
         })
     }
 
@@ -74,7 +80,7 @@ const WaiterDashboard = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$success500" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge
+                            marginBottom: SIZES.xxLarge + 50
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -112,47 +118,52 @@ const WaiterDashboard = () => {
         </View>
 
         {
-            activeCategory === 'Served' && <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                marginTop: SIZES.small,
-                justifyContent: 'space-between'
-            }}>
-                {served?.length > 0 ? (
-                    served.map((item, index) => (
-                        <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                            <TableCustom item={item} handlePress={() => {
-                                setSelectedTransaction(item);
-                                setShowModalTable(true);
-                            }}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                        </View>
-                    ))
-                ) : (
-                    <NoDataFound/>
-                )}
-            </View>
+            activeCategory === 'Served' && <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: SIZES.small,
+                    justifyContent: 'space-between'
+                }}>
+                    {served?.length > 0 ? (
+                        served.map((item, index) => (
+                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                <TableCustom item={item} handlePress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowModalTable(true);
+                                }}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                            </View>
+                        ))
+                    ) : (
+                        <NoDataFound/>
+                    )}
+                </View>
+            </ScrollView>
         }
 
         {activeCategory === 'Ready to Serve' &&
-            <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                marginTop: SIZES.small,
-                justifyContent: 'space-between'
-            }}>
-                {readyToServe?.length > 0 ? (
-                    readyToServe.map((item, index) => (
-                        <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                            <TableCustom handlePress={() => {
-                                setSelectedTransaction(item);
-                                setShowModalTable(true);
-                            }} item={item}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                        </View>
-                    ))
-                ) : (
-                    <NoDataFound/>
-                )}
-            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: SIZES.small,
+                    justifyContent: 'space-between'
+                }}>
+                    {readyToServe?.length > 0 ? (
+                        readyToServe.map((item, index) => (
+                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                <TableCustom handlePress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowModalTable(true);
+                                }}
+                                             item={item}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                            </View>
+                        ))
+                    ) : (
+                        <NoDataFound/>
+                    )}
+                </View>
+            </ScrollView>
         }
 
         {/* MODAL SELECT TABLE*/}
@@ -166,12 +177,13 @@ const WaiterDashboard = () => {
                 }}
                 size={'md'}
             >
-                <ModalBackdrop />
+                <ModalBackdrop/>
                 <ModalContent>
                     <ModalHeader>
-                        <Heading size="full">{selectedTransaction?.status === 'ready_to_serve' ? "Confirm Serve Order" : 'Confirm Table Clearance'}</Heading>
+                        <Heading
+                            size="full">{selectedTransaction?.status === 'ready_to_serve' ? "Confirm Serve Order" : 'Confirm Table Clearance'}</Heading>
                         <ModalCloseButton>
-                            <Icon as={CloseIcon} />
+                            <Icon as={CloseIcon}/>
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
@@ -182,11 +194,11 @@ const WaiterDashboard = () => {
                         <View style={{
                             marginTop: SIZES.small
                         }}>
-                            {selectedTransaction?.is_takeaway ? <Text> Customer Name :  <Text style={{
+                            {selectedTransaction?.is_takeaway ? <Text> Customer Name : <Text style={{
                                 fontWeight: 'bold'
-                            }}> {selectedTransaction?.customer_name}</Text> </Text>  :  <Text> Table : <Text style={{
+                            }}> {selectedTransaction?.customer_name}</Text> </Text> : <Text> Table : <Text style={{
                                 fontWeight: 'bold'
-                            }}> {selectedTransaction?.table?.name}</Text> </Text> }
+                            }}> {selectedTransaction?.table?.name}</Text> </Text>}
 
                         </View>
 
@@ -198,24 +210,24 @@ const WaiterDashboard = () => {
                             Orders :
                         </Text>
 
-                       <ScrollView style={{
-                           maxHeight: 200
-                       }} showsVerticalScrollIndicator={false}>
-                           {selectedTransaction && selectedTransaction?.items?.map((item) => {
-                               return  <View key={item.id} style={{
-                                   flexDirection: 'row',
-                                   flex: 1,
-                                   justifyContent: 'space-between',
-                                   paddingHorizontal: SIZES.medium,
-                                   paddingBottom: 2
-                               }}>
-                                   <Text>- {item?.product?.name}</Text>
-                                   <Text>x{item?.qty}</Text>
-                               </View>
-                           })}
+                        <ScrollView style={{
+                            maxHeight: 200
+                        }} showsVerticalScrollIndicator={false}>
+                            {selectedTransaction && selectedTransaction?.items?.map((item) => {
+                                return <View key={item.id} style={{
+                                    flexDirection: 'row',
+                                    flex: 1,
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: SIZES.medium,
+                                    paddingBottom: 2
+                                }}>
+                                    <Text>- {item?.product?.name}</Text>
+                                    <Text>x{item?.qty}</Text>
+                                </View>
+                            })}
 
 
-                       </ScrollView>
+                        </ScrollView>
                     </ModalBody>
                     <ModalFooter>
                         <Button
@@ -269,7 +281,7 @@ const WaiterDashboard = () => {
             backgroundColor: COLORS.primary,
             borderRadius: SIZES.small,
             position: 'absolute',
-            right: SIZES.xxLarge,
+            right: SIZES.xLarge + 4,
             bottom: SIZES.xxLarge
         }} onPress={() => {
             setShowModal(true);

@@ -29,6 +29,7 @@ import {
 } from "@gluestack-ui/themed";
 import {useRouter} from "expo-router";
 import {useRoute} from "@react-navigation/native";
+import {useNotification} from "../../hooks/Notification";
 
 const ChefDashboard = () => {
     const [activeCategory, setCategory] = useState('Not Yet Cooked');
@@ -44,18 +45,21 @@ const ChefDashboard = () => {
     const getReadyToServe = useGet('/transactions/ready-to-serve');
     const updateTransaction = useUpdate('/transactions');
 
+    const { schedulePushNotification } = useNotification();
+
     const toast = useToast();
 
     usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
-        setCookingInProgress((prevState) => ([...prevState, response.data]))
+        setCookingInProgress((prevState) => ([...prevState, response.data]));
     });
 
-    usePusher('ready-to-serve-transaction-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
+    usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
         setReadyToServe((prevState) => ([...prevState, response.data]))
     });
 
     usePusher('transaction-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
         setOrderPlaced((prevState) => ([...prevState, response.data]))
+        schedulePushNotification('New Order to Cook', 'A new order has been placed!');
     });
 
 
@@ -87,7 +91,6 @@ const ChefDashboard = () => {
         const response = await updateTransaction(selectedTransaction?.id, value);
         if (response.success) {
             fetch();
-
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -95,7 +98,7 @@ const ChefDashboard = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$success500" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge
+                            marginBottom: SIZES.xxLarge + 50
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -133,67 +136,73 @@ const ChefDashboard = () => {
         </View>
 
         {
-            activeCategory === 'Not Yet Cooked' && <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                marginTop: SIZES.small,
-                justifyContent: 'space-between'
-            }}>
-                {orderPlaced?.length > 0 ? (
-                    orderPlaced.map((item, index) => (
-                        <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                            <TableCustom item={item} handlePress={() => {
-                                setSelectedTransaction(item);
-                                setShowModalTable(true);
-                            }}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                        </View>
-                    ))
-                ) : (
-                    <NoDataFound/>
-                )}
-            </View>
+            activeCategory === 'Not Yet Cooked' && <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: SIZES.small,
+                    justifyContent: 'space-between'
+                }}>
+                    {orderPlaced?.length > 0 ? (
+                        orderPlaced.map((item, index) => (
+                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                <TableCustom item={item} handlePress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowModalTable(true);
+                                }}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                            </View>
+                        ))
+                    ) : (
+                        <NoDataFound/>
+                    )}
+                </View>
+            </ScrollView>
         }
 
         {
-            activeCategory === 'Cooking' && <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                marginTop: SIZES.small,
-                justifyContent: 'space-between'
-            }}>
-                {cookingInProgress?.length > 0 ? (
-                    cookingInProgress.map((item, index) => (
-                        <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                            <TableCustom item={item} handlePress={() => {
-                                setSelectedTransaction(item);
-                                setShowModalTable(true);
-                            }}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                        </View>
-                    ))
-                ) : (
-                    <NoDataFound/>
-                )}
-            </View>
+            activeCategory === 'Cooking' && <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: SIZES.small,
+                    justifyContent: 'space-between'
+                }}>
+                    {cookingInProgress?.length > 0 ? (
+                        cookingInProgress.map((item, index) => (
+                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                <TableCustom item={item} handlePress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowModalTable(true);
+                                }}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                            </View>
+                        ))
+                    ) : (
+                        <NoDataFound/>
+                    )}
+                </View>
+            </ScrollView>
         }
 
         {activeCategory === 'Ready to Serve' &&
-            <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                marginTop: SIZES.small,
-                justifyContent: 'space-between'
-            }}>
-                {readyToServe?.length > 0 ? (
-                    readyToServe.map((item, index) => (
-                        <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                            <TableCustom
-                                item={item}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                        </View>
-                    ))
-                ) : (
-                    <NoDataFound/>
-                )}
-            </View>
+           <ScrollView showsVerticalScrollIndicator={false}>
+               <View style={{
+                   flexDirection: 'row',
+                   flexWrap: 'wrap',
+                   marginTop: SIZES.small,
+                   justifyContent: 'space-between'
+               }}>
+                   {readyToServe?.length > 0 ? (
+                       readyToServe.map((item, index) => (
+                           <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                               <TableCustom
+                                   item={item}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                           </View>
+                       ))
+                   ) : (
+                       <NoDataFound/>
+                   )}
+               </View>
+           </ScrollView>
         }
 
         {/* MODAL SELECT TABLE*/}
@@ -310,9 +319,9 @@ const ChefDashboard = () => {
             paddingHorizontal: SIZES.small,
             paddingVertical: SIZES.small - 1,
             backgroundColor: COLORS.primary,
-            borderRadius: SIZES.small,
+            borderRadius: 100,
             position: 'absolute',
-            right: SIZES.xxLarge,
+            right: SIZES.xLarge + 4,
             bottom: SIZES.xxLarge
         }} onPress={() => {
             setShowModal(true);

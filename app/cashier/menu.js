@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Stack, useRouter} from 'expo-router';
 import {COLORS, icons, SIZES} from '../../constants';
@@ -38,13 +38,15 @@ const Menu = () => {
     });
 
 
-    const filteredProducts = (Array.isArray(products) ? products : [])
-        .filter(
+    const filteredProducts = useMemo(() => {
+        return (Array.isArray(products) ? products : []).filter(
             (product) =>
                 (activeCategory === 'All' || product.category === activeCategory) &&
                 (searchQuery === '' ||
                     product.name.toLowerCase().includes(searchQuery.toLowerCase()))
         );
+    }, [products, activeCategory, searchQuery]);
+
 
     return (
         <SafeAreaView style={mainStyles.container}>
@@ -94,7 +96,7 @@ const Menu = () => {
                             </Text>
                         </TouchableOpacity>
                     )}
-                    keyExtractor={(item) => item}
+                    keyExtractor={(item) => item?.id}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
                 />

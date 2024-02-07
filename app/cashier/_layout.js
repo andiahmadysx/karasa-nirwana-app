@@ -50,9 +50,12 @@ const Layout = () => {
             headerShadowVisible: false
         }}/>
 
-        <Stack.Screen name={'invoice'} options={{
+        <Stack.Screen name={'transactions/[id]'} options={{
             headerBackVisible: false,
             headerTitle: '',
+            headerStyle: {
+                backgroundColor: COLORS.bg,
+            },
             headerShadowVisible: false,
             headerLeft: () => <Link href={'/cashier'} style={{
                 alignItems: 'center',

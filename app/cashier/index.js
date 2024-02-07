@@ -33,6 +33,7 @@ const CashierDashboard = () => {
                     ]}
                     onPress={() => {
                         handleButtonPress(false)
+                        router.navigate('/cashier/transactions/9b47132b-4a38-4cad-b2ff-f346f3f1619a')
                     }}
                 >
                     <Text
@@ -79,7 +80,7 @@ const CashierDashboard = () => {
                     style={{
                         padding: SIZES.medium,
                         backgroundColor: COLORS.primary,
-                        borderRadius: SIZES.small,
+                        borderRadius: 100,
                         flex: 1
                     }}
                 >
@@ -90,7 +91,7 @@ const CashierDashboard = () => {
                     paddingHorizontal: SIZES.small,
                     paddingVertical: SIZES.small - 1,
                     backgroundColor: COLORS.primary,
-                    borderRadius: SIZES.small,
+                    borderRadius: 100,
                 }} onPress={() => {
                     setShowModal(true);
                 }}>
