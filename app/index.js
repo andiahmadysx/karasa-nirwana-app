@@ -5,7 +5,6 @@ import {useAuth} from "../hooks/Auth";
 
 const Page = () => {
     const router = useRouter();
-    const {user} = useAuth();
 
     useFocusEffect(() => {
         async function fetchData() {
@@ -16,6 +15,7 @@ const Page = () => {
         fetchData();
     });
 
+    // tess
     const navigateToNextPage = async (user) => {
         if (!user) {
             await router.push("/login");
