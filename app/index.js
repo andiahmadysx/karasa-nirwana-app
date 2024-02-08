@@ -6,16 +6,8 @@ import {useAuth} from "../hooks/Auth";
 const Page = () => {
     const router = useRouter();
 
-    useFocusEffect(() => {
-        async function fetchData() {
-            const response = await AsyncStorage.getItem('@user');
-            const user = JSON.parse(response);
-            navigateToNextPage(user);
-        }
-        fetchData();
-    });
 
-    // tess
+
     const navigateToNextPage = async (user) => {
         if (!user) {
             await router.push("/login");

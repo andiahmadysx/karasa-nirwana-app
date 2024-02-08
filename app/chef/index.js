@@ -2,7 +2,7 @@ import {FlatList, SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "
 import {mainStyles} from "../../styles";
 import React, {useEffect, useState} from "react";
 import {COLORS, SIZES} from "../../constants";
-import {useFetch, useGet, useUpdate} from "../../hooks/Fetch";
+import useCustomQuery, {useFetch, useGet, useUpdate} from "../../hooks/Fetch";
 import usePusher from "../../hooks/Pusher";
 import TableCustom from "../../components/common/TableCustom";
 import NoDataFound from "../../components/common/NoDataFound";
@@ -33,9 +33,6 @@ import {useNotification} from "../../hooks/Notification";
 
 const ChefDashboard = () => {
     const [activeCategory, setCategory] = useState('Not Yet Cooked');
-    const [orderPlaced, setOrderPlaced] = useState(null);
-    const [cookingInProgress, setCookingInProgress] = useState(null);
-    const [readyToServe, setReadyToServe] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showModalTable, setShowModalTable] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState({});
@@ -44,53 +41,44 @@ const ChefDashboard = () => {
     const getCookingInProgress = useGet('/transactions/cooking-in-progress');
     const getReadyToServe = useGet('/transactions/ready-to-serve');
     const updateTransaction = useUpdate('/transactions');
-
     const { schedulePushNotification } = useNotification();
 
     const toast = useToast();
 
+    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlaced', getOrderPlaced);
+    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgress', getCookingInProgress);
+    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServe', getReadyToServe);
+
+    const orderPlaced = orderPlacedData?.transactions || [];
+    const cookingInProgress = cookingInProgressData?.transactions || [];
+    const readyToServe = readyToServeData?.transactions || [];
+
+
+
     usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
-        setCookingInProgress((prevState) => ([...prevState, response.data]));
+        refetchCookingInProgress();
     });
 
     usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
-        setReadyToServe((prevState) => ([...prevState, response.data]))
+        refetchReadyToServe();
     });
 
     usePusher('transaction-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
-        setOrderPlaced((prevState) => ([...prevState, response.data]))
+        refetchOrderPlaced();
         schedulePushNotification('New Order to Cook', 'A new order has been placed!');
     });
 
 
-    const fetch = () => {
-        useFetch(getOrderPlaced, (data) => {
-            if (data.transactions?.length > 0) {
-                setOrderPlaced(data.transactions);
-            }
-        })
-
-        useFetch(getReadyToServe, (data) => {
-            if (data.transactions?.length > 0) {
-                setReadyToServe(data.transactions);
-            }
-        })
-
-        useFetch(getCookingInProgress, (data) => {
-            if (data.transactions?.length > 0) {
-                setCookingInProgress(data.transactions);
-            }
-        })
-    }
-
-    useEffect(() => {
-        fetch();
-    }, []);
-
     const handleUpdateTransactions = async (value = {status: "cooking_in_progress"}) => {
         const response = await updateTransaction(selectedTransaction?.id, value);
         if (response.success) {
-            fetch();
+
+
+            // fetch all
+            refetchOrderPlaced();
+            refetchReadyToServe();
+            refetchCookingInProgress();
+
             toast.show({
                 placement: "bottom",
                 duration: 3000,

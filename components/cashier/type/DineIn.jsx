@@ -2,47 +2,38 @@ import React, {useEffect, useState} from 'react';
 import {FlatList, ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import {SIZES} from '../../../constants';
 import TableCustom from "../../common/TableCustom";
-import {useFetch, useGet} from "../../../hooks/Fetch";
+import useCustomQuery, {useFetch, useGet} from "../../../hooks/Fetch";
 import NoDataFound from "../../common/NoDataFound";
 import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
 
 const DineIn = () => {
-    const [orderPlaced, setOrderPlaced] = useState(null);
-    const [cookingInProgress, setCookingInProgress] = useState(null);
-    const [readyToServe, setReadyToServe] = useState(null);
     const [activeCategory, setCategory] = useState('Order Placed');
 
-
+    // api fetch
     const getOrderPlaced = useGet('/transactions/order-placed?is_takeaway=0');
     const getCookingInProgress = useGet('/transactions/cooking-in-progress?is_takeaway=0');
     const getReadyToServe = useGet('/transactions/ready-to-serve?is_takeaway=0');
 
+    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlaced', getOrderPlaced);
+    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgress', getCookingInProgress);
+    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServe', getReadyToServe);
+
+    const orderPlaced = orderPlacedData?.transactions || [];
+    const cookingInProgress = cookingInProgressData?.transactions || [];
+    const readyToServe = readyToServeData?.transactions || [];
+
     usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
-        setCookingInProgress((prevState) => ([...prevState, response.data]))
+        refetchCookingInProgress();
     });
 
     usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
-        setReadyToServe((prevState) => ([...prevState, response.data]))
+        refetchReadyToServe();
     });
 
     usePusher('transactions-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
-        setOrderPlaced((prevState) => ([...prevState, response.data]))
+        refetchOrderPlaced();
     });
-
-    useEffect(() => {
-        useFetch(getOrderPlaced, (data) => {
-            setOrderPlaced(data?.transactions);
-        })
-
-        useFetch(getReadyToServe, (data) => {
-            setReadyToServe(data?.transactions);
-        })
-
-        useFetch(getCookingInProgress, (data) => {
-            setCookingInProgress(data?.transactions);
-        })
-    }, []);
 
     return (
         <ScrollView
@@ -85,7 +76,7 @@ const DineIn = () => {
                         {orderPlaced?.length > 0 ? (
                             orderPlaced.map((item, index) => (
                                 <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.table.name}</TableCustom>
+                                    <TableCustom>{item?.table?.name}</TableCustom>
                                 </View>
                             ))
                         ) : (
@@ -107,7 +98,7 @@ const DineIn = () => {
                         {cookingInProgress?.length > 0 ? (
                             cookingInProgress.map((item, index) => (
                                 <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.table.name}</TableCustom>
+                                    <TableCustom>{item?.table?.name}</TableCustom>
                                 </View>
                             ))
                         ) : (
@@ -128,7 +119,7 @@ const DineIn = () => {
                         {readyToServe?.length > 0 ? (
                             readyToServe.map((item, index) => (
                                 <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.table.name}</TableCustom>
+                                    <TableCustom>{item?.table?.name}</TableCustom>
                                 </View>
                             ))
                         ) : (

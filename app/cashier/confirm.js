@@ -1,10 +1,18 @@
-import React, { useRef, useState, useMemo, useCallback } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
+    AlertCircleIcon,
     Button,
     ButtonText,
     Center,
     CloseIcon,
+    FormControl,
+    FormControlError,
+    FormControlErrorIcon,
+    FormControlErrorText,
+    FormControlHelper,
+    FormControlLabel,
+    FormControlLabelText,
     Heading,
     Icon,
     Input,
@@ -17,18 +25,28 @@ import {
     ModalFooter,
     ModalHeader,
     Textarea,
-    TextareaInput, Toast, ToastTitle, useToast, VStack,
+    TextareaInput,
+    Toast,
+    ToastTitle,
+    useToast,
+    VStack,
 } from '@gluestack-ui/themed';
-import { useOrder } from '../../hooks/Order';
+import {useOrder} from '../../hooks/Order';
 import ProductList from '../../components/cashier/ProductList';
-import { useRouter } from 'expo-router';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { usePost } from '../../hooks/Fetch';
-import { COLORS, SIZES } from "../../constants";
-import { mainStyles } from "../../styles";
+import {useRouter} from 'expo-router';
+import {formatCurrency} from '../../utils/formatCurrency';
+import {usePost} from '../../hooks/Fetch';
+import {COLORS, SIZES} from "../../constants";
+import {mainStyles} from "../../styles";
+import {z} from "zod";
+import {Controller, useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+
 
 const Confirm = () => {
-    const { order, setOrder } = useOrder();
+    const {order, setOrder} = useOrder();
+
+
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
     const ref = useRef(null);
@@ -37,12 +55,24 @@ const Confirm = () => {
     const [paymentAmount, setPaymentAmount] = useState(0);
     const toast = useToast();
 
-    const postCreateTransactions = usePost('/transactions');
-
-    // Memoized total price calculation
     const calculateTotalPrice = useMemo(() => {
         return order.products.reduce((total, product) => total + product.price * product.qty, 0);
     }, [order.products]);
+
+
+    const formSchema = z.object({
+        customerName: order?.is_takeaway ? z.string().min(1, 'Customer name is required.') : z.string(),
+    });
+
+    const {control, handleSubmit, formState: {errors, isValid}} = useForm({
+        defaultValues: {
+            customerName: '',
+        },
+        resolver: zodResolver(formSchema),
+        mode: "onChange"
+    });
+
+    const postCreateTransactions = usePost('/transactions');
 
     // Memoized handlePaymentAmountChange
     const handlePaymentAmountChange = useCallback((amount) => {
@@ -101,7 +131,7 @@ const Confirm = () => {
                             <VStack space="xs" style={{
                                 width: '90%'
                             }}>
-                                <ToastTitle color={'white'} >
+                                <ToastTitle color={'white'}>
                                     No enough money paid!
                                 </ToastTitle>
                             </VStack>
@@ -110,7 +140,6 @@ const Confirm = () => {
                 },
             });
 
-            console.log(transactionsResponse);
         }
     }, [setOrder, postCreateTransactions, order]);
 
@@ -118,36 +147,48 @@ const Confirm = () => {
         <FlatList
             numColumns={1}
             horizontal={false}
-            style={{ height: 'fit-content', flexGrow: 0, maxHeight: 350 }}
-            renderItem={({ item }) => <ProductList item={item} />}
+            style={{height: 'fit-content', flexGrow: 0, maxHeight: 350}}
+            renderItem={({item}) => <ProductList item={item}/>}
             data={order?.products}
             keyExtractor={(item) => item.id.toString()}
         />
 
-        <View style={{ justifyContent: 'flex-end', flexDirection: 'row' }}>
-            <Text style={{ fontSize: SIZES.medium, fontWeight: 'light', marginVertical: SIZES.medium, color: COLORS.gray }}>
+        <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
+            <Text
+                style={{fontSize: SIZES.medium, fontWeight: 'light', marginVertical: SIZES.medium, color: COLORS.gray}}>
                 {' '}
                 Total : {formatCurrency(calculateTotalPrice)}
             </Text>
         </View>
 
-        {order.is_takeaway && (<View>
-            <Text style={{fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small}}>Customer
-                Name</Text>
-            <Input>
-                <InputField
-                    type={'text'}
-                    placeholder={'...'}
-                    value={customerName}
-                    onChangeText={(text) => {
-                        setCustomerName(text);
-                        setOrder((prevOrder) => ({
-                            ...prevOrder, customer_name: text,
-                        }));
-                    }}
-                />
-            </Input>
-        </View>)}
+        {order.is_takeaway && (
+            <FormControl size="md" isDisabled={false} isInvalid={!!errors.customerName} isReadOnly={false}
+                         isRequired={true}>
+                <FormControlLabel mb='$1'>
+                    <FormControlLabelText>Customer Name</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                    <Controller
+                        control={control}
+                        name="customerName"
+                        render={({field: {value, onChange, onBlur}}) => (
+                            <InputField
+                                type="text"
+                                placeholder="..."
+                                value={value}
+                                onChange={(e) => {
+                                    onChange(e.nativeEvent.text);
+                                    setCustomerName(e.nativeEvent.text);
+                                }}
+                            />
+                        )}
+                    />
+                </Input>
+                <FormControlError>
+                    <FormControlErrorIcon as={AlertCircleIcon}/>
+                    <FormControlErrorText><Text>{errors?.customerName?.message}</Text></FormControlErrorText>
+                </FormControlError>
+            </FormControl>)}
 
         <View>
             <Text style={{fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small}}>Notes</Text>
@@ -169,7 +210,7 @@ const Confirm = () => {
 
         <View style={styles.buttonContainer}>
             <TouchableOpacity
-                onPress={() => router.push({
+                onPress={() => router.navigate({
                     pathname: '/cashier/menu',
                 })}
                 style={styles.cancelButton}
@@ -177,7 +218,9 @@ const Confirm = () => {
                 <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
 
-            <Button onPress={() => setShowModal(true)} ref={ref} style={styles.nextButton}>
+            <Button isDisabled={order.is_takeaway ? customerName === '' : false} onPress={() => {
+                setShowModal(true);
+            }} ref={ref} style={styles.nextButton}>
                 <ButtonText style={[styles.buttonText, {color: '#fff', fontWeight: 'normal'}]}>Confirm</ButtonText>
             </Button>
         </View>
@@ -196,26 +239,39 @@ const Confirm = () => {
                     <ModalBody>
 
 
-                        <View>
-
-                            <Text style={{
-                                marginVertical: SIZES.small, color: COLORS.darkGray, fontSize: SIZES.medium
-                            }}>
-                                Please enter the payment amount :
-                            </Text>
+                        <FormControl size="md" isDisabled={false} isInvalid={!!errors.customerName} isReadOnly={false}
+                                     isRequired={true}>
+                            <FormControlLabel mb='$1'>
+                                <FormControlLabelText>Payment Amount</FormControlLabelText>
+                            </FormControlLabel>
                             <Input>
-                                <InputField
-                                    type={'text'}
-                                    placeholder={'Rp.'}
-                                    value={paymentAmount}
-                                    onChangeText={handlePaymentAmountChange}
+                                <Controller
+                                    control={control}
+                                    name="paymentAmount"
+                                    render={({field}) => (
+                                        <InputField
+                                            keyboardType={'numeric'}
+                                            type="text"
+                                            placeholder="..."
+                                            value={field.value}
+                                            onChange={(e) => {
+                                                field.onChange(e.nativeEvent.text)
+                                                handlePaymentAmountChange(e.nativeEvent.text);
+                                            }}
+                                        />
+                                    )}
                                 />
                             </Input>
-                        </View>
+                            <FormControlHelper></FormControlHelper>
+                            <FormControlError>
+                                <FormControlErrorIcon as={AlertCircleIcon}/>
+                                <FormControlErrorText>{errors.customerName?.message}</FormControlErrorText>
+                            </FormControlError>
+                        </FormControl>
 
 
                         <Text style={{marginVertical: SIZES.light, color: COLORS.darkGray}}>
-                            Change : {formatCurrency(parseInt(paymentAmount) - calculateTotalPrice)}
+                            Change : {formatCurrency(paymentAmount - calculateTotalPrice)}
                         </Text>
 
                     </ModalBody>
@@ -241,9 +297,13 @@ const Confirm = () => {
                             borderColor={COLORS.primary}
                             borderRadius={100}
                             onPress={() => {
-                                setShowModal(false);
-                                handleCreateTransactions();
+
+                                if (isValid) {
+                                    handleCreateTransactions();
+                                    setShowModal(false);
+                                }
                             }}
+                            isDisabled={paymentAmount < calculateTotalPrice}
                         >
                             <ButtonText>Pay</ButtonText>
                         </Button>

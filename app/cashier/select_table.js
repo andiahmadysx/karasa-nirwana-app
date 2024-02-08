@@ -29,7 +29,7 @@ const SelectTable = () => {
 
      usePusher('table-channel', 'App\\Events\\TableCreated', (response) => {
         setNotUsedTable((prevState) => [...prevState, response.data]);
-         console.log(response)
+
     })
 
     useEffect(() => {

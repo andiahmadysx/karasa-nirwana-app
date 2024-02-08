@@ -12,46 +12,44 @@ import {
     FormControlLabel,
     FormControlLabelText,
     Input,
-    InputField,
-    Toast,
-    ToastDescription,
-    ToastTitle,
-    useToast,
+    InputField, Toast, ToastDescription, ToastTitle, useToast,
     VStack
 } from "@gluestack-ui/themed";
-import {Image, SafeAreaView, Text} from "react-native";
-import {mainStyles} from "../styles";
-import {COLORS, images, SIZES} from "../constants";
+import { SafeAreaView, Text, Image } from "react-native";
+import { mainStyles } from "../styles";
+import { COLORS, images, SIZES } from "../constants";
+import { useRouter } from "expo-router";
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {usePost} from "../hooks/Fetch";
 import {useAuth} from "../hooks/Auth";
-import {useRouter} from "expo-router";
-import Menu from "./cashier/menu";
+
+const formSchema = z.object({
+    username: z.string().min(3, 'Username must be at least 3 characters'),
+    password: z.string().min(3, 'Password must be at least 6 characters'),
+});
 
 const Login = () => {
-    const [isLoading, setIsLoading] = useState(false);
-
-    const loginPost = usePost('/auth/login');
-    const [credentials, setCredentials] = useState({
-        username: '',
-        password: ''
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(formSchema),
     });
-    const {user, setUser, removeUser} = useAuth();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const loginPost = usePost('/auth/login');
+    const {user, setUser} = useAuth();
     const toast = useToast();
+
     const router = useRouter();
 
-    const handleSubmit = async () => {
-
+    const onSubmit = async (data) => {
         setIsLoading(true);
-        const response = await loginPost(credentials);
+        const response = await loginPost(data);
 
         if (response.success) {
             setIsLoading(false);
             const user = response.data.user;
 
-            setCredentials({
-                username: '',
-                password: ''
-            });
             setUser(user);
 
             switch (user.role) {
@@ -78,7 +76,7 @@ const Login = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$success500" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge + 50
+                            marginBottom: SIZES.xxLarge
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -104,7 +102,7 @@ const Login = () => {
                     const toastId = "toast-" + id
                     return (
                         <Toast bg="$error700" nativeID={toastId} p="$6" style={{
-                            marginBottom: SIZES.xxLarge + 50
+                            marginBottom: SIZES.xxLarge
                         }}>
                             <VStack space="xs" style={{
                                 width: '90%'
@@ -121,86 +119,67 @@ const Login = () => {
                 },
             })
         }
-    }
-
+    };
 
     return (
         <SafeAreaView style={mainStyles.container}>
-            <Center style={{
-                flex: .8
-            }}>
+            <Center style={{ flex: .8 }}>
+                <Image source={images.logo} resizeMode={'contain'} style={{ width: 150, height: 150, alignSelf: 'center' }} />
 
-                <Image source={images.logo} resizeMode={'contain'} style={{
-                    width: 150,
-                    height: 150,
-                    alignSelf: 'center'
-                }}/>
-
-
-                <Box h="$32" w="$72" style={{
-                    gap: SIZES.medium
-                }}>
-
-                    <FormControl size="md" isDisabled={false} isInvalid={false} isReadOnly={false} isRequired={false}>
+                <Box h="$32" w="$72" style={{ gap: SIZES.medium }}>
+                    <FormControl size="md" isDisabled={false} isInvalid={!!errors.username} isReadOnly={false} isRequired={true}>
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Username</FormControlLabelText>
                         </FormControlLabel>
                         <Input>
-                            <InputField
-                                type="text"
-                                defaultValue={credentials.username}
-                                placeholder="..."
-                                onChange={(e) => {
-                                    setCredentials((prevState) => ({...prevState, username: e.nativeEvent.text}))
-                                }}
+                            <Controller
+                                control={control}
+                                name="username"
+                                render={({ field }) => (
+                                    <InputField
+                                        type="text"
+                                        placeholder="..."
+                                        value={field.value}
+                                        onChange={(e) => field.onChange(e.nativeEvent.text)}
+                                    />
+                                )}
                             />
                         </Input>
-                        <FormControlHelper>
-                        </FormControlHelper>
+                        <FormControlHelper></FormControlHelper>
                         <FormControlError>
-                            <FormControlErrorIcon
-                                as={AlertCircleIcon}
-                            />
+                            <FormControlErrorIcon as={AlertCircleIcon} />
+                            <FormControlErrorText>{errors.username?.message}</FormControlErrorText>
                         </FormControlError>
                     </FormControl>
 
-
-                    <FormControl size="md" isDisabled={false} isInvalid={false} isReadOnly={false} isRequired={false}>
+                    <FormControl size="md" isDisabled={false} isInvalid={!!errors.password} isReadOnly={false} isRequired={true}>
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Password</FormControlLabelText>
                         </FormControlLabel>
                         <Input>
-                            <InputField
-                                type="password"
-                                defaultValue={credentials.password}
-                                placeholder="..."
-                                onChange={(e) => {
-                                    setCredentials((prevState) => ({...prevState, password: e.nativeEvent.text}))
-                                }}
+                            <Controller
+                                control={control}
+                                name="password"
+                                render={({ field }) => (
+                                    <InputField
+                                        type="password"
+                                        placeholder="..."
+                                        value={field.value}
+                                        onChange={(e) => field.onChange(e.nativeEvent.text)}
+                                    />
+                                )}
                             />
                         </Input>
                         <FormControlError>
-                            <FormControlErrorIcon
-                                as={AlertCircleIcon}
-                            />
-                            <FormControlErrorText>
-                                At least 6 characters are required.
-                            </FormControlErrorText>
+                            <FormControlErrorIcon as={AlertCircleIcon} />
+                            <FormControlErrorText>{errors.password?.message}</FormControlErrorText>
                         </FormControlError>
                     </FormControl>
 
-
-                    <Button onPress={handleSubmit} isDisabled={isLoading} style={{
-                        backgroundColor: COLORS.primary,
-                        borderRadius: 100
-                    }}>
-                        <Text style={{
-                            color: COLORS.white,
-                            fontSize: SIZES.medium
-                        }}>Login</Text>
+                    <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: COLORS.primary, borderRadius: 100 }}>
+                        <Text style={{ color: COLORS.white, fontSize: SIZES.medium }}>Login</Text>
                     </Button>
                 </Box>
-
             </Center>
         </SafeAreaView>
     );

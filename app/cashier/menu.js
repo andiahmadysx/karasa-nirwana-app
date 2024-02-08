@@ -5,7 +5,7 @@ import {COLORS, icons, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
 import CardProduct from '../../components/cashier/CardProduct';
-import {useFetch, useGet} from '../../hooks/Fetch';
+import useCustomQuery, {useFetch, useGet} from '../../hooks/Fetch';
 import {useOrder} from "../../hooks/Order";
 import usePusher from "../../hooks/Pusher";
 
@@ -13,39 +13,34 @@ const Menu = () => {
     const router = useRouter();
     const [activeCategory, setCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-
-    const [categories, setCategories] = useState();
-    const [products, setProducts] = useState({});
-    const getProducts = useGet('/products');
-    const getCategories = useGet('/categories');
     const {order, reset} = useOrder();
+
+    const { data: productsData, error: productsError, isLoading: productsLoading, refetch: refetchProducts } = useCustomQuery('products', useGet('/products'));
+    const { data: categoriesData, error: categoriesError, isLoading: categoriesLoading } = useCustomQuery('categories', useGet('/categories'));
+
+    const products = productsData?.products || [];
+    const categories = categoriesData?.categories || [];
+
+
+    const filteredProducts = useMemo(() => {
+        return products.filter(
+            (product) =>
+                (activeCategory === 'All' || product.category === activeCategory) &&
+                (searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+    }, [products, activeCategory, searchQuery]);
+
+
+    usePusher('product-channel', 'App\\Events\\ProductCreated', (response) => {
+        refetchProducts();
+    });
+
 
     useEffect(() => {
         if (order?.is_takeaway) {
             reset();
         }
-        useFetch(getProducts, (data) => {
-            setProducts(data.products);
-        });
-
-        useFetch(getCategories, (data) => {
-            setCategories(data.categories);
-        })
     }, []);
-
-    usePusher('product-channel', 'App\\Events\\ProductCreated', (response) => {
-       setProducts((prevState) => ([...prevState, response.data]))
-    });
-
-
-    const filteredProducts = useMemo(() => {
-        return (Array.isArray(products) ? products : []).filter(
-            (product) =>
-                (activeCategory === 'All' || product.category === activeCategory) &&
-                (searchQuery === '' ||
-                    product.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
-    }, [products, activeCategory, searchQuery]);
 
 
     return (

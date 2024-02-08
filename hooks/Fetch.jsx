@@ -1,6 +1,7 @@
 import axios from "axios";
 import {useAuth} from "./Auth";
-import {useEffect} from "react";
+import { useQuery } from 'react-query';
+
 
 const Axios = axios.create({
     baseURL: 'http://' + process.env.BACKEND_HOST + '/karasa-nirwana-api/api',
@@ -129,4 +130,27 @@ export const useFetch = async (getDataCallback, callback) => {
         throw error;
     }
 };
+
+
+const useCustomQuery = (queryKey, getDataCallback) => {
+    const fetchData = async () => {
+        try {
+            const result = await getDataCallback();
+
+            if (result.success) {
+                return result.data;
+            } else {
+                throw new Error(result.data);
+            }
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    };
+
+    const { data, error, isLoading, refetch } = useQuery(queryKey, fetchData);
+
+    return { data, error, isLoading, refetch };
+};
+export default useCustomQuery;
 

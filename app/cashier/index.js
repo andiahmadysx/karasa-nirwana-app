@@ -33,7 +33,6 @@ const CashierDashboard = () => {
                     ]}
                     onPress={() => {
                         handleButtonPress(false)
-                        router.navigate('/cashier/transactions/9b47132b-4a38-4cad-b2ff-f346f3f1619a')
                     }}
                 >
                     <Text
