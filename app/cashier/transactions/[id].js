@@ -96,11 +96,11 @@ const Id = () => {
 
                     <Text style={{
                         fontSize: SIZES.large,
-                        fontWeight: 'bold'
+                        fontWeight: 600
                     }}>Total Payment</Text>
                     <Text style={{
                         fontSize: SIZES.large,
-                        fontWeight: 'bold'
+                        fontWeight: 600
                     }}>{formatCurrency(transactionDetails?.total_price)}</Text>
 
                 </View>

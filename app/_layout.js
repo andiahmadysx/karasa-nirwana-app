@@ -32,7 +32,7 @@ const Layout = () => {
     }, []);
 
 
-    LogBox.ignoreLogs(['new NativeEventEmitter()']);
+    LogBox.ignoreLogs(['new NativeEventEmitter']);
     LogBox.ignoreAllLogs();
 
     if (!appIsReady) return <CustomSplashScreen/>
@@ -49,12 +49,16 @@ const Layout = () => {
                             marginLeft: -SIZES.xLarge,
                             marginTop: SIZES.light
                         },
-                    }} drawerContent={CustomDrawerContent}>
+                    }}
+                            contentContainerStyle={{
+                                backgroundColor: 'purple'
+                            }}
+                            drawerContent={CustomDrawerContent}  >
                         <Drawer.Screen
                             name={'cashier'}
                             options={{
-                                drawerLabel: 'Beranda',
-                                title: 'Beranda',
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
                                 headerStyle: {
                                     backgroundColor: COLORS.bg
                                 },
@@ -65,8 +69,8 @@ const Layout = () => {
                         <Drawer.Screen
                             name={'chef'}
                             options={{
-                                drawerLabel: 'Beranda',
-                                title: 'Beranda',
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
                                 headerStyle: {
                                     backgroundColor: COLORS.bg
                                 },
@@ -77,8 +81,21 @@ const Layout = () => {
                         <Drawer.Screen
                             name={'waiter'}
                             options={{
-                                drawerLabel: 'Beranda',
-                                title: 'Beranda',
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                            }}
+                        />
+
+
+                        <Drawer.Screen
+                            name={'admin'}
+                            options={{
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
                                 headerStyle: {
                                     backgroundColor: COLORS.bg
                                 },

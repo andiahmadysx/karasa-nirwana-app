@@ -90,7 +90,7 @@ const ProductList = ({ item }) => {
                         maxWidth: 190,
                         minWidth: 100,
                         fontSize: SIZES.medium,
-                        fontWeight: 'bold'
+                        fontWeight: 600
                     }}>{item?.name}</Text>
 
                     <Text style={{
@@ -121,4 +121,4 @@ const ProductList = ({ item }) => {
     );
 };
 
-export default ProductList;
+export default React.memo(ProductList);

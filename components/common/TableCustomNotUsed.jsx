@@ -30,14 +30,6 @@ const TableCustom = ({
 
         }}
     >
-        <Badge size="md" style={{
-            position: 'absolute',
-            zIndex: 2,
-            right: SIZES.small,
-            top: SIZES.xSmall
-        }} variant="solid" borderRadius="$none" action={isTakeaway ? "warning" : "success"}>
-            <BadgeText>{item?.is_takeaway}</BadgeText>
-        </Badge>
         <Text style={{
             color: isSelected ? 'white' : 'black',
             fontWeight: '600',

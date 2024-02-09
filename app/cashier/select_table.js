@@ -11,7 +11,7 @@ import {
 import { Link, Stack, useRouter } from 'expo-router';
 import { COLORS, icons, SIZES } from '../../constants';
 import { mainStyles, searchStyles } from '../../styles';
-import TableCustom from '../../components/common/TableCustom';
+import TableCustomNotUsed from '../../components/common/TableCustomNotUsed';
 import chunkArray from '../../utils/chunkArray';
 import { Icon, SearchIcon } from "@gluestack-ui/themed";
 import {useFetch, useGet} from "../../hooks/Fetch";
@@ -96,14 +96,14 @@ const SelectTable = () => {
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({item, index}) => (
                         <View style={{flex: 1, margin: 5}}>
-                            <TableCustom
+                            <TableCustomNotUsed
                                 key={index}
                                 handlePress={handleSelectTable}
                                 item={item}
                                 isSelected={item === selectedTable}
                             >
                                 {item.name}
-                            </TableCustom>
+                            </TableCustomNotUsed>
                         </View>
                     )}
                     ListEmptyComponent={<NoDataFound/>}
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     },
     tableCount: {
         fontSize: SIZES.medium,
-        fontWeight: 'bold',
+        fontWeight: 600,
     },
     scrollView: {
         marginTop: SIZES.small,

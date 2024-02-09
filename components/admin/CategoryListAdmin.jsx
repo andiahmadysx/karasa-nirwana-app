@@ -5,67 +5,29 @@ import { AddIcon, Icon, RemoveIcon } from "@gluestack-ui/themed";
 import { useOrder } from "../../hooks/Order";
 import { formatCurrency } from "../../utils/formatCurrency";
 import debounce from 'lodash/debounce';
+import {Ionicons} from "@expo/vector-icons";
 
-const ProductListAdmin = ({ item }) => {
+const CategoryListAdmin = ({ item, handlePress }) => {
     return (
-        <TouchableOpacity style={{
+        <TouchableOpacity onPress={handlePress} style={{
             flexDirection: "row", gap: SIZES.small, justifyContent: "space-between", marginTop: SIZES.small,
-            borderBottomWidth: .5,
+            borderBottomWidth: .4,
             borderColor: COLORS.gray,
-            padding: SIZES.xxSmall
+            paddingVertical: SIZES.medium,
+            paddingHorizontal: SIZES.small,
+            alignItems: 'center'
         }}>
-            <View style={{
-                flexDirection: "row", gap: SIZES.small
-            }}>
-                <Image
-                    source={{uri: item.image_url}}
-                    resizeMode={'cover'}
-                    style={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: SIZES.small,
-                    }}/>
 
-                <View style={{
-                    gap: SIZES.light,
-                    paddingTop: SIZES.light
-                }}>
-                    <Text numberOfLines={1} ellipsizeMode="tail" style={{
-                        fontSize: SIZES.medium,
-                        fontWeight: '600',
-                    }}>{item?.name}</Text>
+            <Text
+            style={{
+                fontWeight: '500',
+                fontSize: SIZES.medium
+            }}
+            >{item.name}</Text>
 
-                    <Text numberOfLines={1} ellipsizeMode="tail" style={{
-                        color: COLORS.darkGray
-                    }}>Price : {formatCurrency(2000)}</Text>
-                </View>
-            </View>
-
-            <View style={{
-                alignItems: "flex-end",
-                justifyContent: 'center',
-                flexDirection: "row",
-                gap: SIZES.medium,
-                paddingVertical: SIZES.xxSmall
-            }}>
-
-                <Text numberOfLines={1} ellipsizeMode="tail" style={{
-                    color: COLORS.darkGray
-                }}>x100</Text>
-                {/*<TouchableOpacity onPress={debouncedHandleDecreaseProduct}>*/}
-                {/*    <Icon as={RemoveIcon} w="$5" h="$5" />*/}
-                {/*</TouchableOpacity>*/}
-
-                {/*<Text style={{*/}
-                {/*    fontSize: SIZES.medium*/}
-                {/*}}>{item?.qty}</Text>*/}
-
-                {/*<TouchableOpacity onPress={debouncedHandleAddProduct}>*/}
-                {/*    <Icon as={AddIcon} w="$5" h="$5" />*/}
-                {/*</TouchableOpacity>*/}
-            </View>
+            <Ionicons name={'pencil-sharp'} size={24} color={'black'}/>
         </TouchableOpacity>
     );
 };
 
-export default ProductListAdmin;
+export default CategoryListAdmin;

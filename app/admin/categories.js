@@ -2,64 +2,78 @@ import React, {useState} from 'react';
 import {FlatList, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {mainStyles, searchStyles} from "../../styles";
 import {COLORS, SIZES} from "../../constants";
-import {Center, Icon, SearchIcon} from "@gluestack-ui/themed";
+import {
+    AlertCircleIcon,
+    Button,
+    ButtonText,
+    Center,
+    CloseIcon,
+    FormControl,
+    FormControlError,
+    FormControlErrorIcon,
+    FormControlErrorText,
+    FormControlHelper,
+    FormControlLabel,
+    FormControlLabelText,
+    Heading,
+    Icon,
+    Input,
+    InputField,
+    Modal,
+    ModalBackdrop,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    SearchIcon
+} from "@gluestack-ui/themed";
 import {Ionicons} from "@expo/vector-icons";
-import ProductListAdmin from "../../components/admin/ProductListAdmin";
+import CategoryListAdmin from "../../components/admin/CategoryListAdmin";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+
+
+const formSchema = z.object({
+    name: z.string().min(1, 'Required'),
+});
+
 
 const ManageCategories = () => {
-    const [products, setProducts] = useState(true);
+    const [categories, setCategories] = useState(true);
+    const [showModal, setShowModal] = useState(true);
+    const [isEdit, setIsEdit] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('All');
+
+    const {control, setValue, handleSubmit, formState: {errors}} = useForm({
+        resolver: zodResolver(formSchema),
+    });
+
+    const onSubmit = (data) => {
+        if (!selectedCategory.trim()) {
+            // Handle the case where the name is empty
+            alert('Category name is required!');
+            return;
+        }
+
+        // Continue with your logic for non-empty category name
+        console.log(data);
+    }
+
+    const handleEdit = (item) => {
+        setSelectedCategory(item.name);
+        setValue('name', item.name)
+        handleSubmit(() => {
+        })()
+        setIsEdit(true);
+        setShowModal(true);
+
+    }
 
 
     return (
         <SafeAreaView style={mainStyles.container}>
-            {/*<View style={styles.buttonContainer}>*/}
-            {/*    <TouchableOpacity*/}
-            {/*        style={[*/}
-            {/*            styles.button,*/}
-            {/*            {*/}
-            {/*                backgroundColor:    isProduct ? COLORS.primary : 'transparent',*/}
-            {/*                borderColor:    isProduct ? 'transparent' : COLORS.primary,*/}
-            {/*                borderTopLeftRadius: 100,*/}
-            {/*                borderBottomLeftRadius: 100,*/}
-            {/*            },*/}
-            {/*        ]}*/}
-            {/*        onPress={() => {*/}
-            {/*           setIsProduct(true)*/}
-            {/*        }}*/}
-            {/*    >*/}
-            {/*        <Text*/}
-            {/*            style={[*/}
-            {/*                styles.buttonText,*/}
-            {/*                {color:     isProduct ? 'white' : COLORS.primary},*/}
-            {/*            ]}*/}
-            {/*        >*/}
-            {/*            Products*/}
-            {/*        </Text>*/}
-            {/*    </TouchableOpacity>*/}
-            {/*    <TouchableOpacity*/}
-            {/*        style={[*/}
-            {/*            styles.button,*/}
-            {/*            {*/}
-            {/*                backgroundColor: !isProduct ? COLORS.primary : 'transparent',*/}
-            {/*                borderColor: !isProduct ? 'transparent' : COLORS.primary,*/}
-            {/*                borderTopRightRadius: 100,*/}
-            {/*                borderBottomRightRadius: 100,*/}
-            {/*            },*/}
-            {/*        ]}*/}
-            {/*        onPress={() => setIsProduct(false)}*/}
-            {/*    >*/}
-            {/*        <Text*/}
-            {/*            style={[*/}
-            {/*                styles.buttonText,*/}
-            {/*                {color: !isProduct ? 'white' : COLORS.primary},*/}
-            {/*            ]}*/}
-            {/*        >*/}
-            {/*            Categories*/}
-            {/*        </Text>*/}
-            {/*    </TouchableOpacity>*/}
-            {/*</View>*/}
-
-
             <View
                 style={[
                     searchStyles.searchContainer,
@@ -76,7 +90,7 @@ const ManageCategories = () => {
                     <Icon as={SearchIcon} color={COLORS.gray}/>
                     <TextInput
                         style={searchStyles.searchInput}
-                        placeholder={'Search products...'}
+                        placeholder={'Search categories...'}
                         // value={searchTerm}
                         // onChangeText={setSearchTerm}
                     />
@@ -84,21 +98,20 @@ const ManageCategories = () => {
             </View>
 
             {
-                products &&
+                categories &&
                 <FlatList
                     numColumns={1}
                     horizontal={false}
+                    showsVerticalScrollIndicator={false}
                     style={{height: 'fit-content', flexGrow: 0}}
-                    renderItem={({item}) => <ProductListAdmin item={item}/>}
+                    renderItem={({item}) => <CategoryListAdmin handlePress={() => handleEdit(item)} item={item}/>}
                     data={[{
                         id: 'aldlfdslafd',
-                        name: 'Pisang Keju',
-                        image_url: 'https://bepharco.com/no-products-found.png'
+                        name: 'All',
                     },
                         {
                             id: 'aldlfdslfdsadafd',
-                            name: 'Pisang Keju',
-                            image_url: 'https://bepharco.com/no-products-found.png'
+                            name: 'Makanan Ringan',
                         }
 
                     ]}
@@ -106,22 +119,19 @@ const ManageCategories = () => {
                 />
             }
 
-            {!products &&
+            {!categories &&
                 <Center style={{
                     flex: .8,
                 }}>
-                    <Image source={{uri: "https://bepharco.com/no-products-found.png"}} width={200} height={300}/>
+                    <Image source={{uri: "https://bepharco.com/no-categories-found.png"}} width={200} height={300}/>
                 </Center>
 
             }
 
 
             {
-                !products &&
+                !categories &&
                 <TouchableOpacity
-                    onPress={() => {
-                        router.navigate(order.is_takeaway ? '/cashier/menu' : '/cashier/select_table');
-                    }}
                     style={{
                         padding: SIZES.medium,
                         backgroundColor: COLORS.primary,
@@ -135,13 +145,13 @@ const ManageCategories = () => {
 
                     }}
                 >
-                    <Text style={mainStyles.footerText}>Add Products</Text>
+                    <Text style={mainStyles.footerText}>Add Category</Text>
                 </TouchableOpacity>
             }
 
 
             {
-                products &&
+                categories &&
                 <TouchableOpacity style={{
                     paddingHorizontal: SIZES.small,
                     paddingVertical: SIZES.small - 1,
@@ -151,11 +161,109 @@ const ManageCategories = () => {
                     right: SIZES.xLarge + 4,
                     bottom: SIZES.xxLarge
                 }} onPress={() => {
+                    setSelectedCategory('')
+                    setIsEdit(false);
                     setShowModal(true);
+                    setValue('name', '')
                 }}>
                     <Ionicons name={'add-outline'} size={SIZES.xxLarge} color={'white'}/>
                 </TouchableOpacity>
             }
+
+
+            <Modal
+                isOpen={showModal}
+                onClose={() => {
+                    setShowModal(false)
+                }}
+                size={'md'}
+            >
+                <ModalBackdrop/>
+                <ModalContent>
+                    <ModalHeader>
+                        <Heading size="lg">{isEdit ? 'Edit Category' : 'Add New Category'}</Heading>
+
+                        <ModalCloseButton>
+                            <Icon as={CloseIcon}/>
+                        </ModalCloseButton>
+                    </ModalHeader>
+                    <ModalBody>
+                        {
+                            isEdit ? <Text style={{
+                                    color: COLORS.darkGray,
+                                    marginBottom: SIZES.medium
+                                }}>
+                                    Modify the details of an existing category to keep your menu organized. </Text> :
+                                <Text style={{
+                                    color: COLORS.darkGray,
+                                    marginBottom: SIZES.medium
+                                }}>
+                                    Create a new category to better organize your menu. </Text>
+                        }
+                        <FormControl size="md" isDisabled={false} isInvalid={!!errors.name} isReadOnly={false}
+                                     isRequired={true}>
+                            <FormControlLabel mb='$1'>
+                                <FormControlLabelText>Category Name</FormControlLabelText>
+                            </FormControlLabel>
+                            <Input>
+                                <Controller
+                                    control={control}
+                                    name="name"
+                                    render={({field}) => (
+                                        <InputField
+                                            type="text"
+                                            placeholder="..."
+                                            value={selectedCategory}
+                                            onChange={(e) => {
+                                                field.onChange(e.nativeEvent.text);
+                                                setSelectedCategory(e.nativeEvent.text);
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </Input>
+                            <FormControlHelper></FormControlHelper>
+                            <FormControlError>
+                                <FormControlErrorIcon as={AlertCircleIcon}/>
+                                <FormControlErrorText>{errors.name?.message}</FormControlErrorText>
+                            </FormControlError>
+                        </FormControl>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            action="secondary"
+                            mr="$3"
+                            onPress={() => {
+                                setShowModal(false)
+                            }}
+                            style={{
+                                borderRadius: 100
+                            }}
+                        >
+                            <ButtonText>Cancel</ButtonText>
+                        </Button>
+                        <Button
+                            size="sm"
+                            action="primary"
+                            borderWidth="$0"
+
+                            style={{
+                                borderRadius: 100
+                            }}
+                            onPress={() => {
+                                handleSubmit(onSubmit)()
+                            }}
+                            bg="$success700"
+                            $hover-bg="$success800"
+                            $active-bg="$success900"
+                        >
+                            <ButtonText>Save</ButtonText>
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </SafeAreaView>
     );
 };

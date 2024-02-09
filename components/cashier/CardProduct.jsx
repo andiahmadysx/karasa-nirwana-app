@@ -128,7 +128,7 @@ const styles = {
     },
     productName: {
         fontSize: SIZES.medium,
-        fontWeight: 'bold',
+        fontWeight: 600,
         paddingLeft: SIZES.xxSmall,
         paddingTop: SIZES.xxSmall,
     },
@@ -159,10 +159,10 @@ const styles = {
         backgroundColor: COLORS.bg,
         paddingHorizontal: SIZES.small,
         paddingVertical: SIZES.light,
-        borderRadius: SIZES.light,
+        borderRadius: SIZES.small,
     },
     qtyIndicatorText: {
-        fontWeight: 'bold',
+        fontWeight: 600,
         fontSize: SIZES.medium,
     },
     decreaseButton: {
@@ -172,14 +172,14 @@ const styles = {
         backgroundColor: COLORS.danger,
         paddingHorizontal: SIZES.small,
         paddingVertical: SIZES.light,
-        borderRadius: SIZES.light,
+        borderRadius: SIZES.small,
     },
     decreaseButtonText: {
         color: COLORS.white,
-        fontWeight: 'bold',
+        fontWeight: 600,
         fontSize: SIZES.medium,
     },
 };
 
-export default CardProduct;
+export default React.memo(CardProduct);
 

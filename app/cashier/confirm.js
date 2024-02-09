@@ -191,7 +191,7 @@ const Confirm = () => {
             </FormControl>)}
 
         <View>
-            <Text style={{fontSize: SIZES.medium, fontWeight: 'bold', marginVertical: SIZES.small}}>Notes</Text>
+            <Text style={{fontSize: SIZES.medium, fontWeight: 600, marginVertical: SIZES.small}}>Notes</Text>
         </View>
 
         <View>

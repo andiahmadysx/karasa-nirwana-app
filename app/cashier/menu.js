@@ -1,26 +1,39 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {Stack, useRouter} from 'expo-router';
-import {COLORS, icons, SIZES} from '../../constants';
-import {mainStyles, searchStyles} from '../../styles';
-import {Icon, SearchIcon} from '@gluestack-ui/themed';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import {
+    FlatList,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { COLORS, icons, SIZES } from '../../constants';
+import { mainStyles, searchStyles } from '../../styles';
+import { Icon, SearchIcon } from '@gluestack-ui/themed';
 import CardProduct from '../../components/cashier/CardProduct';
-import useCustomQuery, {useFetch, useGet} from '../../hooks/Fetch';
-import {useOrder} from "../../hooks/Order";
-import usePusher from "../../hooks/Pusher";
+import useCustomQuery, { useGet } from '../../hooks/Fetch';
+import { useOrder } from '../../hooks/Order';
+import usePusher from '../../hooks/Pusher';
 
 const Menu = () => {
     const router = useRouter();
     const [activeCategory, setCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-    const {order, reset} = useOrder();
+    const { order, reset } = useOrder();
 
-    const { data: productsData, error: productsError, isLoading: productsLoading, refetch: refetchProducts } = useCustomQuery('products', useGet('/products'));
-    const { data: categoriesData, error: categoriesError, isLoading: categoriesLoading } = useCustomQuery('categories', useGet('/categories'));
+    const { data: productsData, isLoading: productsLoading, refetch: refetchProducts } = useCustomQuery(
+        'products',
+        useGet('/products')
+    );
+    const { data: categoriesData, isLoading: categoriesLoading } = useCustomQuery(
+        'categories',
+        useGet('/categories')
+    );
 
     const products = productsData?.products || [];
     const categories = categoriesData?.categories || [];
-
 
     const filteredProducts = useMemo(() => {
         return products.filter(
@@ -30,18 +43,31 @@ const Menu = () => {
         );
     }, [products, activeCategory, searchQuery]);
 
-
     usePusher('product-channel', 'App\\Events\\ProductCreated', (response) => {
         refetchProducts();
     });
 
-
     useEffect(() => {
         if (order?.is_takeaway) {
-            reset();
+            // reset();
         }
+    }, [order, reset]);
+
+    const handleCategoryPress = useCallback((item) => {
+        setCategory(item);
     }, []);
 
+    const handleCancelPress = useCallback((is_takeaway) => {
+        router.navigate({
+            pathname: is_takeaway ? '/cashier' : '/cashier/select_table',
+        });
+    }, [order, router]);
+
+    const handleNextPress = useCallback(() => {
+        router.push({
+            pathname: '/cashier/confirm',
+        });
+    }, [router]);
 
     return (
         <SafeAreaView style={mainStyles.container}>
@@ -49,26 +75,16 @@ const Menu = () => {
                 options={{
                     headerShown: true,
                     title: 'Select Menu',
-                    headerTitleStyle: {fontSize: 18, fontWeight: 'normal'},
+                    headerTitleStyle: { fontSize: 18, fontWeight: 'normal' },
                     headerBackImageSource: icons.chevronLeft,
                     headerTitleAlign: 'center',
                     headerShadowVisible: false,
                 }}
             />
 
-            <View
-                style={[
-                    searchStyles.searchContainer,
-                    {marginBottom: SIZES.xxLarge},
-                ]}
-            >
-                <View
-                    style={[
-                        searchStyles.searchWrapper,
-                        {paddingLeft: SIZES.small},
-                    ]}
-                >
-                    <Icon as={SearchIcon} color={COLORS.gray}/>
+            <View style={[searchStyles.searchContainer, { marginBottom: SIZES.xxLarge }]}>
+                <View style={[searchStyles.searchWrapper, { paddingLeft: SIZES.small }]}>
+                    <Icon as={SearchIcon} color={COLORS.gray} />
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search Menu...'}
@@ -81,14 +97,12 @@ const Menu = () => {
             <View style={mainStyles.tabsContainer}>
                 <FlatList
                     data={categories}
-                    renderItem={({item}) => (
+                    renderItem={({ item }) => (
                         <TouchableOpacity
                             style={mainStyles.tab(activeCategory, item)}
-                            onPress={() => setCategory(item)}
+                            onPress={() => handleCategoryPress(item)}
                         >
-                            <Text style={mainStyles.tabText(activeCategory, item)}>
-                                {item}
-                            </Text>
+                            <Text style={mainStyles.tabText(activeCategory, item)}>{item}</Text>
                         </TouchableOpacity>
                     )}
                     keyExtractor={(item) => item?.id}
@@ -106,34 +120,20 @@ const Menu = () => {
                 style={{
                     marginBottom: 55,
                 }}
-                renderItem={({item}) => {
-                    return <CardProduct item={item}/>;
+                renderItem={({ item }) => {
+                    return <CardProduct item={item} />;
                 }}
                 data={filteredProducts}
                 keyExtractor={(item) => item.id.toString()}
             />
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={() =>
-                        router.navigate({
-                            pathname: order?.is_takeaway ? '/cashier' : '/cashier/select_table',
-                        })
-                    }
-                    style={styles.cancelButton}
-                >
+                <TouchableOpacity onPress={() => handleCancelPress(order?.is_takeaway)} style={styles.cancelButton}>
                     <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() =>
-                        router.push({
-                            pathname: '/cashier/confirm',
-                        })
-                    }
-                    style={styles.nextButton}
-                >
-                    <Text style={[styles.buttonText, {color: '#fff'}]}>Next</Text>
+                <TouchableOpacity onPress={handleNextPress} style={styles.nextButton}>
+                    <Text style={[styles.buttonText, { color: '#fff' }]}>Next</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

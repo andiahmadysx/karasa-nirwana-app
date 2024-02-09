@@ -76,8 +76,8 @@ const Takeaway = () => {
                     }}>
                         {orderPlaced?.length > 0 ? (
                             orderPlaced.map((item, index) => (
-                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.customer_name}</TableCustom>
+                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
                                 </View>
                             ))
                         ) : (
@@ -98,8 +98,8 @@ const Takeaway = () => {
                     }}>
                         {cookingInProgress?.length > 0 ? (
                             cookingInProgress.map((item, index) => (
-                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.customer_name}</TableCustom>
+                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
                                 </View>
                             ))
                         ) : (
@@ -119,8 +119,8 @@ const Takeaway = () => {
                     }}>
                         {readyToServe?.length > 0 ? (
                             readyToServe.map((item, index) => (
-                                <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom>{item.customer_name}</TableCustom>
+                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
                                 </View>
                             ))
                         ) : (

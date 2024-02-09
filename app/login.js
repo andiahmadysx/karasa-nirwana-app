@@ -54,7 +54,7 @@ const Login = () => {
 
             switch (user.role) {
                 case "admin":
-                    router.navigate('/cashier');
+                    router.navigate('/admin');
                     break;
                 case "chef":
                     router.navigate('/chef');

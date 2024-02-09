@@ -6,7 +6,6 @@ import {Text, View} from "react-native";
 import Clock from "../../components/common/Clock";
 
 const Layout = () => {
-
     const router = useRouter();
 
     return <Stack screenOptions={{

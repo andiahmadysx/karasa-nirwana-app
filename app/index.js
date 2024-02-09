@@ -2,11 +2,19 @@ import {useFocusEffect, useRouter} from "expo-router";
 import {Text, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useAuth} from "../hooks/Auth";
+import {useLayoutEffect} from "react";
 
 const Page = () => {
     const router = useRouter();
 
-
+        useFocusEffect(() => {
+            async function fetchData() {
+                const response = await AsyncStorage.getItem('@user');
+                const user = JSON.parse(response);
+                navigateToNextPage(user);
+            }
+            fetchData();
+        });
 
     const navigateToNextPage = async (user) => {
         if (!user) {
@@ -15,8 +23,9 @@ const Page = () => {
             const allowedRoutes = {
                 chef: "/chef",
                 cashier: "/cashier",
-                admin: '/cashier',
-                waiter: '/waiter'
+                admin: '/admin',
+                waiter: '/waiter',
+
             }; // Define allowed routes based on roles
             const route = allowedRoutes[user.role];
 

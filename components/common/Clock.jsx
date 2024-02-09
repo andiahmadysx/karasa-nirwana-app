@@ -18,7 +18,7 @@ export default class Clock extends React.Component {
     render() {
         const options = {
             year: 'numeric',
-            month: 'long',
+            month: 'short',
             day: 'numeric',
         };
 
@@ -57,6 +57,6 @@ const stylesheet = StyleSheet.create({
         justifyContent: 'center',
 
         fontSize: 35,
-        fontWeight: 'bold',
+        fontWeight: 600,
     },
 });

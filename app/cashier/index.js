@@ -6,7 +6,7 @@ import {mainStyles} from '../../styles';
 import Takeaway from '../../components/cashier/type/Takeaway';
 import DineIn from '../../components/cashier/type/DineIn';
 import {useOrder} from "../../hooks/Order";
-import {AntDesign} from "@expo/vector-icons";
+import {Ionicons} from "@expo/vector-icons";
 import Logout from "../../components/common/Logout";
 
 const CashierDashboard = () => {
@@ -87,14 +87,16 @@ const CashierDashboard = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{
-                    paddingHorizontal: SIZES.small,
+                    paddingHorizontal: SIZES.small + 4,
                     paddingVertical: SIZES.small - 1,
                     backgroundColor: COLORS.primary,
                     borderRadius: 100,
                 }} onPress={() => {
                     setShowModal(true);
                 }}>
-                    <AntDesign name={'logout'} size={SIZES.xxLarge} color={'white'}/>
+                    <Ionicons name={'log-out-outline'} style={{
+                        marginRight: -SIZES.light
+                    }} size={SIZES.xxLarge} color={'white'}/>
                 </TouchableOpacity>
             </View>
 

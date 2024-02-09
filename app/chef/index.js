@@ -6,7 +6,7 @@ import useCustomQuery, {useFetch, useGet, useUpdate} from "../../hooks/Fetch";
 import usePusher from "../../hooks/Pusher";
 import TableCustom from "../../components/common/TableCustom";
 import NoDataFound from "../../components/common/NoDataFound";
-import {AntDesign} from "@expo/vector-icons";
+import {Ionicons} from "@expo/vector-icons";
 import Logout from "../../components/common/Logout";
 import {
     Button,
@@ -223,9 +223,9 @@ const ChefDashboard = () => {
                             marginTop: SIZES.small
                         }}>
                             {selectedTransaction?.is_takeaway ? <Text> Customer Name : <Text style={{
-                                fontWeight: 'bold'
+                                fontWeight: 600
                             }}> {selectedTransaction?.customer_name}</Text> </Text> : <Text> Table : <Text style={{
-                                fontWeight: 'bold'
+                                fontWeight: 600
                             }}> {selectedTransaction?.table?.name}</Text> </Text>}
 
                         </View>
@@ -304,7 +304,7 @@ const ChefDashboard = () => {
         <Logout setShowModal={setShowModal} showModal={showModal}/>
 
         <TouchableOpacity style={{
-            paddingHorizontal: SIZES.small,
+            paddingHorizontal: SIZES.small + 4,
             paddingVertical: SIZES.small - 1,
             backgroundColor: COLORS.primary,
             borderRadius: 100,
@@ -314,7 +314,9 @@ const ChefDashboard = () => {
         }} onPress={() => {
             setShowModal(true);
         }}>
-            <AntDesign name={'logout'} size={SIZES.xxLarge} color={'white'}/>
+            <Ionicons name={'log-out-outline'} style={{
+                marginRight: -SIZES.light
+            }} size={SIZES.xxLarge} color={'white'}/>
         </TouchableOpacity>
     </SafeAreaView>
 }
