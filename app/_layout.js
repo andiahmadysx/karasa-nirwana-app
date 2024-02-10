@@ -26,7 +26,7 @@ const Layout = () => {
     useEffect(() => {
         const delay = setTimeout(() => {
             setAppIsReady(true);
-        }, 3000);
+        }, 300);
 
         return () => clearTimeout(delay);
     }, []);
@@ -93,6 +93,19 @@ const Layout = () => {
 
                         <Drawer.Screen
                             name={'admin'}
+                            options={{
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                            }}
+                        />
+
+
+                        <Drawer.Screen
+                            name={'owner'}
                             options={{
                                 drawerLabel: 'Dashboard',
                                 title: 'Dashboard',

@@ -7,8 +7,6 @@ import OwnerDashboard from "./owner";
 
 const Page = () => {
 
-    return <OwnerDashboard/>
-
     const router = useRouter();
 
         useFocusEffect(() => {
@@ -29,7 +27,7 @@ const Page = () => {
                 cashier: "/cashier",
                 admin: '/admin',
                 waiter: '/waiter',
-
+                owner: '/owner'
             }; // Define allowed routes based on roles
             const route = allowedRoutes[user.role];
 

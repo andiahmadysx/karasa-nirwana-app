@@ -64,6 +64,9 @@ const Login = () => {
                 case 'chef':
                     router.navigate('/chef');
                     break;
+                case 'owner':
+                    router.navigate('/owner');
+                    break;
                 case 'waiter':
                     router.navigate('/waiter');
                     break;

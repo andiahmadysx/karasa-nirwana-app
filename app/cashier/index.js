@@ -18,6 +18,8 @@ const CashierDashboard = () => {
         setOrder((prevState) => ({...prevState, is_takeaway: val}));
     };
 
+
+
     return (
         <SafeAreaView style={[mainStyles.container]}>
             <View style={styles.buttonContainer}>

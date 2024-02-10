@@ -108,9 +108,9 @@ export const useGet = (endpoint = '/') => {
         }
     }
 
-    return async () => {
+    return async (config = {}) => {
         try {
-            const response = await Axios.get(endpoint);
+            const response = await Axios.get(endpoint, config);
 
             return {
                 success: true,

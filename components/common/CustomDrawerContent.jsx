@@ -66,6 +66,50 @@ const CustomDrawerContent = (props) => {
                     </TouchableOpacity>
                 </DrawerContentScrollView>
             }
+
+            {user?.role === 'owner' &&
+                <DrawerContentScrollView {...props} contentContainerStyle={{
+                    flex: 1,
+                }}>
+
+                    <Image source={images.logo} resizeMode={'contain'} style={{
+                        width: 150,
+                        height: 150,
+                        alignSelf: 'center'
+                    }}/>
+                    <RenderDrawerItem label={'Dashboard'} iconName={'home-outline'} screenName={'/owner'}
+                                      props={props}/>
+                    <RenderDrawerItem label={'Transaction History'} iconName={'time-outline'}
+                                      screenName={'/owner/transaction_history'}
+                                      props={props}/>
+                    <RenderDrawerItem label={'Log Activity'} iconName={'walk-outline'}
+                                      screenName={'/owner/log_activity'}
+                                      props={props}/>
+                    <TouchableOpacity onPress={() => {
+                        setShowModal(true);
+                    }} style={{
+                        paddingVertical: SIZES.small,
+                        paddingHorizontal: SIZES.large,
+                        position: "absolute",
+                        bottom: SIZES.small,
+                        right: SIZES.small,
+                        alignItems: 'center',
+                        gap: SIZES.small,
+                        borderRadius: SIZES.small,
+                        flex: 1,
+                        flexDirection: "row",
+                        backgroundColor: COLORS.primary
+                    }}>
+                        <Ionicons name={'log-out-outline'} style={{
+                            marginRight: -SIZES.light
+                        }} size={SIZES.xxLarge} color={'white'}/>
+
+                        <Text style={{
+                            color: COLORS.white
+                        }}>Logout</Text>
+                    </TouchableOpacity>
+                </DrawerContentScrollView>
+            }
             <Logout setShowModal={setShowModal} showModal={showModal}/>
 
         </SafeAreaView>
