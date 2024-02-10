@@ -1,66 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import {
-    Text,
-    View,
-    StyleSheet,
-    SafeAreaView,
-    TextInput,
-    ScrollView,
-    TouchableOpacity, FlatList,
-} from 'react-native';
-import { Link, Stack, useRouter } from 'expo-router';
-import { COLORS, icons, SIZES } from '../../constants';
-import { mainStyles, searchStyles } from '../../styles';
+import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {useRouter} from 'expo-router';
+import {COLORS, SIZES} from '../../constants';
+import {mainStyles, searchStyles} from '../../styles';
 import TableCustomNotUsed from '../../components/common/TableCustomNotUsed';
-import chunkArray from '../../utils/chunkArray';
-import { Icon, SearchIcon } from "@gluestack-ui/themed";
-import {useFetch, useGet} from "../../hooks/Fetch";
-import NoDataFound from "../../components/common/NoDataFound";
-import {useOrder} from "../../hooks/Order";
-import usePusher from "../../hooks/Pusher";
+import {Icon, SearchIcon} from '@gluestack-ui/themed';
+import useCustomQuery, {useFetch, useGet} from '../../hooks/Fetch';
+import NoDataFound from '../../components/common/NoDataFound';
+import {useOrder} from '../../hooks/Order';
+import usePusher from '../../hooks/Pusher';
 
 const SelectTable = () => {
     const router = useRouter();
     const [selectedTable, setSelectedTable] = useState(null);
-    const [notUsedTables, setNotUsedTable] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const {setOrder, reset} = useOrder();
     const getNotUsedTables = useGet('/tables/not-used');
 
-     usePusher('table-channel', 'App\\Events\\TableCreated', (response) => {
-        setNotUsedTable((prevState) => [...prevState, response.data]);
 
-    })
+    const {
+        data: notUsedTablesData,
+        refetch: refetchNotUsedTables,
+    } = useCustomQuery('notUsedTables', getNotUsedTables);
 
-    useEffect(() => {
-        reset();
+    const notUsedTables = useMemo(() => notUsedTablesData?.tables || [], [notUsedTablesData]);
 
+    const handleSelectTable = useCallback(
+        (val) => {
+            setSelectedTable(val);
+            setOrder((prevState) => ({...prevState, table_id: val.id}));
+        },
+        [setOrder]
+    );
 
-        useFetch(getNotUsedTables, (data) => {
-            setNotUsedTable(data.tables);
-        })
-    }, []);
+    const filteredTables = useMemo(() => {
+        return notUsedTables?.filter((table) =>
+            table.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [notUsedTables, searchTerm]);
 
-    const handleSelectTable = (val) => {
-        setSelectedTable(val);
-        setOrder((prevState) => ({...prevState, table_id: val.id}))
-    };
-
-    const filteredTables = notUsedTables?.filter(table =>
-        table.name.toLowerCase().includes(searchTerm.toLowerCase())
+    usePusher(
+        'table-channel',
+        'App\\Events\\TableCreated', () => {
+            refetchNotUsedTables();
+        }
     );
 
     return (
         <SafeAreaView style={mainStyles.container}>
-            <Stack.Screen
-                options={{
-                    headerShown: true,
-                    title: 'Select Table',
-                    headerTitleStyle: {fontSize: 18, fontWeight: 'normal'},
-                    headerBackImageSource: icons.chevronLeft,
-                    headerTitleAlign: 'center',
-                }}
-            />
 
             <View
                 style={[
@@ -89,15 +76,13 @@ const SelectTable = () => {
                     Available tables : {notUsedTables?.length}
                 </Text>
 
-
                 <FlatList
                     data={filteredTables}
                     numColumns={2}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({item, index}) => (
-                        <View style={{flex: 1, margin: 5}}>
+                    renderItem={({item}) => {
+                        return <View style={{flex: 1, margin: 5}}>
                             <TableCustomNotUsed
-                                key={index}
                                 handlePress={handleSelectTable}
                                 item={item}
                                 isSelected={item === selectedTable}
@@ -105,11 +90,11 @@ const SelectTable = () => {
                                 {item.name}
                             </TableCustomNotUsed>
                         </View>
-                    )}
+                    }}
                     ListEmptyComponent={<NoDataFound/>}
-                    style={{
+                    contentContainerStyle={{
                         marginTop: SIZES.small,
-                        marginBottom: 120
+                        marginBottom: 120,
                     }}
                 />
             </View>
@@ -160,7 +145,6 @@ const styles = StyleSheet.create({
     },
     tableCount: {
         fontSize: SIZES.medium,
-        fontWeight: 600,
     },
     scrollView: {
         marginTop: SIZES.small,
@@ -176,7 +160,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignSelf: 'center',
         width: '100%',
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -188,7 +172,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.xSmall,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',
@@ -198,7 +182,7 @@ const styles = StyleSheet.create({
     nextButton: {
         backgroundColor: COLORS.primary,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.xSmall,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',

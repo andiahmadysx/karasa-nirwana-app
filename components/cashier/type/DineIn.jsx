@@ -6,6 +6,7 @@ import useCustomQuery, {useFetch, useGet} from "../../../hooks/Fetch";
 import NoDataFound from "../../common/NoDataFound";
 import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
+import {FlashList} from "@shopify/flash-list";
 
 const DineIn = () => {
     const [activeCategory, setCategory] = useState('Order Placed');
@@ -47,7 +48,8 @@ const DineIn = () => {
         >
 
             <View style={mainStyles.tabsContainer}>
-                <FlatList
+                <FlashList
+                    estimatedItemSize={80}
                     data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
                     renderItem={({item}) => (
                         <TouchableOpacity

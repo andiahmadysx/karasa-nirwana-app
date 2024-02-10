@@ -224,7 +224,7 @@ const Id = () => {
                 <TouchableOpacity onPress={handlePrint} style={{
                     padding: SIZES.medium,
                     backgroundColor: COLORS.primary,
-                    borderRadius: 100,
+                    borderRadius: SIZES.small,
                     flex: 1
                 }}>
                     <Text style={mainStyles.footerText}>PRINT</Text>

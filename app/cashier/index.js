@@ -79,7 +79,7 @@ const CashierDashboard = () => {
                     style={{
                         padding: SIZES.medium,
                         backgroundColor: COLORS.primary,
-                        borderRadius: 100,
+                        borderRadius: SIZES.small,
                         flex: 1
                     }}
                 >
@@ -90,7 +90,7 @@ const CashierDashboard = () => {
                     paddingHorizontal: SIZES.small + 4,
                     paddingVertical: SIZES.small - 1,
                     backgroundColor: COLORS.primary,
-                    borderRadius: 100,
+                    borderRadius: SIZES.small,
                 }} onPress={() => {
                     setShowModal(true);
                 }}>

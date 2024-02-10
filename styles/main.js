@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     tab: (activeCategory, item) => ({
         paddingVertical: SIZES.small / 2,
         paddingHorizontal: SIZES.xLarge,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         borderWidth: 1,
         borderColor: activeCategory === item ? COLORS.primary : 'transparent'
 
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignSelf: 'center',
         width: '100%',
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: SIZES.small,

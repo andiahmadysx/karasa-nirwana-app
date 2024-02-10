@@ -1,14 +1,17 @@
-import React, {useState} from 'react';
-import {SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
+import React, {useCallback, useMemo, useState} from 'react';
+import {Pressable, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {mainStyles, searchStyles} from "../../styles";
 import {COLORS, SIZES} from "../../constants";
 import NoDataFound from "../../components/common/NoDataFound";
 import {
-    AlertCircleIcon, Button, ButtonText,
+    AlertCircleIcon,
+    Button,
+    ButtonText,
     CloseIcon,
     FormControl,
     FormControlError,
-    FormControlErrorIcon, FormControlErrorText,
+    FormControlErrorIcon,
+    FormControlErrorText,
     FormControlHelper,
     FormControlLabel,
     FormControlLabelText,
@@ -20,15 +23,23 @@ import {
     ModalBackdrop,
     ModalBody,
     ModalCloseButton,
-    ModalContent, ModalFooter,
+    ModalContent,
+    ModalFooter,
     ModalHeader,
-    SearchIcon
+    SearchIcon,
+    Toast,
+    ToastTitle,
+    useToast,
+    VStack
 } from "@gluestack-ui/themed";
 import {Ionicons} from "@expo/vector-icons";
 import CardTableAdmin from "../../components/admin/CardTableAdmin";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import useCustomQuery, {useDelete, useGet, usePost, useUpdate} from "../../hooks/Fetch";
+import debounce from "lodash/debounce";
+import ModalDelete from "../../components/common/ModalDelete";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required'),
@@ -36,56 +47,106 @@ const formSchema = z.object({
 
 
 const Tables = () => {
-    const [categories, setCategories] = useState(true);
-    const [showModal, setShowModal] = useState(true);
+    const [showModal, setShowModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const [selectedTable, setSelectedTable] = useState('All');
+    const [selectedTable, setSelectedTable] = useState('');
+    const [selectedTableId, setSelectedTableId] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isButtonHovered, setIsButtonHovered] = useState(false); // New state for button hover
 
-    const {control, setValue, handleSubmit, formState: {errors}} = useForm({
+    const {
+        control,
+        setValue,
+        handleSubmit,
+        formState: {errors},
+    } = useForm({
         resolver: zodResolver(formSchema),
     });
 
-    const onSubmit = (data) => {
-        if (!selectedTable.trim()) {
-            // Handle the case where the name is empty
-            alert('Table name is required!');
-            return;
-        }
-    }
+    const {
+        data: tablesData,
+        error: tablesError,
+        isLoading: tablesLoading,
+        refetch: refetchTable,
+    } = useCustomQuery('tables', useGet('/tables'));
 
-    const handleEdit = (item) => {
+    const tables = useMemo(() => tablesData?.tables || [], [tablesData]);
+    const postTable = usePost('/tables');
+    const toast = useToast();
+    const deleteTable = useDelete('/tables/' + selectedTableId);
+    const updateTable = useUpdate('/tables');
+
+    const onSubmit = useCallback(async (data) => {
+        const response = isEdit ? await updateTable(selectedTableId, data) : await postTable(data);
+
+        if (response.success) {
+            refetchTable();
+            const actionText = isEdit ? 'Update' : 'Create';
+            const successMessage = `${actionText} table success!`;
+
+            toast.show({
+                placement: 'bottom',
+                duration: 3000,
+                render: ({id}) => (
+                    <Toast bg="$success500" nativeID={`toast-${id}`} p="$6" style={{marginBottom: SIZES.xxLarge}}>
+                        <VStack space="xs" style={{width: '90%'}}>
+                            <ToastTitle color="$textLight50">{successMessage}</ToastTitle>
+                        </VStack>
+                    </Toast>
+                ),
+            });
+
+            setShowModal(false);
+        } else {
+            alert('Table name already exist!')
+            console.error(`Failed to ${isEdit ? 'update' : 'create'} table. Server response:`, response);
+        }
+    }, [isEdit, selectedTableId, updateTable, postTable, refetchTable, toast]);
+
+    const handleDelete = useCallback(async () => {
+        try {
+            const response = await deleteTable();
+            if (response.success) {
+                refetchTable();
+                toast.show({
+                    placement: 'bottom',
+                    duration: 3000,
+                    render: ({id}) => (
+                        <Toast bg="$success500" nativeID={`toast-${id}`} p="$6" style={{marginBottom: SIZES.xxLarge}}>
+                            <VStack space="xs" style={{width: '90%'}}>
+                                <ToastTitle color="$textLight50">Delete table success!</ToastTitle>
+                            </VStack>
+                        </Toast>
+                    ),
+                });
+
+                setShowModal(false);
+            } else {
+                console.error('Failed to delete table. Server response:', response);
+            }
+        } catch (error) {
+            console.error('Error while deleting table:', error);
+        }
+    }, [deleteTable, selectedTableId, refetchTable, toast]);
+
+    const handleEdit = debounce(useCallback((item) => {
+
         if (item.is_used) {
-            alert(`Can't edit used table!`);
+            alert(`You cannot modify used table!`);
             return;
         }
+
         setSelectedTable(item.name);
-        setValue('name', item.name)
+        setValue('name', item.name);
         handleSubmit(() => {
-        })()
+        })();
         setIsEdit(true);
         setShowModal(true);
+    }, [setSelectedTable, setValue, handleSubmit, setIsEdit, setShowModal]), 100);
 
-    }
+    const filteredTable = useMemo(() => tables.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())), [tables, searchTerm]);
 
-    const tables = [
-        {
-            id: 'fdsasdfds',
-            name: 'Andi Ahmad',
-            is_used: false
-
-        },
-        {
-            id: 'fdsasdfdsafds',
-            name: 'Fahmi Maulana',
-            is_used: true
-        },
-
-        {
-            id: 'ouifdsajn',
-            name: 'Kevin Sanjaya',
-            is_used: false
-        },
-    ]
 
     return (
         <SafeAreaView style={mainStyles.container}>
@@ -133,14 +194,17 @@ const Tables = () => {
                     justifyContent: 'space-between',
                     borderRadius: SIZES.small,
                 }}>
-                    {tables?.length > 0 ? (
-                        tables.map((item, index) => (
+                    {filteredTable?.length > 0 ? (
+                        filteredTable.map((item, index) => (
                             <View key={item.id} style={{
                                 flexBasis: '48.5%',
                                 marginBottom: SIZES.small + 2,
                                 borderRadius: SIZES.small
                             }}>
-                                <CardTableAdmin item={item} handlePress={() => handleEdit(item)}/>
+                                <CardTableAdmin item={item} handlePress={() => {
+                                    handleEdit(item);
+                                    setSelectedTableId(item.id);
+                                }}/>
                             </View>
                         ))
                     ) : (
@@ -156,7 +220,7 @@ const Tables = () => {
                     style={{
                         padding: SIZES.medium,
                         backgroundColor: COLORS.primary,
-                        borderRadius: 100,
+                        borderRadius: SIZES.small,
                         flex: 1,
                         position: "absolute",
                         bottom: 0,
@@ -177,7 +241,7 @@ const Tables = () => {
                     paddingHorizontal: SIZES.small,
                     paddingVertical: SIZES.small - 1,
                     backgroundColor: COLORS.primary,
-                    borderRadius: 100,
+                    borderRadius: SIZES.small,
                     position: 'absolute',
                     right: SIZES.xLarge + 4,
                     bottom: SIZES.xxLarge
@@ -190,7 +254,6 @@ const Tables = () => {
                     <Ionicons name={'add-outline'} size={SIZES.xxLarge} color={'white'}/>
                 </TouchableOpacity>
             }
-
 
 
             <Modal
@@ -215,19 +278,19 @@ const Tables = () => {
                                     color: COLORS.darkGray,
                                     marginBottom: SIZES.medium
                                 }}>
-                                    Modify the details of an existing category to keep your menu organized. </Text> :
+                                    Modify the details of an existing table to keep your restaurant organized. </Text> :
                                 <Text style={{
                                     color: COLORS.darkGray,
                                     marginBottom: SIZES.medium
                                 }}>
-                                    Create a new category to better organize your menu. </Text>
+                                    Create a new table to better organize your restaurant. </Text>
                         }
                         <FormControl size="md" isDisabled={false} isInvalid={!!errors.name} isReadOnly={false}
                                      isRequired={true}>
                             <FormControlLabel mb='$1'>
                                 <FormControlLabelText>Table Name</FormControlLabelText>
                             </FormControlLabel>
-                            <Input>
+                            <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
                                 <Controller
                                     control={control}
                                     name="name"
@@ -250,6 +313,31 @@ const Tables = () => {
                                 <FormControlErrorText>{errors.name?.message}</FormControlErrorText>
                             </FormControlError>
                         </FormControl>
+
+                        {isEdit && (
+                            <Pressable
+                                style={{
+                                    borderRadius: SIZES.small,
+                                    height: SIZES.xxLarge + SIZES.small,
+                                    borderWidth: 1,
+                                    borderColor: COLORS.danger,
+                                    backgroundColor: isButtonHovered ? 'red' : 'transparent',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginTop: SIZES.xSmall
+                                }}
+                                onPress={() => {
+                                    setShowDeleteModal(true)
+                                }}
+                                onPressIn={() => setIsButtonHovered(true)}
+                                onPressOut={() => setIsButtonHovered(false)}
+                            >
+                                <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                                    Delete Table
+                                </Text>
+                            </Pressable>
+                        )}
+
                     </ModalBody>
                     <ModalFooter>
                         <Button
@@ -261,7 +349,7 @@ const Tables = () => {
                                 setShowModal(false)
                             }}
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                         >
                             <ButtonText>Cancel</ButtonText>
@@ -272,7 +360,7 @@ const Tables = () => {
                             borderWidth="$0"
 
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                             onPress={() => {
                                 handleSubmit(onSubmit)()
@@ -286,6 +374,12 @@ const Tables = () => {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            {/* MODAL DELETE CATEGORIES */}
+            <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal} url={'/tables/' + selectedTableId}
+                         route={'/admin/tables'} refetch={refetchTable} callback={() => {
+                setShowModal(false);
+            }}/>
         </SafeAreaView>
     );
 };

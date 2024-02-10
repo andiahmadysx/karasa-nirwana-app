@@ -1,34 +1,28 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import {
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { COLORS, icons, SIZES } from '../../constants';
-import { mainStyles, searchStyles } from '../../styles';
-import { Icon, SearchIcon } from '@gluestack-ui/themed';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {FlatList, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {Stack, useRouter} from 'expo-router';
+import {COLORS, icons, SIZES} from '../../constants';
+import {mainStyles, searchStyles} from '../../styles';
+import {Center, Icon, SearchIcon} from '@gluestack-ui/themed';
 import CardProduct from '../../components/cashier/CardProduct';
-import useCustomQuery, { useGet } from '../../hooks/Fetch';
-import { useOrder } from '../../hooks/Order';
+import useCustomQuery, {useGet} from '../../hooks/Fetch';
+import {useOrder} from '../../hooks/Order';
 import usePusher from '../../hooks/Pusher';
+import {FlashList} from "@shopify/flash-list";
+import ProductListAdmin from "../../components/admin/ProductListAdmin";
 
 const Menu = () => {
     const router = useRouter();
     const [activeCategory, setCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-    const { order, reset } = useOrder();
+    const {order, reset} = useOrder();
 
-    const { data: productsData, isLoading: productsLoading, refetch: refetchProducts } = useCustomQuery(
+    const {data: productsData, isLoading: productsLoading, refetch: refetchProducts} = useCustomQuery(
         'products',
         useGet('/products')
     );
-    const { data: categoriesData, isLoading: categoriesLoading } = useCustomQuery(
-        'categories',
+    const {data: categoriesData, isLoading: categoriesLoading} = useCustomQuery(
+        'categories-array',
         useGet('/categories')
     );
 
@@ -75,16 +69,16 @@ const Menu = () => {
                 options={{
                     headerShown: true,
                     title: 'Select Menu',
-                    headerTitleStyle: { fontSize: 18, fontWeight: 'normal' },
+                    headerTitleStyle: {fontSize: 18, fontWeight: 'normal'},
                     headerBackImageSource: icons.chevronLeft,
                     headerTitleAlign: 'center',
                     headerShadowVisible: false,
                 }}
             />
 
-            <View style={[searchStyles.searchContainer, { marginBottom: SIZES.xxLarge }]}>
-                <View style={[searchStyles.searchWrapper, { paddingLeft: SIZES.small }]}>
-                    <Icon as={SearchIcon} color={COLORS.gray} />
+            <View style={[searchStyles.searchContainer, {marginBottom: SIZES.xxLarge}]}>
+                <View style={[searchStyles.searchWrapper, {paddingLeft: SIZES.small}]}>
+                    <Icon as={SearchIcon} color={COLORS.gray}/>
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search Menu...'}
@@ -96,8 +90,9 @@ const Menu = () => {
 
             <View style={mainStyles.tabsContainer}>
                 <FlatList
+                    estimatedItemSize={80}
                     data={categories}
-                    renderItem={({ item }) => (
+                    renderItem={({item}) => (
                         <TouchableOpacity
                             style={mainStyles.tab(activeCategory, item)}
                             onPress={() => handleCategoryPress(item)}
@@ -113,10 +108,6 @@ const Menu = () => {
 
             <FlatList
                 numColumns={2}
-                columnWrapperStyle={{
-                    justifyContent: 'start',
-                    marginVertical: 8,
-                }}
                 style={{
                     marginBottom: 55,
                 }}
@@ -124,16 +115,16 @@ const Menu = () => {
                     return <CardProduct item={item} />;
                 }}
                 data={filteredProducts}
+                horizontal={false}
                 keyExtractor={(item) => item.id.toString()}
             />
-
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={() => handleCancelPress(order?.is_takeaway)} style={styles.cancelButton}>
                     <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleNextPress} style={styles.nextButton}>
-                    <Text style={[styles.buttonText, { color: '#fff' }]}>Next</Text>
+                    <Text style={[styles.buttonText, {color: '#fff'}]}>Next</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -147,7 +138,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignSelf: 'center',
         width: '100%',
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -159,7 +150,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',
@@ -169,7 +160,7 @@ const styles = StyleSheet.create({
     nextButton: {
         backgroundColor: COLORS.primary,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',

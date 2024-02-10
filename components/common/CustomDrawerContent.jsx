@@ -1,21 +1,27 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Image, SafeAreaView, Text, TouchableOpacity} from "react-native";
 import {DrawerContentScrollView} from "@react-navigation/drawer";
 import {COLORS, images, SIZES} from "../../constants";
 import {Ionicons} from "@expo/vector-icons";
 import {useAuth} from "../../hooks/Auth";
 import {usePathname, useRouter} from "expo-router";
+import Logout from "./Logout";
+import {usePost} from "../../hooks/Fetch";
+import {Toast, ToastTitle, VStack} from "@gluestack-ui/themed";
 
 const CustomDrawerContent = (props) => {
 
     const {user} = useAuth();
+    const [showModal, setShowModal] = useState(false);
 
     return (
         <SafeAreaView style={{flex: 1}}>
+
             {user?.role === 'admin' &&
                 <DrawerContentScrollView {...props} contentContainerStyle={{
                     flex: 1,
                 }}>
+
                     <Image source={images.logo} resizeMode={'contain'} style={{
                         width: 150,
                         height: 150,
@@ -35,7 +41,9 @@ const CustomDrawerContent = (props) => {
                                       screenName={'/admin/tables'}
                                       props={props}/>
 
-                    <TouchableOpacity style={{
+                    <TouchableOpacity onPress={() => {
+                        setShowModal(true);
+                    }} style={{
                         paddingVertical: SIZES.small,
                         paddingHorizontal: SIZES.large,
                         position: "absolute",
@@ -58,6 +66,8 @@ const CustomDrawerContent = (props) => {
                     </TouchableOpacity>
                 </DrawerContentScrollView>
             }
+            <Logout setShowModal={setShowModal} showModal={showModal}/>
+
         </SafeAreaView>
     );
 };

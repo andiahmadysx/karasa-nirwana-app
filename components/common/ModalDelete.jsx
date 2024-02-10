@@ -1,35 +1,45 @@
 import React from 'react';
 import {
-    Button, ButtonText,
-    Center, CloseIcon,
+    Button,
+    ButtonText,
+    Center,
+    CloseIcon,
     Heading,
     Icon,
     Modal,
-    ModalBackdrop, ModalBody,
+    ModalBackdrop,
+    ModalBody,
     ModalCloseButton,
-    ModalContent, ModalFooter,
-    ModalHeader, Toast, ToastTitle, useToast, VStack
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Toast,
+    ToastTitle,
+    useToast,
+    VStack
 } from "@gluestack-ui/themed";
 import {Text} from "react-native";
-import {usePost} from "../../hooks/Fetch";
+import {useDelete} from "../../hooks/Fetch";
 import {useRouter} from "expo-router";
 import {useAuth} from "../../hooks/Auth";
 import {SIZES} from "../../constants";
 
-const Logout = ({setShowModal, showModal}) => {
+const modalDelete = ({setShowModal, showModal, url, route, refetch, callback = () => {}}) => {
     const toast = useToast();
     const {removeUser} = useAuth();
     const router = useRouter();
 
-    const logoutPost = usePost('/auth/logout');
+    const deleteItem = useDelete(url);
 
 
-    const handleLogout = async () => {
-        const response = await logoutPost();
+    const handleDelete = async () => {
+        const response = await deleteItem();
 
         if (response.success) {
-            removeUser();
-            router.navigate('/login');
+            refetch();
+            callback();
+
+            router.navigate(route);
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -43,7 +53,7 @@ const Logout = ({setShowModal, showModal}) => {
                                 width: '90%'
                             }}>
                                 <ToastTitle color="$textLight50">
-                                    Logout success
+                                    Delete item success
                                 </ToastTitle>
                             </VStack>
                         </Toast>
@@ -67,17 +77,17 @@ const Logout = ({setShowModal, showModal}) => {
                 }}
                 size={'md'}
             >
-                <ModalBackdrop />
+                <ModalBackdrop/>
                 <ModalContent>
                     <ModalHeader>
-                        <Heading size="lg">Confirm Logout</Heading>
+                        <Heading size="lg">Confirm Delete</Heading>
                         <ModalCloseButton>
-                            <Icon as={CloseIcon} />
+                            <Icon as={CloseIcon}/>
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
                         <Text size="sm">
-                            Are you sure you want to log out? By confirming, you will be securely logged out of your account.
+                            Are you sure you want to delete this item?
                         </Text>
                     </ModalBody>
                     <ModalFooter>
@@ -105,13 +115,13 @@ const Logout = ({setShowModal, showModal}) => {
                             }}
                             onPress={() => {
                                 setShowModal(false)
-                                handleLogout();
+                                handleDelete();
                             }}
                             bg="$error700"
                             $hover-bg="$error800"
                             $active-bg="$error900"
                         >
-                            <ButtonText>Logout</ButtonText>
+                            <ButtonText>Delete</ButtonText>
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -120,4 +130,4 @@ const Logout = ({setShowModal, showModal}) => {
     );
 };
 
-export default React.memo(Logout);
+export default React.memo(modalDelete);

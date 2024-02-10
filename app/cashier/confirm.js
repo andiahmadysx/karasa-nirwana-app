@@ -41,6 +41,7 @@ import {mainStyles} from "../../styles";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {FlashList} from "@shopify/flash-list";
 
 
 const Confirm = () => {
@@ -145,6 +146,7 @@ const Confirm = () => {
 
     return (<SafeAreaView style={mainStyles.container}>
         <FlatList
+            estimatedItemSize={80}
             numColumns={1}
             horizontal={false}
             style={{height: 'fit-content', flexGrow: 0, maxHeight: 350}}
@@ -167,7 +169,7 @@ const Confirm = () => {
                 <FormControlLabel mb='$1'>
                     <FormControlLabelText>Customer Name</FormControlLabelText>
                 </FormControlLabel>
-                <Input>
+                <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
                     <Controller
                         control={control}
                         name="customerName"
@@ -244,7 +246,7 @@ const Confirm = () => {
                             <FormControlLabel mb='$1'>
                                 <FormControlLabelText>Payment Amount</FormControlLabelText>
                             </FormControlLabel>
-                            <Input>
+                            <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
                                 <Controller
                                     control={control}
                                     name="paymentAmount"
@@ -321,7 +323,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignSelf: 'center',
         width: '100%',
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -332,7 +334,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',
@@ -341,7 +343,7 @@ const styles = StyleSheet.create({
     }, nextButton: {
         backgroundColor: COLORS.primary,
         padding: SIZES.xSmall,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         marginVertical: SIZES.small,
         flex: 1,
         justifyContent: 'center',

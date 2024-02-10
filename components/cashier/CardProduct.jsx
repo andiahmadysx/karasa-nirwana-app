@@ -111,10 +111,10 @@ const CardProduct = ({ item }) => {
 
 const styles = {
     cardContainer: {
-        width: '45%',
+        width: '95%',
+        marginVertical: '3%',
         alignItems: 'start',
         borderRadius: SIZES.xxSmall,
-        marginHorizontal: 8,
         backgroundColor: '#fff',
         shadowColor: 'rgba(0,0,0,0.28)',
         shadowOffset: {

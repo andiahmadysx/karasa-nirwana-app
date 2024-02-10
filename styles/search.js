@@ -6,15 +6,15 @@ const styles = StyleSheet.create({
     searchContainer: {
         justifyContent: "center",
         alignItems: "center",
-        height: 45,
-        marginBottom: SIZES.small
+        height: SIZES.xxLarge + SIZES.medium,
+        marginBottom: SIZES.small,
     },
     searchWrapper: {
         flex: 1,
         backgroundColor: '#f8f8f8',
         flexDirection: "row", // Add this to align items horizontally within searchWrapper
         alignItems: "center",
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         height: "100%",
         borderColor: COLORS.gray,
         borderStyle: "solid",
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: "100%",
         backgroundColor: COLORS.tertiary,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         justifyContent: "center",
         alignItems: "center",
     },
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     paginationButton: {
         width: 30,
         height: 30,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.tertiary
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     paginationTextBox: {
         width: 30,
         height: 30,
-        borderRadius: 100,
+        borderRadius: SIZES.small,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.bg

@@ -1,61 +1,72 @@
-import React from 'react';
-import {SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
-import {mainStyles, searchStyles} from "../../styles";
-import {COLORS, SIZES} from "../../constants";
-import NoDataFound from "../../components/common/NoDataFound";
-import CardUser from "../../components/admin/CardUser";
-import {Icon, SearchIcon} from "@gluestack-ui/themed";
-import {Ionicons} from "@expo/vector-icons";
-import CardTableAdmin from "../../components/admin/CardTableAdmin";
+import React, { useState, useMemo } from 'react';
+import {
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { mainStyles, searchStyles } from '../../styles';
+import { COLORS, SIZES } from '../../constants';
+import NoDataFound from '../../components/common/NoDataFound';
+import CardUser from '../../components/admin/CardUser';
+import { Icon, SearchIcon } from '@gluestack-ui/themed';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import useCustomQuery, { useGet } from '../../hooks/Fetch';
+import debounce from 'lodash/debounce';
 
 const Users = () => {
+    const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const users = [
-        {
-            id: 'fdsasdfds',
-            name: 'Andi Ahmad',
-            role: "admin"
-        },
-        {
-            id: 'fdsasdfdsafds',
-            name: 'Fahmi Maulana',
-            role: "chef"
-        },
+    const { data: usersData } = useCustomQuery(
+        'users-data',
+        useGet('/users')
+    );
 
-        {
-            id: 'ouifdsajn',
-            name: 'Kevin Sanjaya',
-            role: "owner"
-        },
-    ]
+    const users = useMemo(() => usersData?.users || [], [usersData]);
 
+    const handleEdit = debounce((id) => {
+        router.navigate('/admin/detail-users/' + id);
+    }, 100);
+
+    const handleAdd = debounce(() => {
+        router.navigate('/admin/detail-users/create');
+    }, 100);
+
+    const filteredUsers = useMemo(
+        () =>
+            users.filter((user) =>
+                user.name.toLowerCase().includes(searchTerm.toLowerCase())
+            ),
+        [users, searchTerm]
+    );
 
     return (
         <SafeAreaView style={mainStyles.container}>
-
             <View
                 style={[
                     searchStyles.searchContainer,
-                    {marginBottom: SIZES.xxSmall},
-
+                    { marginBottom: SIZES.xxSmall },
                 ]}
             >
                 <View
                     style={[
                         searchStyles.searchWrapper,
-                        {paddingLeft: SIZES.small},
+                        { paddingLeft: SIZES.small },
                     ]}
                 >
-                    <Icon as={SearchIcon} color={COLORS.gray}/>
+                    <Icon as={SearchIcon} color={COLORS.gray} />
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search user...'}
-                        // value={searchTerm}
-                        // onChangeText={setSearchTerm}
+                        value={searchTerm}
+                        onChangeText={setSearchTerm}
                     />
                 </View>
             </View>
-
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -65,75 +76,88 @@ const Users = () => {
                     flex: 1,
                 }}
                 contentContainerStyle={{
-                    // justifyContent: 'center'
+                    justifyContent: 'center',
                 }}
                 horizontal={false}
             >
-                <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between',
-                    borderRadius: SIZES.small,
-                }}>
-                    {users?.length > 0 ? (
-                        users.map((item, index) => (
-                            <View key={item.id} style={{
-                                flexBasis: '48.5%',
-                                marginBottom: SIZES.small + 2,
-                                borderRadius: SIZES.small
-                            }}>
-                                <CardUser item={item}/>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        marginTop: SIZES.small,
+                        justifyContent: 'space-between',
+                        borderRadius: SIZES.small,
+                    }}
+                >
+                    {filteredUsers?.length > 0 ? (
+                        filteredUsers.map((item, index) => (
+                            <View
+                                key={item.id}
+                                style={{
+                                    flexBasis: '48.5%',
+                                    marginBottom: SIZES.small + 2,
+                                    borderRadius: SIZES.small,
+                                }}
+                            >
+                                <CardUser
+                                    handlePress={() => {
+                                        handleEdit(item.id);
+                                    }}
+                                    item={item}
+                                />
                             </View>
                         ))
                     ) : (
-                        <NoDataFound/>
+                        <NoDataFound />
                     )}
                 </View>
             </ScrollView>
 
-
-
-            {
-                !users &&
+            {!filteredUsers && (
                 <TouchableOpacity
                     onPress={() => {
-                        router.navigate(order.is_takeaway ? '/cashier/menu' : '/cashier/select_table');
+                        router.navigate(
+                            order.is_takeaway
+                                ? '/cashier/menu'
+                                : '/cashier/select_table'
+                        );
                     }}
                     style={{
                         padding: SIZES.medium,
                         backgroundColor: COLORS.primary,
-                        borderRadius: 100,
+                        borderRadius: SIZES.small,
                         flex: 1,
-                        position: "absolute",
+                        position: 'absolute',
                         bottom: 0,
                         margin: SIZES.small,
                         width: '100%',
-                        alignSelf: 'center'
-
+                        alignSelf: 'center',
                     }}
                 >
                     <Text style={mainStyles.footerText}>Add User</Text>
                 </TouchableOpacity>
-            }
+            )}
 
-
-            {
-                users &&
-                <TouchableOpacity style={{
-                    paddingHorizontal: SIZES.small,
-                    paddingVertical: SIZES.small - 1,
-                    backgroundColor: COLORS.primary,
-                    borderRadius: 100,
-                    position: 'absolute',
-                    right: SIZES.xLarge + 4,
-                    bottom: SIZES.xxLarge
-                }} onPress={() => {
-                    // setShowModal(true);
-                }}>
-                    <Ionicons name={'add-outline'} size={SIZES.xxLarge} color={'white'}/>
+            {filteredUsers && (
+                <TouchableOpacity
+                    style={{
+                        paddingHorizontal: SIZES.small,
+                        paddingVertical: SIZES.small - 1,
+                        backgroundColor: COLORS.primary,
+                        borderRadius: SIZES.small,
+                        position: 'absolute',
+                        right: SIZES.xLarge + 4,
+                        bottom: SIZES.xxLarge,
+                    }}
+                    onPress={handleAdd}
+                >
+                    <Ionicons
+                        name={'add-outline'}
+                        size={SIZES.xxLarge}
+                        color={'white'}
+                    />
                 </TouchableOpacity>
-            }
+            )}
         </SafeAreaView>
     );
 };

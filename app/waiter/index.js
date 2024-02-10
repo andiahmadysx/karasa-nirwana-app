@@ -28,6 +28,7 @@ import {
     VStack
 } from "@gluestack-ui/themed";
 import {useNotification} from "../../hooks/Notification";
+import {FlashList} from "@shopify/flash-list";
 
 const WaiterDashboard = () => {
     const [activeCategory, setCategory] = useState('Ready to Serve');
@@ -99,7 +100,8 @@ const WaiterDashboard = () => {
 
     return <SafeAreaView style={mainStyles.container}>
         <View style={mainStyles.tabsContainer}>
-            <FlatList
+            <FlashList
+                estimatedItemSize={80}
                 data={['Ready to Serve', 'Served']}
                 renderItem={({item}) => (
                     <TouchableOpacity
@@ -239,7 +241,7 @@ const WaiterDashboard = () => {
                                 setShowModalTable(false)
                             }}
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                         >
                             <ButtonText>Cancel</ButtonText>
@@ -249,7 +251,7 @@ const WaiterDashboard = () => {
                             action="primary"
                             borderWidth="$0"
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                             onPress={() => {
                                 setShowModalTable(false)
@@ -279,7 +281,7 @@ const WaiterDashboard = () => {
             paddingHorizontal: SIZES.small + 4,
             paddingVertical: SIZES.small - 1,
             backgroundColor: COLORS.primary,
-            borderRadius: 100,
+            borderRadius: SIZES.small,
             position: 'absolute',
             right: SIZES.xLarge + 4,
             bottom: SIZES.xxLarge

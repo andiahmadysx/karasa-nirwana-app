@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {FlatList, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import {SIZES} from '../../../constants';
 import TableCustom from "../../common/TableCustom";
-import useCustomQuery, {useFetch, useGet} from "../../../hooks/Fetch";
+import useCustomQuery, {useGet} from "../../../hooks/Fetch";
 import NoDataFound from "../../common/NoDataFound";
 import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
+import {FlashList} from "@shopify/flash-list";
 
 const Takeaway = () => {
     const [activeCategory, setCategory] = useState('Order Placed');
@@ -15,9 +16,24 @@ const Takeaway = () => {
     const getCookingInProgress = useGet('/transactions/cooking-in-progress?is_takeaway=1');
     const getReadyToServe = useGet('/transactions/ready-to-serve?is_takeaway=1');
 
-    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlaced', getOrderPlaced);
-    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgress', getCookingInProgress);
-    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServe', getReadyToServe);
+    const {
+        data: orderPlacedData,
+        error: orderPlacedError,
+        isLoading: orderPlacedLoading,
+        refetch: refetchOrderPlaced
+    } = useCustomQuery('orderPlaced', getOrderPlaced);
+    const {
+        data: cookingInProgressData,
+        error: cookingInProgressError,
+        isLoading: cookingInProgressLoading,
+        refetch: refetchCookingInProgress
+    } = useCustomQuery('cookingInProgress', getCookingInProgress);
+    const {
+        data: readyToServeData,
+        error: readyToServeError,
+        isLoading: readyToServeLoading,
+        refetch: refetchReadyToServe
+    } = useCustomQuery('readyToServe', getReadyToServe);
 
     const orderPlaced = orderPlacedData?.transactions || [];
     const cookingInProgress = cookingInProgressData?.transactions || [];
@@ -47,7 +63,8 @@ const Takeaway = () => {
         >
 
             <View style={mainStyles.tabsContainer}>
-                <FlatList
+                <FlashList
+                    estimatedItemSize={80}
                     data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
                     renderItem={({item}) => (
                         <TouchableOpacity

@@ -1,8 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {Image, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
+import React, {useCallback, useEffect, useState} from 'react';
+import {Image, Pressable, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
 import {mainStyles} from "../../../styles";
 import {
     AlertCircleIcon,
+    Button,
+    ButtonText,
     FormControl,
     FormControlError,
     FormControlErrorIcon,
@@ -11,7 +13,11 @@ import {
     FormControlLabel,
     FormControlLabelText,
     Input,
-    InputField
+    InputField,
+    Toast,
+    ToastTitle,
+    useToast,
+    VStack
 } from "@gluestack-ui/themed";
 import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
@@ -20,50 +26,135 @@ import {COLORS, SIZES} from "../../../constants";
 import {Picker} from "@react-native-picker/picker";
 import {Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import {useLocalSearchParams, useNavigation} from "expo-router";
+import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
+import useCustomQuery, {useDelete, useGet, usePostFormData} from "../../../hooks/Fetch";
+import ModalDelete from "../../../components/common/ModalDelete";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required.'),
     price: z.number().min(1, 'Required.'),
     stock: z.number().min(1, 'Required.'),
+    category_id: z.string(),
 });
 
-
 const Item = Picker.Item;
+
 const Id = (props) => {
+    const {control, setValue, handleSubmit, formState: {errors}} = useForm({
+        resolver: zodResolver(formSchema),
+    });
+
     const navigation = useNavigation();
     const {id} = useLocalSearchParams();
+    const toast = useToast();
+    const router = useRouter();
 
-    React.useEffect(() => {
-        navigation.setOptions({ headerTitle : id === 'create' ? 'Add Product' : 'Edit Product'});
-    }, [navigation]);
+    const [showModal, setShowModal] = useState(false);
+    const [isButtonHovered, setIsButtonHovered] = useState(false); // New state for button hover
 
-    console.log(id);
+    const isCreateMode = id === 'create';
+    const postProduct = usePostFormData('/products');
+    const updateProduct = usePostFormData('/products/' + id);
+    const deleteProduct = useDelete('/products/' + id);
+
+
+    // Fetch detailProductsData only if not in create mode
+    const {data: detailProductsData} = !isCreateMode ? useCustomQuery('detailProducts', useGet('/products/' + id)) : {};
+
+    // Fetch categoriesData
+    const detailProducts = detailProductsData?.product || [];
+
+    const {
+        data: categoriesData,
+    } = useCustomQuery('categories', useGet('/categories-list'));
+
+    const categories = categoriesData?.categories || [];
 
     const [image, setImage] = useState(null);
-    const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
+
+    const pickImage = useCallback(async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
             aspect: [1, 1],
-            quality: .5,
+            quality: 0.5,
         });
 
-        console.log(result);
-
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            setImage(result.assets[0]);
         }
-    };
+    }, []);
 
-    const {control, handleSubmit, formState: {errors}} = useForm({
-        resolver: zodResolver(formSchema),
-    });
+    const {
+        refetch: refetchProducts,
+    } = useCustomQuery('products', useGet('/products'));
 
-    const onSubmit = (data) => {
-        console.log(data)
-    }
+    const setFormValues = useCallback(async () => {
+        if (!isCreateMode) {
+            await setValue('name', detailProducts?.name);
+            await setValue('price', String(detailProducts?.price));
+            await setValue('stock', String(detailProducts?.stock));
+            await setValue('category_id', detailProducts?.category_id);
+        } else {
+            await setValue('category_id', categories[0].id);
+        }
+    }, [isCreateMode, detailProducts, setValue]);
+
+    useEffect(() => {
+        navigation.setOptions({headerTitle: isCreateMode ? 'Add New Product' : 'Edit Product'});
+        setFormValues();
+    }, [isCreateMode, setFormValues]);
+
+    const onSubmit = useCallback(async (data) => {
+            try {
+                if (image) {
+                    const formData = new FormData();
+
+                    if (id !== 'create') {
+                        formData.append('_method', 'PUT');
+                    }
+
+                    formData.append("image", {
+                        uri: image.uri,
+                        name: "image.jpg",
+                        type: "image/jpeg",
+                    });
+
+                    formData.append("name", data.name);
+                    formData.append("price", String(data.price));
+                    formData.append("stock", String(data.stock));
+                    formData.append("category_id", data.category_id);
+
+                    const response = id !== 'create' ? await updateProduct(formData) : await postProduct(formData);
+
+                    if (response.success) {
+                        refetchProducts();
+                        router.navigate('/admin/manage_products');
+
+                        toast.show({
+                            placement: 'bottom',
+                            duration: 3000,
+                            render: ({id}) => (
+                                <Toast bg="$success500" nativeID={`toast-${id}`} p="$6"
+                                       style={{marginBottom: SIZES.xxLarge}}>
+                                    <VStack space="xs" style={{width: '90%'}}>
+                                        <ToastTitle
+                                            color="$textLight50">{isCreateMode ? 'Create product success' : 'Edit product success'}</ToastTitle>
+                                    </VStack>
+                                </Toast>
+                            ),
+                        });
+                    }
+                } else {
+                    alert('Please select an image');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        },
+        [image]
+    );
+
 
     return (
         <SafeAreaView style={[mainStyles.container]}>
@@ -79,37 +170,39 @@ const Id = (props) => {
                     marginBottom: SIZES.xxLarge,
                     borderRadius: SIZES.small
                 }}>
-
                     <View style={{
                         backgroundColor: COLORS.gray2,
                         borderRadius: SIZES.small
                     }}>
-
-
                         {image ?
-                            <Image source={{uri: image}}
-                                   style={{width: 120, height: 120, borderRadius: SIZES.small}}/> :
-
-                            <View style={{
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                textAlign: 'center',
-                                alignSelf: 'center',
-                                width: 120, height: 120, borderRadius: SIZES.small
-                            }}>
-                                <Text style={{
-                                    fontSize: SIZES.large,
-                                    fontWeight: 600,
-                                }}>NP</Text>
-                            </View>
-
+                            <Image source={{uri: image.uri}}
+                                   style={{
+                                       width: 120,
+                                       height: 120,
+                                       borderRadius: SIZES.small
+                                   }}/> : detailProducts?.image_url ? <Image source={{uri: detailProducts?.image_url}}
+                                                                             style={{
+                                                                                 width: 120,
+                                                                                 height: 120,
+                                                                                 borderRadius: SIZES.small
+                                                                             }}/> :
+                                <View style={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    textAlign: 'center',
+                                    alignSelf: 'center',
+                                    width: 120, height: 120, borderRadius: SIZES.small
+                                }}>
+                                    <Text style={{
+                                        fontSize: SIZES.large,
+                                        fontWeight: 600,
+                                    }}>NP</Text>
+                                </View>
                         }
-
-
                         <View style={{
                             backgroundColor: COLORS.white,
                             padding: SIZES.light,
-                            borderRadius: 100,
+                            borderRadius: SIZES.small,
                             position: "absolute",
                             bottom: -SIZES.small,
                             right: -SIZES.small
@@ -125,7 +218,7 @@ const Id = (props) => {
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Product Name</FormControlLabelText>
                         </FormControlLabel>
-                        <Input>
+                        <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                             <Controller
                                 control={control}
                                 name="name"
@@ -146,13 +239,12 @@ const Id = (props) => {
                         </FormControlError>
                     </FormControl>
 
-
                     <FormControl size="md" isDisabled={false} isInvalid={!!errors.price} isReadOnly={false}
                                  isRequired={true}>
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Price</FormControlLabelText>
                         </FormControlLabel>
-                        <Input>
+                        <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                             <Controller
                                 control={control}
                                 name="price"
@@ -173,13 +265,12 @@ const Id = (props) => {
                         </FormControlError>
                     </FormControl>
 
-
                     <FormControl size="md" isDisabled={false} isInvalid={!!errors.stock} isReadOnly={false}
                                  isRequired={true}>
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Stock</FormControlLabelText>
                         </FormControlLabel>
-                        <Input>
+                        <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                             <Controller
                                 control={control}
                                 name="stock"
@@ -200,52 +291,73 @@ const Id = (props) => {
                         </FormControlError>
                     </FormControl>
 
-
-                    <FormControl size="md" isDisabled={false} isInvalid={!!errors.category} isReadOnly={false}
+                    <FormControl size="md" isDisabled={false} isInvalid={!!errors.category_id} isReadOnly={false}
                                  isRequired={false}>
                         <FormControlLabel mb='$1'>
                             <FormControlLabelText>Category</FormControlLabelText>
                         </FormControlLabel>
                         <Controller
                             control={control}
-                            name="category"
+                            name="category_id"
                             render={({field}) => (
-
                                 <View style={
                                     {
-                                        // backgroundColor: 'red'
                                         borderWidth: .5,
                                         borderColor: '#989898',
-                                        borderRadius: SIZES.light
+                                        borderRadius: SIZES.small,
+                                        height: SIZES.xxLarge + SIZES.medium
                                     }
                                 }>
-
                                     <Picker
+                                        style={{
+                                            marginTop: -SIZES.light + 2
+                                        }}
                                         mode={'dialog'}
                                         testID="styled-picker"
-                                        // selectedValue={''}
-                                        // onValueChange={(v) => setValue(v}
+                                        selectedValue={field.value}
+                                        onValueChange={(e) => field.onChange(e)}
                                         accessibilityLabel="Basic Picker Accessibility Label">
-                                        <Item label="hello" value="key0"/>
-                                        <Item label="world" value="key1"/>
+                                        {categories?.map((item) => {
+                                            return <Item label={item.name} value={item.id} key={item.id}/>
+                                        })}
                                     </Picker>
-
-
                                 </View>
-
-
                             )}
                         />
                         <FormControlHelper></FormControlHelper>
                         <FormControlError>
                             <FormControlErrorIcon as={AlertCircleIcon}/>
-                            <FormControlErrorText>{errors.category?.message}</FormControlErrorText>
+                            <FormControlErrorText>{errors.category_id?.message}</FormControlErrorText>
                         </FormControlError>
                     </FormControl>
+
+
                 </View>
-
-
             </View>
+
+            {!isCreateMode && (
+                <Pressable
+                    style={{
+                        borderRadius: SIZES.small,
+                        height: SIZES.xxLarge + SIZES.small,
+                        borderWidth: 1,
+                        borderColor: COLORS.danger,
+                        backgroundColor: isButtonHovered ? 'red' : 'transparent',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: SIZES.small
+                    }}
+                    onPress={() => {
+                        setShowModal(true)
+                    }}
+                    onPressIn={() => setIsButtonHovered(true)}
+                    onPressOut={() => setIsButtonHovered(false)}
+                >
+                    <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                        Delete Product
+                    </Text>
+                </Pressable>
+            )}
 
             <TouchableOpacity onPress={() => {
                 handleSubmit(onSubmit)()
@@ -253,13 +365,12 @@ const Id = (props) => {
                 backgroundColor: COLORS.primary,
                 padding: SIZES.medium,
                 justifyContent: 'center',
-                borderRadius: 100,
+                borderRadius: SIZES.small,
                 position: 'absolute',
                 bottom: SIZES.medium,
                 width: '100%',
                 flex: 1,
                 alignSelf: 'center'
-
             }}>
                 <Text style={{
                     width: '100%',
@@ -269,6 +380,11 @@ const Id = (props) => {
                     fontWeight: 600,
                 }}>Save</Text>
             </TouchableOpacity>
+
+
+            {/*    MODAL DELETE CONFIRMATION */}
+            <ModalDelete setShowModal={setShowModal} showModal={showModal} url={'/products/' + id}
+                         route={'/admin/manage_products'} refetch={refetchProducts}/>
         </SafeAreaView>
     );
 };

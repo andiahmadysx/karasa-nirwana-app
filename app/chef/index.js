@@ -30,6 +30,8 @@ import {
 import {useRouter} from "expo-router";
 import {useRoute} from "@react-navigation/native";
 import {useNotification} from "../../hooks/Notification";
+import {useAuth} from "../../hooks/Auth";
+import {FlashList} from "@shopify/flash-list";
 
 const ChefDashboard = () => {
     const [activeCategory, setCategory] = useState('Not Yet Cooked');
@@ -71,8 +73,8 @@ const ChefDashboard = () => {
 
     const handleUpdateTransactions = async (value = {status: "cooking_in_progress"}) => {
         const response = await updateTransaction(selectedTransaction?.id, value);
-        if (response.success) {
 
+        if (response.success) {
 
             // fetch all
             refetchOrderPlaced();
@@ -105,7 +107,8 @@ const ChefDashboard = () => {
 
     return <SafeAreaView style={[mainStyles.container, {}]}>
         <View style={mainStyles.tabsContainer}>
-            <FlatList
+            <FlashList
+                estimatedItemSize={80}
                 data={['Not Yet Cooked', 'Cooking', 'Ready to Serve']}
                 renderItem={({item}) => (
                     <TouchableOpacity
@@ -267,7 +270,7 @@ const ChefDashboard = () => {
                                 setShowModalTable(false)
                             }}
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                         >
                             <ButtonText>Cancel</ButtonText>
@@ -277,7 +280,7 @@ const ChefDashboard = () => {
                             action="primary"
                             borderWidth="$0"
                             style={{
-                                borderRadius: 100
+                                borderRadius: SIZES.small
                             }}
                             onPress={() => {
                                 setShowModalTable(false)
@@ -307,7 +310,7 @@ const ChefDashboard = () => {
             paddingHorizontal: SIZES.small + 4,
             paddingVertical: SIZES.small - 1,
             backgroundColor: COLORS.primary,
-            borderRadius: 100,
+            borderRadius: SIZES.small,
             position: 'absolute',
             right: SIZES.xLarge + 4,
             bottom: SIZES.xxLarge

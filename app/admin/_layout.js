@@ -1,7 +1,7 @@
 import React from 'react';
-import {Stack, useLocalSearchParams, useRouter} from "expo-router";
+import {Stack, useRouter} from "expo-router";
 import {COLORS, icons, SIZES} from "../../constants";
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import Clock from "../../components/common/Clock";
 import {DrawerToggleButton} from "@react-navigation/drawer";
 
@@ -118,16 +118,16 @@ const Layout = () => {
             headerShadowVisible: false
         }}/>
 
-        {/*<Stack.Screen name={'manageUsers/[userId]'} options={{*/}
-        {/*    headerTitle: 'Add Product',*/}
-        {/*    headerTitleStyle: {*/}
-        {/*        fontSize: SIZES.medium*/}
-        {/*    },*/}
-        {/*    headerStyle: {*/}
-        {/*        backgroundColor: COLORS.bg,*/}
-        {/*    },*/}
-        {/*    headerShadowVisible: false*/}
-        {/*}}/>*/}
+        <Stack.Screen name={'detail-users/[userId]'} options={{
+            headerTitle: 'Add Users',
+            headerTitleStyle: {
+                fontSize: SIZES.medium
+            },
+            headerStyle: {
+                backgroundColor: COLORS.bg,
+            },
+            headerShadowVisible: false
+        }}/>
     </Stack>;
 };
 

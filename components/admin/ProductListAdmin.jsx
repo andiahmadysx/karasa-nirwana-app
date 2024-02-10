@@ -32,12 +32,12 @@ const ProductListAdmin = ({ item , handlePress}) => {
                 }}>
                     <Text numberOfLines={1} ellipsizeMode="tail" style={{
                         fontSize: SIZES.medium,
-                        fontWeight: '600',
+                        fontWeight: 600,
                     }}>{item?.name}</Text>
 
                     <Text numberOfLines={1} ellipsizeMode="tail" style={{
                         color: COLORS.darkGray
-                    }}>Price : {formatCurrency(2000)}</Text>
+                    }}>Price : {formatCurrency(item.price)}</Text>
                 </View>
             </View>
 
@@ -48,24 +48,12 @@ const ProductListAdmin = ({ item , handlePress}) => {
                 gap: SIZES.medium,
                 paddingVertical: SIZES.xxSmall
             }}>
-
                 <Text numberOfLines={1} ellipsizeMode="tail" style={{
                     color: COLORS.darkGray
-                }}>x100</Text>
-                {/*<TouchableOpacity onPress={debouncedHandleDecreaseProduct}>*/}
-                {/*    <Icon as={RemoveIcon} w="$5" h="$5" />*/}
-                {/*</TouchableOpacity>*/}
-
-                {/*<Text style={{*/}
-                {/*    fontSize: SIZES.medium*/}
-                {/*}}>{item?.qty}</Text>*/}
-
-                {/*<TouchableOpacity onPress={debouncedHandleAddProduct}>*/}
-                {/*    <Icon as={AddIcon} w="$5" h="$5" />*/}
-                {/*</TouchableOpacity>*/}
+                }}>x{item.stock}</Text>
             </View>
         </TouchableOpacity>
     );
 };
 
-export default ProductListAdmin;
+export default React.memo(ProductListAdmin);

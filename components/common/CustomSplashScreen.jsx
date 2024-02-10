@@ -18,4 +18,4 @@ const CustomSplashScreen = () => {
     );
 };
 
-export default CustomSplashScreen;
+export default React.memo(CustomSplashScreen);

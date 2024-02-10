@@ -32,9 +32,9 @@ const TableCustom = ({
     >
         <Text style={{
             color: isSelected ? 'white' : 'black',
-            fontWeight: '600',
+            fontWeight: 600,
         }}>{children}</Text>
     </TouchableOpacity>
 );
 
-export default TableCustom;
+export default React.memo(TableCustom);

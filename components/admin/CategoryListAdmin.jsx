@@ -20,7 +20,7 @@ const CategoryListAdmin = ({ item, handlePress }) => {
 
             <Text
             style={{
-                fontWeight: '500',
+                fontWeight: 500,
                 fontSize: SIZES.medium
             }}
             >{item.name}</Text>

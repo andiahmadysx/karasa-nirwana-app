@@ -1,6 +1,6 @@
 import axios from "axios";
 import {useAuth} from "./Auth";
-import { useQuery } from 'react-query';
+import {useQuery} from 'react-query';
 
 
 const Axios = axios.create({
@@ -13,7 +13,8 @@ export const usePost = (endpoint = '/') => {
     if (user) {
         Axios.defaults.headers.common = {
             Authorization: `Bearer ${user.token}`,
-            Accept: 'application/json'
+            "content-type": "application/json",
+            Accept: "application/json"
         }
     }
 
@@ -33,12 +34,49 @@ export const usePost = (endpoint = '/') => {
     }
 }
 
+
+export const usePostFormData = (endpoint = '/') => {
+    const {user} = useAuth();
+
+    let headers = {
+        "Content-Type": "multipart/form-data; charset=utf-8;"
+    };
+
+    if (user) {
+        headers = {
+            ...headers,
+            Authorization: `Bearer ${user.token}`,
+            Accept: 'application/json'
+        };
+    }
+
+    const config = {
+        headers,
+    };
+
+    return async (value = {}) => {
+        try {
+            const response = await Axios.post(endpoint, value, config);
+            return {
+                success: true,
+                data: response.data
+            }
+        } catch (e) {
+            return {
+                success: false,
+                data: e.response.data
+            }
+        }
+    }
+}
 export const useUpdate = (endpoint = '/') => {
     const {user} = useAuth();
 
     if (user) {
         Axios.defaults.headers.common = {
-            Authorization: `Bearer ${user.token}`
+            Authorization: `Bearer ${user.token}`,
+            "content-type": "application/json",
+            Accept: "application/json"
         }
     }
 
@@ -59,7 +97,7 @@ export const useUpdate = (endpoint = '/') => {
 }
 
 
-export const useGet = (endpoint = '/')=> {
+export const useGet = (endpoint = '/') => {
     const {user} = useAuth();
 
     if (user) {
@@ -70,7 +108,7 @@ export const useGet = (endpoint = '/')=> {
         }
     }
 
-    return async ()  => {
+    return async () => {
         try {
             const response = await Axios.get(endpoint);
 
@@ -88,7 +126,7 @@ export const useGet = (endpoint = '/')=> {
 }
 
 
-export const useDelete = (endpoint = '/')=> {
+export const useDelete = (endpoint = '/') => {
     const {user} = useAuth();
 
     if (user) {
@@ -148,9 +186,9 @@ const useCustomQuery = (queryKey, getDataCallback) => {
         }
     };
 
-    const { data, error, isLoading, refetch } = useQuery(queryKey, fetchData);
+    const {data, error, isLoading, refetch} = useQuery(queryKey, fetchData);
 
-    return { data, error, isLoading, refetch };
+    return {data, error, isLoading, refetch};
 };
 export default useCustomQuery;
 

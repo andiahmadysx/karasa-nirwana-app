@@ -4,9 +4,9 @@ import {COLORS, SIZES} from '../../constants';
 import {formatCurrency} from '../../utils/formatCurrency';
 import {Badge, BadgeIcon, BadgeText} from "@gluestack-ui/themed";
 
-const CardUser = ({item}) => {
+const CardUser = ({item, handlePress}) => {
     return (
-        <TouchableOpacity style={styles.cardContainer}>
+        <TouchableOpacity onPress={handlePress} style={styles.cardContainer}>
             <Badge size="md" style={{
                 position: 'absolute',
                 zIndex: 2,
@@ -21,7 +21,7 @@ const CardUser = ({item}) => {
                backgroundColor: 'rgba(227,227,227,0.13)',
                textAlign: 'center',
                paddingVertical: SIZES.xxLarge,
-               fontWeight: '800',
+               fontWeight: 800,
                fontSize: SIZES.xxLarge
            }}>{item.name[0] + item.name[1]}</Text>
 
@@ -47,7 +47,7 @@ const styles = {
     },
     userName: {
         fontSize: SIZES.medium,
-        fontWeight: '500',
+        fontWeight: 500,
         textAlign: 'center',
         width: '100%',
         paddingTop: SIZES.small,

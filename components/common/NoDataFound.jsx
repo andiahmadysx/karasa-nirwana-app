@@ -22,4 +22,4 @@ const NoDataFound = () => {
     );
 };
 
-export default NoDataFound;
+export default React.memo(NoDataFound);

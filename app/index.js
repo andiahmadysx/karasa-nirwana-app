@@ -3,8 +3,12 @@ import {Text, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useAuth} from "../hooks/Auth";
 import {useLayoutEffect} from "react";
+import OwnerDashboard from "./owner";
 
 const Page = () => {
+
+    return <OwnerDashboard/>
+
     const router = useRouter();
 
         useFocusEffect(() => {

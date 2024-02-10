@@ -42,10 +42,11 @@ const CardTableAdmin = ({
 
             <Text style={{
                 color: isSelected ? 'white' : 'black',
-                fontWeight: '600',
+                fontWeight: 600,
             }}>{item.name}</Text>
         </TouchableOpacity>
     );
 
 }
-export default CardTableAdmin;
+export default React.memo(CardTableAdmin);
+
