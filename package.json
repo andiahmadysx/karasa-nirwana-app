@@ -49,7 +49,9 @@
     "react-native-svg": "14.1.0",
     "react-query": "^3.39.3",
     "xdate": "^0.8.2",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "expo-print": "~12.8.1",
+    "expo-sharing": "~11.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

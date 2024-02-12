@@ -10,6 +10,8 @@ import {config} from "@gluestack-ui/config";
 import {OrderProvider} from "../hooks/Order";
 import {GluestackUIProvider} from "@gluestack-ui/themed";
 import {QueryClient, QueryClientProvider} from "react-query";
+import {Stack, useFocusEffect} from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const queryClient = new QueryClient();
@@ -21,9 +23,37 @@ const Layout = () => {
         PoppinsMedium: require('../assets/fonts/Poppins Medium 500.ttf'),
         PoppinsBold: require('../assets/fonts/Poppins Bold 700.ttf'),
     })
+    const [isDrawer, setIsDrawer] = useState(false);
+
     const [appIsReady, setAppIsReady] = useState(false);
 
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const user = JSON.parse(response);
+            if (user.role === 'admin' || user.role === 'owner') {
+                setIsDrawer(true);
+            } else {
+                setIsDrawer(false);
+            }
+        }
+
+        fetchData();
+    })
+
     useEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const user = JSON.parse(response);
+            if (user.role === 'admin' || user.role === 'owner') {
+                setIsDrawer(true);
+            } else {
+                setIsDrawer(false);
+            }
+        }
+
+        fetchData();
+
         const delay = setTimeout(() => {
             setAppIsReady(true);
         }, 300);
@@ -32,7 +62,7 @@ const Layout = () => {
     }, []);
 
 
-    LogBox.ignoreLogs(['new NativeEventEmitter']);
+    LogBox.ignoreLogs(['new NativeEventEmitter', 'Layout children']);
     LogBox.ignoreAllLogs();
 
     if (!appIsReady) return <CustomSplashScreen/>
@@ -41,7 +71,8 @@ const Layout = () => {
         <QueryClientProvider client={queryClient}>
             <OrderProvider>
                 <GluestackUIProvider config={config}>
-                    <Drawer screenOptions={{
+
+                    {isDrawer ? <Drawer screenOptions={{
                         headerShown: false,
                         drawerActiveBackgroundColor: COLORS.primary,
                         drawerActiveTintColor: COLORS.white,
@@ -50,45 +81,10 @@ const Layout = () => {
                             marginTop: SIZES.light
                         },
                     }}
-                            contentContainerStyle={{
-                                backgroundColor: 'purple'
-                            }}
-                            drawerContent={CustomDrawerContent}  >
-                        <Drawer.Screen
-                            name={'cashier'}
-                            options={{
-                                drawerLabel: 'Dashboard',
-                                title: 'Dashboard',
-                                headerStyle: {
-                                    backgroundColor: COLORS.bg
-                                },
-                                headerShadowVisible: false,
-                            }}
-                        />
-
-                        <Drawer.Screen
-                            name={'chef'}
-                            options={{
-                                drawerLabel: 'Dashboard',
-                                title: 'Dashboard',
-                                headerStyle: {
-                                    backgroundColor: COLORS.bg
-                                },
-                                headerShadowVisible: false,
-                            }}
-                        />
-
-                        <Drawer.Screen
-                            name={'waiter'}
-                            options={{
-                                drawerLabel: 'Dashboard',
-                                title: 'Dashboard',
-                                headerStyle: {
-                                    backgroundColor: COLORS.bg
-                                },
-                                headerShadowVisible: false,
-                            }}
-                        />
+                                        contentContainerStyle={{
+                                            backgroundColor: 'purple'
+                                        }}
+                                        drawerContent={CustomDrawerContent}>
 
 
                         <Drawer.Screen
@@ -115,7 +111,59 @@ const Layout = () => {
                                 headerShadowVisible: false,
                             }}
                         />
-                    </Drawer>
+                    </Drawer> : <Stack>
+                        <Stack.Screen
+                            name={'cashier'}
+                            options={{
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                                headerShown: false
+                            }}
+                        />
+
+                        <Stack.Screen
+                            name={'chef'}
+                            options={{
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                                headerShown: false
+                            }}
+                        />
+
+                        <Stack.Screen
+                            name={'waiter'}
+                            options={{
+                                drawerLabel: 'Dashboard',
+                                title: 'Dashboard',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                                headerShown: false
+                            }}
+                        />
+                        <Stack.Screen
+                            name={'login'}
+                            options={{
+                                drawerLabel: 'Login',
+                                title: 'Login',
+                                headerStyle: {
+                                    backgroundColor: COLORS.bg
+                                },
+                                headerShadowVisible: false,
+                                headerShown: false
+                            }}
+                        />
+                    </Stack>}
+
                 </GluestackUIProvider>
             </OrderProvider>
         </QueryClientProvider>

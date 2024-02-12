@@ -1,15 +1,13 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {FlatList, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Stack, useRouter} from 'expo-router';
 import {COLORS, icons, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
-import {Center, Icon, SearchIcon} from '@gluestack-ui/themed';
-import CardProduct from '../../components/cashier/CardProduct';
+import {Icon, SearchIcon} from '@gluestack-ui/themed';
 import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import {useOrder} from '../../hooks/Order';
 import usePusher from '../../hooks/Pusher';
-import {FlashList} from "@shopify/flash-list";
-import ProductListAdmin from "../../components/admin/ProductListAdmin";
+import CardProductMenu from "../../components/cashier/CardProductMenu";
 
 const Menu = () => {
     const router = useRouter();
@@ -90,7 +88,6 @@ const Menu = () => {
 
             <View style={mainStyles.tabsContainer}>
                 <FlatList
-                    estimatedItemSize={80}
                     data={categories}
                     renderItem={({item}) => (
                         <TouchableOpacity
@@ -110,9 +107,14 @@ const Menu = () => {
                 numColumns={2}
                 style={{
                     marginBottom: 55,
+                    gap: 20
                 }}
-                renderItem={({ item }) => {
-                    return <CardProduct item={item} />;
+                contentContainerStyle={{
+                    justifyContent: 'space-between',
+                    paddingHorizontal: SIZES.xSmall
+                }}
+                renderItem={({item}) => {
+                    return <CardProductMenu item={item}/>;
                 }}
                 data={filteredProducts}
                 horizontal={false}
@@ -129,6 +131,7 @@ const Menu = () => {
             </View>
         </SafeAreaView>
     );
+
 };
 
 const styles = StyleSheet.create({

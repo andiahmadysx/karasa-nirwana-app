@@ -290,7 +290,7 @@ const Tables = () => {
                             <FormControlLabel mb='$1'>
                                 <FormControlLabelText>Table Name</FormControlLabelText>
                             </FormControlLabel>
-                            <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
+                            <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                                 <Controller
                                     control={control}
                                     name="name"
@@ -332,7 +332,11 @@ const Tables = () => {
                                 onPressIn={() => setIsButtonHovered(true)}
                                 onPressOut={() => setIsButtonHovered(false)}
                             >
-                                <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                                <Text style={{
+                                    color: isButtonHovered ? COLORS.white : COLORS.danger,
+                                    fontSize: SIZES.medium,
+                                    fontWeight: 400
+                                }}>
                                     Delete Table
                                 </Text>
                             </Pressable>
@@ -376,7 +380,8 @@ const Tables = () => {
             </Modal>
 
             {/* MODAL DELETE CATEGORIES */}
-            <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal} url={'/tables/' + selectedTableId}
+            <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal}
+                         url={'/tables/' + selectedTableId}
                          route={'/admin/tables'} refetch={refetchTable} callback={() => {
                 setShowModal(false);
             }}/>

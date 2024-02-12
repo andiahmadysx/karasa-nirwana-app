@@ -139,7 +139,7 @@ const ManageProducts = () => {
                     }}
                     onPress={handleAdd}
                 >
-                    <Ionicons name={'add-outline'} size={SIZES.xxLarge} color={'white'} />
+                    <Ionicons name={'add-outline'} size={SIZES.xxLarge} color={'white'}/>
                 </TouchableOpacity>
             )}
         </SafeAreaView>

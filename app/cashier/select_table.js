@@ -1,11 +1,11 @@
-import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {useRouter} from 'expo-router';
 import {COLORS, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
 import TableCustomNotUsed from '../../components/common/TableCustomNotUsed';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
-import useCustomQuery, {useFetch, useGet} from '../../hooks/Fetch';
+import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import NoDataFound from '../../components/common/NoDataFound';
 import {useOrder} from '../../hooks/Order';
 import usePusher from '../../hooks/Pusher';

@@ -16,9 +16,9 @@ const DineIn = () => {
     const getCookingInProgress = useGet('/transactions/cooking-in-progress?is_takeaway=0');
     const getReadyToServe = useGet('/transactions/ready-to-serve?is_takeaway=0');
 
-    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlaced', getOrderPlaced);
-    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgress', getCookingInProgress);
-    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServe', getReadyToServe);
+    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlacedDineIn', getOrderPlaced);
+    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgressDineIn', getCookingInProgress);
+    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServeDineIn', getReadyToServe);
 
     const orderPlaced = orderPlacedData?.transactions || [];
     const cookingInProgress = cookingInProgressData?.transactions || [];

@@ -23,7 +23,7 @@ import {
 import {Image, SafeAreaView, Text} from 'react-native';
 import {mainStyles} from '../styles';
 import {COLORS, images, SIZES} from '../constants';
-import {useRouter} from 'expo-router';
+import {useFocusEffect, useRouter} from 'expo-router';
 import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
@@ -31,12 +31,12 @@ import {usePost} from '../hooks/Fetch';
 import {useAuth} from '../hooks/Auth';
 
 const formSchema = z.object({
-    username: z.string().min(3, 'Username must be at least 3 characters'),
+    username: z.string().min(1, 'Username is required'),
     password: z.string().min(3, 'Password must be at least 6 characters'),
 });
 
 const Login = () => {
-    const {control, handleSubmit, formState: {errors}} = useForm({
+    const {control, setValue, handleSubmit, formState: {errors}} = useForm({
         resolver: zodResolver(formSchema),
     });
 
@@ -56,6 +56,9 @@ const Login = () => {
             const user = response.data.user;
 
             setUser(user);
+
+            setValue('username', '');
+            setValue('password', '');
 
             switch (user.role) {
                 case 'admin':

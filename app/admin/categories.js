@@ -1,15 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {
-    FlatList,
-    Image,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import {Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {mainStyles, searchStyles,} from '../../styles';
 import {COLORS, SIZES,} from '../../constants';
 import {
@@ -316,7 +306,11 @@ const ManageCategories = () => {
                                 onPressIn={() => setIsButtonHovered(true)}
                                 onPressOut={() => setIsButtonHovered(false)}
                             >
-                                <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                                <Text style={{
+                                    color: isButtonHovered ? COLORS.white : COLORS.danger,
+                                    fontSize: SIZES.medium,
+                                    fontWeight: 400
+                                }}>
                                     Delete Category
                                 </Text>
                             </Pressable>
@@ -359,9 +353,10 @@ const ManageCategories = () => {
 
 
             {/* MODAL DELETE CATEGORIES */}
-            <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal} url={'/categories/' + selectedCategoryId}
+            <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal}
+                         url={'/categories/' + selectedCategoryId}
                          route={'/admin/categories'} refetch={refetchCategories} callback={() => {
-                         setShowModal(false);
+                setShowModal(false);
             }}/>
         </SafeAreaView>
     );

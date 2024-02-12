@@ -1,8 +1,8 @@
-import {FlatList, SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {mainStyles} from "../../styles";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {COLORS, SIZES} from "../../constants";
-import useCustomQuery, {useFetch, useGet, useUpdate} from "../../hooks/Fetch";
+import useCustomQuery, {useGet, useUpdate} from "../../hooks/Fetch";
 import usePusher from "../../hooks/Pusher";
 import TableCustom from "../../components/common/TableCustom";
 import NoDataFound from "../../components/common/NoDataFound";
@@ -27,11 +27,11 @@ import {
     useToast,
     VStack
 } from "@gluestack-ui/themed";
-import {useRouter} from "expo-router";
-import {useRoute} from "@react-navigation/native";
+import {router, useFocusEffect} from "expo-router";
 import {useNotification} from "../../hooks/Notification";
-import {useAuth} from "../../hooks/Auth";
 import {FlashList} from "@shopify/flash-list";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useAuth} from "../../hooks/Auth";
 
 const ChefDashboard = () => {
     const [activeCategory, setCategory] = useState('Not Yet Cooked');
@@ -43,18 +43,33 @@ const ChefDashboard = () => {
     const getCookingInProgress = useGet('/transactions/cooking-in-progress');
     const getReadyToServe = useGet('/transactions/ready-to-serve');
     const updateTransaction = useUpdate('/transactions');
-    const { schedulePushNotification } = useNotification();
+    const {user} = useAuth();
+    const {schedulePushNotification} = useNotification();
 
     const toast = useToast();
 
-    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlaced', getOrderPlaced);
-    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgress', getCookingInProgress);
-    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServe', getReadyToServe);
+    const {
+        data: orderPlacedData,
+        error: orderPlacedError,
+        isLoading: orderPlacedLoading,
+        refetch: refetchOrderPlaced
+    } = useCustomQuery('orderPlacedAll', getOrderPlaced);
+    const {
+        data: cookingInProgressData,
+        error: cookingInProgressError,
+        isLoading: cookingInProgressLoading,
+        refetch: refetchCookingInProgress
+    } = useCustomQuery('cookingInProgressAll', getCookingInProgress);
+    const {
+        data: readyToServeData,
+        error: readyToServeError,
+        isLoading: readyToServeLoading,
+        refetch: refetchReadyToServe
+    } = useCustomQuery('readyToServeAll', getReadyToServe);
 
     const orderPlaced = orderPlacedData?.transactions || [];
     const cookingInProgress = cookingInProgressData?.transactions || [];
     const readyToServe = readyToServeData?.transactions || [];
-
 
 
     usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
@@ -69,6 +84,25 @@ const ChefDashboard = () => {
         refetchOrderPlaced();
         schedulePushNotification('New Order to Cook', 'A new order has been placed!');
     });
+
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const userOnStorage = JSON.parse(response);
+            if (userOnStorage?.role !== 'cashier') {
+                router.navigate('/' + userOnStorage?.role);
+            }
+        }
+
+        if (!user) {
+            fetchData();
+        } else {
+            if (user.role !== 'cashier') {
+                router.navigate('/' + user.role);
+            }
+        }
+    })
+
 
 
     const handleUpdateTransactions = async (value = {status: "cooking_in_progress"}) => {
@@ -136,7 +170,7 @@ const ChefDashboard = () => {
                 }}>
                     {orderPlaced?.length > 0 ? (
                         orderPlaced.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
                                 <TableCustom item={item} handlePress={() => {
                                     setSelectedTransaction(item);
                                     setShowModalTable(true);
@@ -160,7 +194,7 @@ const ChefDashboard = () => {
                 }}>
                     {cookingInProgress?.length > 0 ? (
                         cookingInProgress.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
                                 <TableCustom item={item} handlePress={() => {
                                     setSelectedTransaction(item);
                                     setShowModalTable(true);
@@ -175,25 +209,25 @@ const ChefDashboard = () => {
         }
 
         {activeCategory === 'Ready to Serve' &&
-           <ScrollView showsVerticalScrollIndicator={false}>
-               <View style={{
-                   flexDirection: 'row',
-                   flexWrap: 'wrap',
-                   marginTop: SIZES.small,
-                   justifyContent: 'space-between'
-               }}>
-                   {readyToServe?.length > 0 ? (
-                       readyToServe.map((item, index) => (
-                           <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
-                               <TableCustom
-                                   item={item}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                           </View>
-                       ))
-                   ) : (
-                       <NoDataFound/>
-                   )}
-               </View>
-           </ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: SIZES.small,
+                    justifyContent: 'space-between'
+                }}>
+                    {readyToServe?.length > 0 ? (
+                        readyToServe.map((item, index) => (
+                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
+                                <TableCustom
+                                    item={item}>{item.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                            </View>
+                        ))
+                    ) : (
+                        <NoDataFound/>
+                    )}
+                </View>
+            </ScrollView>
         }
 
         {/* MODAL SELECT TABLE*/}
@@ -231,6 +265,14 @@ const ChefDashboard = () => {
                                 fontWeight: 600
                             }}> {selectedTransaction?.table?.name}</Text> </Text>}
 
+                        </View>
+
+                        <View style={{
+                            marginTop: SIZES.light,
+                            paddingHorizontal: SIZES.light - 2,
+                            marginBottom: SIZES.small
+                        }}>
+                            <Text>Notes : {selectedTransaction?.notes}</Text>
                         </View>
 
                         <Text style={{

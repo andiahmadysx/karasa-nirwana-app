@@ -1,13 +1,11 @@
 import React from 'react';
-import {Stack, useRouter} from "expo-router";
+import {Stack} from "expo-router";
 import {COLORS, icons, SIZES} from "../../constants";
 import {View} from "react-native";
 import Clock from "../../components/common/Clock";
 import {DrawerToggleButton} from "@react-navigation/drawer";
 
 const Layout = () => {
-    const router = useRouter();
-
     return <Stack screenOptions={{
         headerBackImageSource: icons.chevronLeft,
         headerTitleAlign: 'center'
@@ -29,21 +27,6 @@ const Layout = () => {
                                 justifyContent: 'space-between', alignItems: 'flex-end', flexDirection: 'row', flex: 1
                             }}>
                                 <DrawerToggleButton/>
-
-                                {/*<View style={{*/}
-                                {/*}}>*/}
-
-                                {/*    <Text style={{*/}
-                                {/*        fontSize: 14,*/}
-                                {/*        color: COLORS.darkGray*/}
-                                {/*    }}>Welcome,</Text>*/}
-
-                                {/*    <Text style={{*/}
-                                {/*        fontSize: SIZES.medium,*/}
-                                {/*        fontWeight: 600*/}
-                                {/*    }}>Andi Ahmad Yusup</Text>*/}
-                                {/*</View>*/}
-
                                 <Clock/>
                             </View>
 

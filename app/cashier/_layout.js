@@ -2,7 +2,7 @@ import React from 'react';
 import {Link, Stack, useRouter} from "expo-router";
 import {COLORS, icons, SIZES} from "../../constants";
 import {CloseIcon, Icon} from "@gluestack-ui/themed";
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import Clock from "../../components/common/Clock";
 
 const Layout = () => {
@@ -16,8 +16,10 @@ const Layout = () => {
             {
                 header: (props) =>
                     (
-                        <View style={{height: 80, justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
-                            paddingHorizontal: SIZES.xxLarge, backgroundColor: COLORS.bg}}>
+                        <View style={{
+                            height: 80, justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
+                            paddingHorizontal: SIZES.xxLarge, backgroundColor: COLORS.bg
+                        }}>
                             <Clock/>
                         </View>
                     ),

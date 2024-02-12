@@ -61,6 +61,8 @@ const styles = StyleSheet.create({
         fontSize: SIZES.medium,
         color: COLORS.lightWhite,
         textAlign: 'center',
+        fontWeight: 'bold',
+
     },
 });
 

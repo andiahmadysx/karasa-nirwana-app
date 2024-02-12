@@ -1,27 +1,20 @@
-import React, { useState, useMemo } from 'react';
-import {
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { mainStyles, searchStyles } from '../../styles';
-import { COLORS, SIZES } from '../../constants';
+import React, {useMemo, useState} from 'react';
+import {SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {mainStyles, searchStyles} from '../../styles';
+import {COLORS, SIZES} from '../../constants';
 import NoDataFound from '../../components/common/NoDataFound';
 import CardUser from '../../components/admin/CardUser';
-import { Icon, SearchIcon } from '@gluestack-ui/themed';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import useCustomQuery, { useGet } from '../../hooks/Fetch';
+import {Icon, SearchIcon} from '@gluestack-ui/themed';
+import {Ionicons} from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
+import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import debounce from 'lodash/debounce';
 
 const Users = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
 
-    const { data: usersData } = useCustomQuery(
+    const {data: usersData} = useCustomQuery(
         'users-data',
         useGet('/users')
     );
@@ -49,16 +42,16 @@ const Users = () => {
             <View
                 style={[
                     searchStyles.searchContainer,
-                    { marginBottom: SIZES.xxSmall },
+                    {marginBottom: SIZES.xxSmall},
                 ]}
             >
                 <View
                     style={[
                         searchStyles.searchWrapper,
-                        { paddingLeft: SIZES.small },
+                        {paddingLeft: SIZES.small},
                     ]}
                 >
-                    <Icon as={SearchIcon} color={COLORS.gray} />
+                    <Icon as={SearchIcon} color={COLORS.gray}/>
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search user...'}
@@ -108,7 +101,7 @@ const Users = () => {
                             </View>
                         ))
                     ) : (
-                        <NoDataFound />
+                        <NoDataFound/>
                     )}
                 </View>
             </ScrollView>

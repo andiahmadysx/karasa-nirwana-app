@@ -3,8 +3,6 @@ import {Image, Pressable, SafeAreaView, Text, TouchableOpacity, View} from "reac
 import {mainStyles} from "../../../styles";
 import {
     AlertCircleIcon,
-    Button,
-    ButtonText,
     FormControl,
     FormControlError,
     FormControlErrorIcon,
@@ -92,8 +90,8 @@ const Id = (props) => {
     const setFormValues = useCallback(async () => {
         if (!isCreateMode) {
             await setValue('name', detailProducts?.name);
-            await setValue('price', String(detailProducts?.price));
-            await setValue('stock', String(detailProducts?.stock));
+            await setValue('price', parseInt(detailProducts?.price));
+            await setValue('stock', parseInt(detailProducts?.stock));
             await setValue('category_id', detailProducts?.category_id);
         } else {
             await setValue('category_id', categories[0].id);
@@ -102,6 +100,9 @@ const Id = (props) => {
 
     useEffect(() => {
         navigation.setOptions({headerTitle: isCreateMode ? 'Add New Product' : 'Edit Product'});
+        if (!isCreateMode && detailProductsData && detailProductsData && detailProductsData.image_url) {
+            setImage({ uri: detailProductsData.image_url });
+        }
         setFormValues();
     }, [isCreateMode, setFormValues]);
 
@@ -250,6 +251,7 @@ const Id = (props) => {
                                 name="price"
                                 render={({field}) => (
                                     <InputField
+                                        keyboardType={'numeric'}
                                         type="text"
                                         placeholder="..."
                                         value={field.value}
@@ -276,6 +278,7 @@ const Id = (props) => {
                                 name="stock"
                                 render={({field}) => (
                                     <InputField
+                                        keyboardType={'numeric'}
                                         type="text"
                                         placeholder="..."
                                         value={field.value}
@@ -353,7 +356,11 @@ const Id = (props) => {
                     onPressIn={() => setIsButtonHovered(true)}
                     onPressOut={() => setIsButtonHovered(false)}
                 >
-                    <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                    <Text style={{
+                        color: isButtonHovered ? COLORS.white : COLORS.danger,
+                        fontSize: SIZES.medium,
+                        fontWeight: 400
+                    }}>
                         Delete Product
                     </Text>
                 </Pressable>
@@ -380,7 +387,6 @@ const Id = (props) => {
                     fontWeight: 600,
                 }}>Save</Text>
             </TouchableOpacity>
-
 
             {/*    MODAL DELETE CONFIRMATION */}
             <ModalDelete setShowModal={setShowModal} showModal={showModal} url={'/products/' + id}

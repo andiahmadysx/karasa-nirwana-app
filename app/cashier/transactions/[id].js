@@ -8,6 +8,7 @@ import {useLocalSearchParams} from "expo-router";
 import {COLORS, FONT, images, SIZES} from "../../../constants";
 import {mainStyles} from "../../../styles";
 import {formatDate} from "../../../utils/formatDate";
+import {generatePDF} from "../../../utils/generatePDF";
 
 const Id = () => {
     const {id} = useLocalSearchParams();
@@ -20,23 +21,6 @@ const Id = () => {
             setTransactionDetails(data.transaction);
         })
     }, []);
-
-    const handlePrint = async () => {
-        try {
-            await RNPrint.print({
-                printerURL: 'your_printer_url', // Replace with your printer's URL
-                html: generatePrintContent(),
-            });
-
-        } catch (error) {
-            console.error('Error printing:', error);
-        }
-    };
-
-    const generatePrintContent = () => {
-
-    };
-
 
     if (!transactionDetails) {
         return <Text>Loading</Text>
@@ -146,7 +130,7 @@ const Id = () => {
                 <ScrollView
                     style={{maxHeight: 200, flexGrow: 0, paddingHorizontal: SIZES.small}}>
                     {transactionDetails?.items?.map((item, index) => (
-                        <View key={index}
+                        <View key={item.id}
                               style={{
                                   flexDirection: 'row',
                                   width: '100%',
@@ -221,13 +205,13 @@ const Id = () => {
                 </View>
             </Center>
             <View style={[mainStyles.footerContainer]}>
-                <TouchableOpacity onPress={handlePrint} style={{
+                <TouchableOpacity onPress={() => generatePDF()} style={{
                     padding: SIZES.medium,
                     backgroundColor: COLORS.primary,
                     borderRadius: SIZES.small,
                     flex: 1
                 }}>
-                    <Text style={mainStyles.footerText}>PRINT</Text>
+                    <Text style={mainStyles.footerText}>EXPORT PDF</Text>
                 </TouchableOpacity>
             </View>
 

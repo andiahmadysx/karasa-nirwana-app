@@ -41,7 +41,6 @@ import {mainStyles} from "../../styles";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {FlashList} from "@shopify/flash-list";
 
 
 const Confirm = () => {
@@ -93,7 +92,10 @@ const Confirm = () => {
 
     // Memoized handleCreateTransactions
     const handleCreateTransactions = useCallback(async () => {
-        const transactionsResponse = await postCreateTransactions(order);
+        let data = order;
+        data.customer_name = customerName;
+
+        const transactionsResponse = await postCreateTransactions(data);
 
         if (transactionsResponse.success) {
             toast.show({
@@ -119,6 +121,7 @@ const Confirm = () => {
 
             router.push(`/cashier/transactions/${transactionsResponse.data.transaction.id}`);
         } else {
+            console.log(transactionsResponse)
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -169,7 +172,7 @@ const Confirm = () => {
                 <FormControlLabel mb='$1'>
                     <FormControlLabelText>Customer Name</FormControlLabelText>
                 </FormControlLabel>
-                <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
+                <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                     <Controller
                         control={control}
                         name="customerName"
@@ -246,7 +249,7 @@ const Confirm = () => {
                             <FormControlLabel mb='$1'>
                                 <FormControlLabelText>Payment Amount</FormControlLabelText>
                             </FormControlLabel>
-                            <Input style={{height: SIZES.xxLarge + SIZES.medium,borderRadius: SIZES.small}}>
+                            <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
                                 <Controller
                                     control={control}
                                     name="paymentAmount"

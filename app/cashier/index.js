@@ -1,6 +1,6 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
-import {useRouter} from 'expo-router';
+import {router, useFocusEffect, useRouter} from 'expo-router';
 import {COLORS, SIZES} from '../../constants';
 import {mainStyles} from '../../styles';
 import Takeaway from '../../components/cashier/type/Takeaway';
@@ -8,16 +8,36 @@ import DineIn from '../../components/cashier/type/DineIn';
 import {useOrder} from "../../hooks/Order";
 import {Ionicons} from "@expo/vector-icons";
 import Logout from "../../components/common/Logout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useAuth} from "../../hooks/Auth";
 
 const CashierDashboard = () => {
     const {order, setOrder, reset} = useOrder();
     const router = useRouter();
     const [showModal, setShowModal] = React.useState(false)
-
+    const {user} = useAuth();
     const handleButtonPress = (val) => {
         setOrder((prevState) => ({...prevState, is_takeaway: val}));
     };
 
+
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const userOnStorage = JSON.parse(response);
+            if (userOnStorage?.role !== 'cashier') {
+                router.navigate('/' + userOnStorage?.role);
+            }
+        }
+
+        if (!user) {
+            fetchData();
+        } else {
+            if (user.role !== 'cashier') {
+                router.navigate('/' + user.role);
+            }
+        }
+    })
 
 
     return (

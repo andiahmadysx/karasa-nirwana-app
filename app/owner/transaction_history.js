@@ -1,28 +1,37 @@
-import React, { useCallback, useState } from 'react';
-import {SafeAreaView, ScrollView, Text, TouchableOpacity, View} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../hooks/Auth';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { getFormatedDate } from 'react-native-modern-datepicker';
+import React, {useCallback, useEffect, useState} from 'react';
+import {SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {useAuth} from '../../hooks/Auth';
+import {formatCurrency} from '../../utils/formatCurrency';
+import {getFormatedDate} from 'react-native-modern-datepicker';
 import DateSelectionModal from '../../components/common/DateSelectionModal';
-import { Badge, BadgeText, Center } from '@gluestack-ui/themed';
+import {Badge, BadgeText, Center} from '@gluestack-ui/themed';
 import {COLORS, SIZES} from "../../constants";
 import {mainStyles} from "../../styles";
+import {useGet} from "../../hooks/Fetch";
+import {FlashList} from "@shopify/flash-list";
 
 const getInitialDate = (daysOffset) => {
     const currentDate = new Date();
     currentDate.setDate(currentDate.getDate() + daysOffset);
-    return getFormatedDate(currentDate, 'DD-MM-YY');
+    return getFormatedDate(currentDate, 'DD-MM-YYYY');
 };
 
-const TransactionInfo = ({ title, value }) => (
+const TransactionInfo = ({title, value}) => (
     <View>
-        <Text style={{ color: 'white' }}>{title}</Text>
-        <Text style={{ color: 'white', fontWeight: 500, fontSize: SIZES.xxLarge }}>{value}</Text>
+        <Text style={{color: 'white'}}>{title}</Text>
+        <Text style={{color: 'white', fontWeight: 500, fontSize: SIZES.xxLarge}}>{value}</Text>
     </View>
 );
 
-const DateRangePicker = ({ startDate, endDate, onStartDateChange, onEndDateChange, showModalStartDate, showModalEndDate }) => (
+const DateRangePicker = ({
+                             startDate,
+                             endDate,
+                             onStartDateChange,
+                             onEndDateChange,
+                             showModalStartDate,
+                             showModalEndDate
+                         }) => (
     <View style={{
         flexDirection: 'row',
         justifyContent: 'center',
@@ -39,7 +48,7 @@ const DateRangePicker = ({ startDate, endDate, onStartDateChange, onEndDateChang
             onPress={showModalStartDate}
         >
             <Text style={styles.datePickerButtonText}>{startDate}</Text>
-            <Ionicons name={'calendar-outline'} size={24} />
+            <Ionicons name={'calendar-outline'} size={24}/>
         </TouchableOpacity>
 
         <Text>-</Text>
@@ -52,12 +61,12 @@ const DateRangePicker = ({ startDate, endDate, onStartDateChange, onEndDateChang
             onPress={showModalEndDate}
         >
             <Text style={styles.datePickerButtonText}>{endDate}</Text>
-            <Ionicons name={'calendar-outline'} size={24} />
+            <Ionicons name={'calendar-outline'} size={24}/>
         </TouchableOpacity>
     </View>
 );
 
-const TransactionItem = ({ amount, description, status }) => (
+const TransactionItem = ({amount, description, status}) => (
     <TouchableOpacity style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -70,10 +79,11 @@ const TransactionItem = ({ amount, description, status }) => (
             gap: SIZES.small,
             alignItems: 'center',
         }}>
-            <Ionicons name={'receipt-outline'} size={24} />
+            <Ionicons name={'receipt-outline'} size={24}/>
             <View>
-                <Text style={{ fontSize: SIZES.medium }}>{formatCurrency(amount)}</Text>
-                <Text style={{ color: COLORS.darkGray }}>{description}</Text>
+                <Text style={{fontSize: SIZES.medium}}>{formatCurrency(amount)}</Text>
+                <Text
+                      style={{color: COLORS.darkGray}}>{description}</Text>
             </View>
         </View>
 
@@ -81,7 +91,9 @@ const TransactionItem = ({ amount, description, status }) => (
             borderWidth: 0.5,
             paddingHorizontal: SIZES.medium,
             height: SIZES.xxLarge + 2,
-        }} bg={'rgba(89,255,35,0.07)'} action={status.toLowerCase()}>
+            position: 'absolute',
+            right: SIZES.small
+        }} bg={'rgba(89,255,35,0.07)'} action={'success'}>
             <BadgeText style={{
                 color: COLORS.primary
             }}>{status}</BadgeText>
@@ -89,22 +101,76 @@ const TransactionItem = ({ amount, description, status }) => (
     </TouchableOpacity>
 );
 
-const OwnerDashboard = () => {
-    const { user } = useAuth();
+const TransactionHistory = () => {
+    const {user} = useAuth();
     const [showModalStartDate, setShowModalStartDate] = useState(false);
     const [showModalEndDate, setShowModalEndDate] = useState(false);
     const [startDate, setStartDate] = useState(getInitialDate(-30));
-    const [endDate, setEndDate] = useState(getFormatedDate(new Date(), 'DD-MM-YY'));
+    const [endDate, setEndDate] = useState(getFormatedDate(new Date(), 'DD-MM-YYYY'));
+    const [transactions, setTransactions] = useState([]);
+    const [transactionData, setTransactionData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const getTransactionHistory = useGet(`/owners/transaction-history`);
+
+    const fetch = async (sDate, eDate, page = 1, perPage = 15) => {
+
+        const response = await getTransactionHistory({
+            params: {
+                start_date: sDate,
+                end_date: eDate,
+                page: page,
+                per_page: perPage,
+            },
+        });
+
+        setTransactions(response.data.data);
+        setTransactionData((prevState) => [...prevState, ...response.data.data.transactions.data])
+        setCurrentPage(response.data.data.transactions.current_page);
+        setTotalPages(response.data.data.transactions.last_page);
+    };
+
+    const refetch = async (sDate, eDate, page = 1, perPage = 15) => {
+        const response = await getTransactionHistory({
+            params: {
+                start_date: sDate,
+                end_date: eDate,
+                page: page,
+                per_page: perPage,
+            },
+        });
+
+        setTransactions(response.data.data);
+        setTransactionData(response.data.data.transactions.data);
+        setCurrentPage(response.data.data.transactions.current_page);
+        setTotalPages(response.data.data.transactions.last_page);
+    }
+
+    useEffect(() => {
+        fetch();
+    }, []);
+
+
+    const handleEndReached = () => {
+        if (currentPage < totalPages) {
+            fetch(startDate, endDate, currentPage + 1);
+        }
+    };
 
     const handleDateChange = useCallback((date, setFunction, setShowModalFunction) => {
         setFunction(date);
         setShowModalFunction(false);
-    }, []);
+        setCurrentPage(1); // Reset page number when date changes
+        setTransactions([]); // Reset transactions when date changes
+        refetch(date, endDate);
+    }, [endDate]);
+
 
     return (
         <SafeAreaView style={mainStyles.container}>
-            <View style={{ marginBottom: SIZES.xLarge, marginTop: SIZES.medium }}>
-                <Text style={{ fontSize: SIZES.xLarge, fontWeight: 600 }}>History Transactions</Text>
+            <View style={{marginBottom: SIZES.xLarge, marginTop: SIZES.medium}}>
+                <Text style={{fontSize: SIZES.xLarge, fontWeight: 600}}>History Transactions</Text>
             </View>
 
             <View style={{
@@ -116,8 +182,8 @@ const OwnerDashboard = () => {
                 justifyContent: 'space-between',
                 paddingHorizontal: SIZES.xxLarge,
             }}>
-                <TransactionInfo title="Transaction" value="12" />
-                <TransactionInfo title="Total Sales" value={formatCurrency(20000)} />
+                <TransactionInfo title="Transaction" value={transactions?.total_transactions}/>
+                <TransactionInfo title="Total Sales" value={formatCurrency(transactions?.total_sales)}/>
             </View>
 
             <DateRangePicker
@@ -129,34 +195,42 @@ const OwnerDashboard = () => {
                 showModalEndDate={() => setShowModalEndDate(true)}
             />
 
-           <ScrollView>
-               <TransactionItem
-                   amount={200000}
-                   description="ffkjfdjka-fkalkfjajs-fslajk"
-                   status="PAID"
-               />
 
-           </ScrollView>
-            <Center h={400} style={{ position: 'absolute' }}>
+            <FlashList
+                renderItem={({item}) => <TransactionItem amount={parseInt(item.total_price)} description={item.invoice_number}
+                                                         status={item.status}/>}
+                data={transactionData || []}
+                estimatedItemSize={200}
+                keyExtractor={(item, index) => index.toString()}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0.1} // Adjust as needed
+            />
+
+            <Center h={400} style={styles.dateSelectionModalCenter}>
                 <DateSelectionModal
                     isOpen={showModalStartDate}
                     onClose={() => setShowModalStartDate(false)}
                     title="Select Start Date"
                     selected={startDate}
-                    onDateChange={(date) => handleDateChange(date, setStartDate, setShowModalStartDate)}
+                    onDateChange={(date) => {
+                        handleDateChange(date, setStartDate, setShowModalStartDate)
+                        refetch(date, endDate)
+                    }}
                 />
             </Center>
 
-            <Center h={400} style={{ position: 'absolute' }}>
+            <Center h={400} style={styles.dateSelectionModalCenter}>
                 <DateSelectionModal
                     isOpen={showModalEndDate}
                     onClose={() => setShowModalEndDate(false)}
                     title="Select End Date"
-                    onDateChange={(date) => handleDateChange(date, setEndDate, setShowModalEndDate)}
                     selected={endDate}
+                    onDateChange={(date) => {
+                        handleDateChange(date, setEndDate, setShowModalEndDate)
+                        refetch(date, startDate);
+                    }}
                 />
             </Center>
-
             <TouchableOpacity
                 style={{
                     paddingHorizontal: SIZES.xxLarge,
@@ -194,6 +268,9 @@ const styles = {
     datePickerButtonText: {
         fontSize: SIZES.medium,
     },
+    dateSelectionModalCenter: {
+        position: 'absolute'
+    }
 };
 
-export default OwnerDashboard;
+export default TransactionHistory;

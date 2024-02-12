@@ -39,7 +39,7 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {COLORS, SIZES} from "../../../constants";
 import {router, useLocalSearchParams, useNavigation} from "expo-router";
-import useCustomQuery, {useDelete, useGet, usePost, useUpdate} from "../../../hooks/Fetch";
+import useCustomQuery, {useGet, usePost, useUpdate} from "../../../hooks/Fetch";
 import {mainStyles} from "../../../styles";
 import ModalDelete from "../../../components/common/ModalDelete";
 
@@ -54,7 +54,6 @@ const Id = () => {
     const postUser = usePost('/users');
     const updateUser = useUpdate('/users');
     const [isButtonHovered, setIsButtonHovered] = useState(false); // New state for button hover
-
 
 
     const formSchema = z.object({
@@ -360,7 +359,11 @@ const Id = () => {
                     onPressIn={() => setIsButtonHovered(true)}
                     onPressOut={() => setIsButtonHovered(false)}
                 >
-                    <Text style={{ color: isButtonHovered ? COLORS.white : COLORS.danger, fontSize: SIZES.medium, fontWeight: 400 }}>
+                    <Text style={{
+                        color: isButtonHovered ? COLORS.white : COLORS.danger,
+                        fontSize: SIZES.medium,
+                        fontWeight: 400
+                    }}>
                         Delete User
                     </Text>
                 </Pressable>

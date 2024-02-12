@@ -1,4 +1,4 @@
-import {FlatList, SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {mainStyles} from "../../styles";
 import React, {useEffect, useState} from "react";
 import {COLORS, SIZES} from "../../constants";
@@ -29,6 +29,9 @@ import {
 } from "@gluestack-ui/themed";
 import {useNotification} from "../../hooks/Notification";
 import {FlashList} from "@shopify/flash-list";
+import {router, useFocusEffect} from "expo-router";
+import {useAuth} from "../../hooks/Auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const WaiterDashboard = () => {
     const [activeCategory, setCategory] = useState('Ready to Serve');
@@ -41,6 +44,7 @@ const WaiterDashboard = () => {
     const getServed = useGet('/transactions/served?is_takeaway=0');
     const getReadyToServe = useGet('/transactions/ready-to-serve');
     const updateTransaction = useUpdate('/transactions');
+    const {user} = useAuth();
 
     const {schedulePushNotification} = useNotification();
 
@@ -57,13 +61,31 @@ const WaiterDashboard = () => {
 
     const fetch = () => {
         useFetch(getReadyToServe, (data) => {
-                setReadyToServe(data?.transactions);
+            setReadyToServe(data?.transactions);
         })
 
         useFetch(getServed, (data) => {
-                setServed(data?.transactions);
+            setServed(data?.transactions);
         })
     }
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const userOnStorage = JSON.parse(response);
+            if (userOnStorage?.role !== 'waiter') {
+                router.navigate('/' + userOnStorage?.role);
+            }
+        }
+
+        if (!user) {
+            fetchData();
+        } else {
+            if (user.role !== 'waiter') {
+                router.navigate('/' + user.role);
+            }
+        }
+    })
+
 
     useEffect(() => {
         fetch();
@@ -129,7 +151,7 @@ const WaiterDashboard = () => {
                 }}>
                     {served?.length > 0 ? (
                         served.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
                                 <TableCustom item={item} handlePress={() => {
                                     setSelectedTransaction(item);
                                     setShowModalTable(true);
@@ -153,7 +175,7 @@ const WaiterDashboard = () => {
                 }}>
                     {readyToServe?.length > 0 ? (
                         readyToServe.map((item, index) => (
-                            <View key={index} style={{flexBasis: '46%', margin: SIZES.light}}>
+                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
                                 <TableCustom handlePress={() => {
                                     setSelectedTransaction(item);
                                     setShowModalTable(true);

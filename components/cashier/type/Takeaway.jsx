@@ -7,6 +7,7 @@ import NoDataFound from "../../common/NoDataFound";
 import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
 import {FlashList} from "@shopify/flash-list";
+import {useFocusEffect} from "expo-router";
 
 const Takeaway = () => {
     const [activeCategory, setCategory] = useState('Order Placed');
@@ -50,6 +51,12 @@ const Takeaway = () => {
     usePusher('transactions-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
         refetchOrderPlaced();
     });
+
+    useFocusEffect(() => {
+        refetchOrderPlaced()
+        refetchReadyToServe();
+        refetchCookingInProgress();
+    })
 
     return (
         <ScrollView

@@ -16,8 +16,10 @@ const Layout = () => {
             {
                 header: (props) =>
                     (
-                        <View style={{height: 80, justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
-                            paddingHorizontal: SIZES.xxLarge, backgroundColor: COLORS.bg}}>
+                        <View style={{
+                            height: 80, justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
+                            paddingHorizontal: SIZES.xxLarge, backgroundColor: COLORS.bg
+                        }}>
                             <Clock/>
                         </View>
                     ),

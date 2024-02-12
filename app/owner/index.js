@@ -1,15 +1,17 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { mainStyles } from '../../styles';
-import { useAuth } from '../../hooks/Auth';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { getFormatedDate } from 'react-native-modern-datepicker';
+import React, {useCallback, useEffect, useState} from 'react';
+import {SafeAreaView, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {mainStyles} from '../../styles';
+import {formatCurrency} from '../../utils/formatCurrency';
+import {getFormatedDate} from 'react-native-modern-datepicker';
 import DateSelectionModal from '../../components/common/DateSelectionModal';
 import {COLORS, SIZES} from "../../constants";
 import {Center, Divider} from "@gluestack-ui/themed";
-import {useRouter} from "expo-router";
-import useCustomQuery, {useGet} from "../../hooks/Fetch";
+import {router, useFocusEffect} from "expo-router";
+import {useGet} from "../../hooks/Fetch";
+import DashboardCard from "../../components/common/DashboardCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useAuth} from "../../hooks/Auth";
 
 const getInitialDate = (daysOffset) => {
     const currentDate = new Date();
@@ -17,56 +19,47 @@ const getInitialDate = (daysOffset) => {
     return getFormatedDate(currentDate, 'DD-MM-YYYY');
 };
 
-const DashboardCard = ({ title, value, onPress }) => (
-    <TouchableOpacity style={styles.dashboardCard} onPress={onPress}>
-        <View>
-            <Text style={styles.dashboardCardTitle}>{title}</Text>
-            <Text style={styles.dashboardCardValue}>{value}</Text>
-        </View>
-        <View style={styles.viewDetailsContainer}>
-            <Text style={styles.viewDetailsText}>View Details</Text>
-        </View>
-    </TouchableOpacity>
-);
-
-const ProductItem = ({ index, name, price, saledStock }) => (
+const ProductItem = ({index, name, price, saledStock}) => (
     <View style={styles.productItemContainer}>
-       <View style={{
-           flexDirection: 'row',
-           alignItems: 'center',
-           gap: SIZES.medium
-       }}>
-           <Text style={{
-               backgroundColor: '#156400',
-               paddingVertical: 2,
-               paddingHorizontal: SIZES.light + 2,
-               borderRadius: SIZES.small,
-               color: COLORS.white
-           }}>{index}</Text>
-           <View >
-               <Text style={styles.productItemName}>{name}</Text>
-               <Text style={styles.productItemPrice}>{price}</Text>
-           </View>
-       </View>
+        <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: SIZES.medium
+        }}>
+            <Text style={{
+                backgroundColor: '#156400',
+                paddingVertical: 2,
+                paddingHorizontal: SIZES.light + 2,
+                borderRadius: SIZES.small,
+                color: COLORS.white
+            }}>{index}</Text>
+            <View>
+                <Text style={styles.productItemName}>{name}</Text>
+                <Text style={styles.productItemPrice}>{price}</Text>
+            </View>
+        </View>
         <Text style={styles.productItemPrice}>{saledStock}</Text>
     </View>
 );
 
-const InsightsItem = ({ label, value }) => (
+const InsightsItem = ({label, value}) => (
     <View style={styles.insightsItemContainer}>
         <Text>{label}</Text>
         <Text style={styles.insightsItemValue}>{value}</Text>
     </View>
 );
 
+
 const OwnerDashboard = () => {
-    const { user } = useAuth();
     const [showModalStartDate, setShowModalStartDate] = useState(false);
     const [showModalEndDate, setShowModalEndDate] = useState(false);
     const [startDate, setStartDate] = useState(getInitialDate(-30));
     const [endDate, setEndDate] = useState(getFormatedDate(new Date(), 'DD-MM-YYYY'));
     const getDashboard = useGet(`/owners/dashboard`);
     const [owners, setOwners] = useState({});
+
+
+    const {user, removeUser} = useAuth();
 
     const fetch = async (sDate, eDate) => {
         const response = await getDashboard({
@@ -83,6 +76,25 @@ const OwnerDashboard = () => {
         fetch();
     }, []);
 
+
+    useFocusEffect(() => {
+        async function fetchData() {
+            const response = await AsyncStorage.getItem('@user');
+            const userOnStorage = JSON.parse(response);
+            if (userOnStorage?.role !== 'owner') {
+                router.navigate('/' + userOnStorage?.role);
+            }
+        }
+
+        if (!user) {
+            fetchData();
+        } else {
+            if (user.role !== 'owner') {
+                router.navigate('/' + user.role);
+            }
+        }
+    })
+
     const handleDateChange = useCallback((date, setFunction, setShowModalFunction) => {
         setFunction(date);
         setShowModalFunction(false);
@@ -97,14 +109,14 @@ const OwnerDashboard = () => {
             <View style={styles.datePickerContainer}>
                 <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowModalStartDate(true)}>
                     <Text style={styles.datePickerButtonText}>{startDate}</Text>
-                    <Ionicons name={'calendar-outline'} size={24} />
+                    <Ionicons name={'calendar-outline'} size={24}/>
                 </TouchableOpacity>
 
                 <Text>-</Text>
 
                 <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowModalEndDate(true)}>
                     <Text style={styles.datePickerButtonText}>{endDate}</Text>
-                    <Ionicons name={'calendar-outline'} size={24} />
+                    <Ionicons name={'calendar-outline'} size={24}/>
                 </TouchableOpacity>
             </View>
 
@@ -128,19 +140,24 @@ const OwnerDashboard = () => {
                 <View style={styles.bestSellingProductsContainer}>
                     <Text style={styles.bestSellingProductsTitle}>Best Selling Products</Text>
                     {
-                        owners?.best_selling_products?.map((product, index) => <ProductItem key={index} index={index + 1} name={product.name} price={formatCurrency(product.sub_total)} saledStock={product.qty} />)
+                        owners?.best_selling_products?.map((product, index) => <ProductItem key={product.id}
+                                                                                            index={index + 1}
+                                                                                            name={product.name}
+                                                                                            price={formatCurrency(product.sub_total)}
+                                                                                            saledStock={product.qty}/>)
                     }
                 </View>
 
                 <View style={styles.insightsContainer}>
                     <Text style={styles.insightsTitle}>Insights</Text>
-                    <InsightsItem label="Average daily sales" value={formatCurrency(owners?.average_daily_sales)} />
-                    <Divider mt={'$2'} />
-                    <InsightsItem label="Average transaction value" value={formatCurrency(owners?.average_transaction_value)}/>
-                    <Divider mt={'$2'} />
-                    <InsightsItem label="Busiest day" value={owners?.busiest_day} />
-                    <Divider mt={'$2'} />
-                    <InsightsItem label="Peak hour" value={owners?.peak_hour} />
+                    <InsightsItem label="Average daily sales" value={formatCurrency(owners?.average_daily_sales)}/>
+                    <Divider mt={'$2'}/>
+                    <InsightsItem label="Average transaction value"
+                                  value={formatCurrency(owners?.average_transaction_value)}/>
+                    <Divider mt={'$2'}/>
+                    <InsightsItem label="Busiest day" value={owners?.busiest_day}/>
+                    <Divider mt={'$2'}/>
+                    <InsightsItem label="Peak hour" value={owners?.peak_hour}/>
                 </View>
             </ScrollView>
 
