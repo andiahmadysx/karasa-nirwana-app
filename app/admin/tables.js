@@ -40,6 +40,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import useCustomQuery, {useDelete, useGet, usePost, useUpdate} from "../../hooks/Fetch";
 import debounce from "lodash/debounce";
 import ModalDelete from "../../components/common/ModalDelete";
+import {FlashList} from "@shopify/flash-list";
+import {ColumnItem} from "../../components/common/ColumnItem";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required'),
@@ -74,7 +76,6 @@ const Tables = () => {
     const tables = useMemo(() => tablesData?.tables || [], [tablesData]);
     const postTable = usePost('/tables');
     const toast = useToast();
-    const deleteTable = useDelete('/tables/' + selectedTableId);
     const updateTable = useUpdate('/tables');
 
     const onSubmit = useCallback(async (data) => {
@@ -104,32 +105,6 @@ const Tables = () => {
         }
     }, [isEdit, selectedTableId, updateTable, postTable, refetchTable, toast]);
 
-    const handleDelete = useCallback(async () => {
-        try {
-            const response = await deleteTable();
-            if (response.success) {
-                refetchTable();
-                toast.show({
-                    placement: 'bottom',
-                    duration: 3000,
-                    render: ({id}) => (
-                        <Toast bg="$success500" nativeID={`toast-${id}`} p="$6" style={{marginBottom: SIZES.xxLarge}}>
-                            <VStack space="xs" style={{width: '90%'}}>
-                                <ToastTitle color="$textLight50">Delete table success!</ToastTitle>
-                            </VStack>
-                        </Toast>
-                    ),
-                });
-
-                setShowModal(false);
-            } else {
-                console.error('Failed to delete table. Server response:', response);
-            }
-        } catch (error) {
-            console.error('Error while deleting table:', error);
-        }
-    }, [deleteTable, selectedTableId, refetchTable, toast]);
-
     const handleEdit = debounce(useCallback((item) => {
 
         if (item.is_used) {
@@ -146,7 +121,6 @@ const Tables = () => {
     }, [setSelectedTable, setValue, handleSubmit, setIsEdit, setShowModal]), 100);
 
     const filteredTable = useMemo(() => tables.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())), [tables, searchTerm]);
-
 
     return (
         <SafeAreaView style={mainStyles.container}>
@@ -168,51 +142,37 @@ const Tables = () => {
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search table...'}
-                        // value={searchTerm}
-                        // onChangeText={setSearchTerm}
+                        value={searchTerm}
+                        onChangeText={(text) => setSearchTerm(text)}
                     />
                 </View>
             </View>
 
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={{
-                    marginTop: SIZES.small,
-                    marginHorizontal: SIZES.light,
-                    flex: 1,
-                }}
-                contentContainerStyle={{
-                    // justifyContent: 'center'
-                }}
-                horizontal={false}
-            >
+
                 <View style={{
                     flexDirection: 'row',
                     flexWrap: 'wrap',
                     marginTop: SIZES.small,
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
                     borderRadius: SIZES.small,
                 }}>
-                    {filteredTable?.length > 0 ? (
-                        filteredTable.map((item, index) => (
-                            <View key={item.id} style={{
-                                flexBasis: '48.5%',
-                                marginBottom: SIZES.small + 2,
-                                borderRadius: SIZES.small
-                            }}>
+                    <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                        data={filteredTable}
+                        numColumns={2}
+                        estimatedItemSize={80}
+                        showsVerticalScrollIndicator={false}
+
+                        renderItem={({item, index}) => (
+                            <ColumnItem numColumns={2} index={index}>
                                 <CardTableAdmin item={item} handlePress={() => {
                                     handleEdit(item);
                                     setSelectedTableId(item.id);
                                 }}/>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
+                            </ColumnItem>
+                        )}
+                    />
                 </View>
-            </ScrollView>
-
 
             {
                 !tables &&
@@ -295,7 +255,7 @@ const Tables = () => {
                                     control={control}
                                     name="name"
                                     render={({field}) => (
-                                        <InputField
+                                        <InputField onBlur={() => {}}
                                             type="text"
                                             placeholder="..."
                                             value={selectedTable}

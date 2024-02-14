@@ -21,7 +21,7 @@ const renderFormControl = (name, label, placeholder, type = 'text', handleChange
                 control={control}
                 name={name}
                 render={({field}) => (
-                    <InputField
+                    <InputField onBlur={() => {}}
                         type={type}
                         placeholder={placeholder}
                         value={field.value}

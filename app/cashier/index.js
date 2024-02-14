@@ -1,5 +1,5 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {Keyboard, SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import {router, useFocusEffect, useRouter} from 'expo-router';
 import {COLORS, SIZES} from '../../constants';
 import {mainStyles} from '../../styles';
@@ -22,6 +22,7 @@ const CashierDashboard = () => {
 
 
     useFocusEffect(() => {
+
         async function fetchData() {
             const response = await AsyncStorage.getItem('@user');
             const userOnStorage = JSON.parse(response);
@@ -37,6 +38,10 @@ const CashierDashboard = () => {
                 router.navigate('/' + user.role);
             }
         }
+    })
+
+    useFocusEffect(() => {
+        Keyboard.dismiss()
     })
 
 
@@ -96,6 +101,7 @@ const CashierDashboard = () => {
             <View style={mainStyles.footerContainer}>
                 <TouchableOpacity
                     onPress={() => {
+                        reset();
                         router.navigate(order.is_takeaway ? '/cashier/menu' : '/cashier/select_table');
                     }}
                     style={{

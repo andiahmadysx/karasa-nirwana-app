@@ -1,22 +1,15 @@
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react';
-import {
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { mainStyles, searchStyles } from '../../styles';
-import { COLORS, SIZES } from '../../constants';
-import { Center, Icon, SearchIcon } from '@gluestack-ui/themed';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {mainStyles, searchStyles} from '../../styles';
+import {COLORS, SIZES} from '../../constants';
+import {Center, Icon, SearchIcon} from '@gluestack-ui/themed';
+import {Ionicons} from '@expo/vector-icons';
 import ProductListAdmin from '../../components/admin/ProductListAdmin';
-import { useFocusEffect, useRouter } from 'expo-router';
-import useCustomQuery, { useGet } from '../../hooks/Fetch';
-import { FlashList } from '@shopify/flash-list';
+import {useRouter} from 'expo-router';
+import useCustomQuery, {useGet} from '../../hooks/Fetch';
+import {FlashList} from '@shopify/flash-list';
 import debounce from 'lodash/debounce';
+import NoDataFound from "../../components/common/NoDataFound";
 
 const ManageProducts = () => {
     const router = useRouter();
@@ -60,16 +53,16 @@ const ManageProducts = () => {
             <View
                 style={[
                     searchStyles.searchContainer,
-                    { marginBottom: SIZES.xxSmall },
+                    {marginBottom: SIZES.xxSmall},
                 ]}
             >
                 <View
                     style={[
                         searchStyles.searchWrapper,
-                        { paddingLeft: SIZES.small },
+                        {paddingLeft: SIZES.small},
                     ]}
                 >
-                    <Icon as={SearchIcon} color={COLORS.gray} />
+                    <Icon as={SearchIcon} color={COLORS.gray}/>
                     <TextInput
                         style={searchStyles.searchInput}
                         placeholder={'Search products...'}
@@ -79,33 +72,21 @@ const ManageProducts = () => {
                 </View>
             </View>
 
-            {filteredProducts.length > 0 ? (
-                <FlashList
-                    numColumns={1}
-                    horizontal={false}
-                    estimatedItemSize={80}
-                    showsVerticalScrollIndicator={false}
-                    style={{ height: 'fit-content', flexGrow: 0 }}
-                    renderItem={({ item }) => (
-                        <ProductListAdmin
-                            handlePress={() => handleEdit(item.id)}
-                            item={item}
-                        />
-                    )}
-                    data={filteredProducts}
-                    keyExtractor={(item) => item.id.toString()}
+                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                           numColumns={1}
+                           horizontal={false}
+                           estimatedItemSize={80}
+                           showsVerticalScrollIndicator={false}
+                           style={{height: 'fit-content', flexGrow: 0}}
+                           renderItem={({item}) => (
+                               <ProductListAdmin
+                                   handlePress={() => handleEdit(item.id)}
+                                   item={item}
+                               />
+                           )}
+                           data={filteredProducts}
+                           keyExtractor={(item) => item.id.toString()}
                 />
-            ) : (
-                <Center style={{
-                    flex: .8,
-                }}>
-                    <Image
-                        source={{ uri: 'https://bepharco.com/no-products-found.png' }}
-                        width={200}
-                        height={300}
-                    />
-                </Center>
-            )}
 
             {!filteredProducts.length && (
                 <TouchableOpacity

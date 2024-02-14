@@ -19,7 +19,6 @@ const TableCustom = ({
                 borderRadius: SIZES.small,
                 borderWidth: .5,
                 borderColor: COLORS.lightWhite,
-                marginRight: SIZES.small, // Add margin between items
                 backgroundColor: isSelected ? COLORS.primary : COLORS.white,
                 shadowColor: "rgba(0,0,0,0.28)",
                 shadowOffset: {

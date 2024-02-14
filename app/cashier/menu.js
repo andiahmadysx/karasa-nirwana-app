@@ -8,6 +8,9 @@ import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import {useOrder} from '../../hooks/Order';
 import usePusher from '../../hooks/Pusher';
 import CardProductMenu from "../../components/cashier/CardProductMenu";
+import {ColumnItem} from "../../components/common/ColumnItem";
+import {FlashList} from "@shopify/flash-list";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const Menu = () => {
     const router = useRouter();
@@ -103,23 +106,30 @@ const Menu = () => {
                 />
             </View>
 
-            <FlatList
-                numColumns={2}
+            <View
                 style={{
-                    marginBottom: 55,
-                    gap: 20
+                    width: '100%',
+                    flex: 1,
+                    marginTop: SIZES.medium,
+                    marginBottom: 60,
                 }}
-                contentContainerStyle={{
-                    justifyContent: 'space-between',
-                    paddingHorizontal: SIZES.xSmall
-                }}
-                renderItem={({item}) => {
-                    return <CardProductMenu item={item}/>;
-                }}
-                data={filteredProducts}
-                horizontal={false}
-                keyExtractor={(item) => item.id.toString()}
-            />
+            >
+                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                           data={filteredProducts}
+                           numColumns={2}
+                           keyExtractor={(item, index) => index.toString()}
+                           estimatedItemSize={80}
+                           showsVerticalScrollIndicator={false}
+                    // extraData={isUpdated}
+                           renderItem={({item, index}) => (
+                               <ColumnItem numColumns={2} index={index}>
+                                   <CardProductMenu item={item}/>
+                               </ColumnItem>
+                           )}
+                />
+            </View>
+
+
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={() => handleCancelPress(order?.is_takeaway)} style={styles.cancelButton}>
                     <Text style={styles.buttonText}>Cancel</Text>

@@ -54,11 +54,7 @@ const Login = () => {
         if (response.success) {
             setIsLoading(false);
             const user = response.data.user;
-
             setUser(user);
-
-            setValue('username', '');
-            setValue('password', '');
 
             switch (user.role) {
                 case 'admin':
@@ -79,6 +75,9 @@ const Login = () => {
                 default:
                     router.navigate('/not-found');
             }
+
+            setValue('username', '');
+            setValue('password', '');
 
             toast.show({
                 placement: 'bottom',
@@ -126,7 +125,7 @@ const Login = () => {
                                 control={control}
                                 name="username"
                                 render={({field}) => (
-                                    <InputField
+                                    <InputField onBlur={() => {}}
                                         type="text"
                                         placeholder="..."
                                         value={field.value}
@@ -152,7 +151,7 @@ const Login = () => {
                                 control={control}
                                 name="password"
                                 render={({field}) => (
-                                    <InputField
+                                    <InputField onBlur={() => {}}
                                         type="password"
                                         placeholder="..."
                                         value={field.value}

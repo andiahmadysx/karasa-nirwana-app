@@ -1,23 +1,22 @@
 import React from 'react';
-import {Center} from "@gluestack-ui/themed";
-import {Text, View} from "react-native";
-import {COLORS, SIZES} from "../../constants";
+import { View, Image, Text } from 'react-native';
+import { COLORS, images, SIZES } from '../../constants';
 
 const NoDataFound = () => {
     return (
-        <View style={{
-            flex: 1,
-            borderWidth: .5,
-            borderColor: COLORS.gray,
-            borderRadius: SIZES.small,
-            padding: SIZES.xxLarge,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: SIZES.small
-        }}>
-            <Text style={{
-                color: COLORS.gray
-            }}>No data found.</Text>
+        <View
+            style={{
+                height: 400,
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <Image
+                source={images.noData} // Make sure you have this image in your 'images' directory
+                resizeMode="cover"
+                style={{width: '100%', height: 300}} // Adjust the size as needed
+            />
+
         </View>
     );
 };

@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Keyboard, SafeAreaView, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import {Center, Divider} from '@gluestack-ui/themed';
 import {useFetch, useGet} from '../../../hooks/Fetch';
 import {formatCurrency} from '../../../utils/formatCurrency';
-import RNPrint from 'react-native-print';
-import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import {COLORS, FONT, images, SIZES} from "../../../constants";
 import {mainStyles} from "../../../styles";
 import {formatDate} from "../../../utils/formatDate";
-import {generatePDF} from "../../../utils/generatePDF";
 import ModalSetting from "../../../components/common/ModalSetting";
 import {generateReceipt} from "../../../utils/generateReceipt";
 import {Ionicons} from "@expo/vector-icons";
@@ -25,10 +23,6 @@ const Id = () => {
             setTransactionDetails(data.transaction);
         })
     }, []);
-
-    useFocusEffect(() => {
-        Keyboard.dismiss()
-    })
 
     if (!transactionDetails) {
         return <Text>Loading</Text>
@@ -70,9 +64,6 @@ const Id = () => {
                 }}/>
 
 
-
-
-
                 <View style={{
                     flexDirection: 'row',
                     width: '100%',
@@ -92,7 +83,7 @@ const Id = () => {
                         }}>Date </Text>
                         <Text style={{
                             color: COLORS.darkGray,
-                        }}> :  {formatDate(transactionDetails?.created_at)}</Text>
+                        }}> : {formatDate(transactionDetails?.created_at)}</Text>
                     </View>
                 </View>
 
@@ -115,7 +106,7 @@ const Id = () => {
                             }}>Table </Text>
                             <Text style={{
                                 color: COLORS.darkGray,
-                            }}> :  {transactionDetails?.table?.name}</Text>
+                            }}> : {transactionDetails?.table?.name}</Text>
                         </View>
                         :
                         <View style={{
@@ -128,10 +119,9 @@ const Id = () => {
                             }}>Customer </Text>
                             <Text style={{
                                 color: COLORS.darkGray,
-                            }}> :  {transactionDetails?.customer_name}</Text>
+                            }}> : {transactionDetails?.customer_name}</Text>
                         </View>
                     }
-
                 </View>
 
                 <View style={{
@@ -154,7 +144,7 @@ const Id = () => {
                         }}>Type </Text>
                         <Text style={{
                             color: COLORS.darkGray,
-                        }}> :  {transactionDetails?.is_takeaway ? 'Takeaway' : 'Dine-in'}</Text>
+                        }}> : {transactionDetails?.is_takeaway ? 'Takeaway' : 'Dine-in'}</Text>
                     </View>
                 </View>
 
@@ -178,7 +168,7 @@ const Id = () => {
                         }}>Cashier </Text>
                         <Text style={{
                             color: COLORS.darkGray,
-                        }}> :  {transactionDetails?.user?.name}</Text>
+                        }}> : {transactionDetails?.user?.name}</Text>
                     </View>
                 </View>
 
@@ -285,7 +275,7 @@ const Id = () => {
                 <TouchableOpacity
                     onPress={async () => {
                         generateReceipt(transactionDetails);
-                        router.navigate('/cashier')
+                        // router.navigate('/cashier')
                     }}
                     style={{
                         padding: SIZES.medium,
@@ -304,9 +294,8 @@ const Id = () => {
                     paddingVertical: SIZES.small - 1,
                     backgroundColor: COLORS.primary,
                     borderRadius: SIZES.small,
-                }} >
-                    <Ionicons name={'cog-outline'} style={{
-                    }} size={SIZES.xxLarge} color={'white'}/>
+                }}>
+                    <Ionicons name={'cog-outline'} style={{}} size={SIZES.xxLarge} color={'white'}/>
                 </TouchableOpacity>
             </View>
 

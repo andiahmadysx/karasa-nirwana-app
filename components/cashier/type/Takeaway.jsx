@@ -1,13 +1,12 @@
 import React, {useState} from 'react';
-import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {SIZES} from '../../../constants';
 import TableCustom from "../../common/TableCustom";
 import useCustomQuery, {useGet} from "../../../hooks/Fetch";
 import NoDataFound from "../../common/NoDataFound";
-import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
 import {FlashList} from "@shopify/flash-list";
-import {useFocusEffect} from "expo-router";
+import {ColumnItem} from "../../common/ColumnItem";
 
 const Takeaway = () => {
     const [activeCategory, setCategory] = useState('Order Placed');
@@ -40,33 +39,26 @@ const Takeaway = () => {
     const cookingInProgress = cookingInProgressData?.transactions || [];
     const readyToServe = readyToServeData?.transactions || [];
 
-    usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
-        refetchCookingInProgress();
-    });
-
-    usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
-        refetchReadyToServe();
-    });
-
-    usePusher('transactions-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
-        refetchOrderPlaced();
-    });
-
-    useFocusEffect(() => {
-        refetchOrderPlaced()
-        refetchReadyToServe();
-        refetchCookingInProgress();
-    })
+    // usePusher('cooking-in-progress-channel', 'App\\Events\\SetCookingInProgressEvent', (response) => {
+    //     refetchCookingInProgress();
+    // });
+    //
+    // usePusher('ready-to-serve-transactions-channel', 'App\\Events\\SetReadyToServeEvent', (response) => {
+    //     refetchReadyToServe();
+    // });
+    //
+    // usePusher('transactions-channel', 'App\\Events\\CreateTransactionEvent', (response) => {
+    //     refetchOrderPlaced();
+    // });
 
     return (
-        <ScrollView
-            showsVerticalScrollIndicator={false}
+        <View
             style={{
+                width: '100%',
+                flex: 1,
                 marginTop: SIZES.medium,
                 marginBottom: 60,
-                marginHorizontal: SIZES.small,
             }}
-            horizontal={false}
         >
 
             <View style={mainStyles.tabsContainer}>
@@ -89,72 +81,52 @@ const Takeaway = () => {
                 />
             </View>
 
-
             {
-                activeCategory === 'Order Placed' && <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {orderPlaced?.length > 0 ? (
-                            orderPlaced.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
+                activeCategory === 'Order Placed' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                                data={orderPlaced}
+                                                                numColumns={2}
+                                                                estimatedItemSize={80}
+                                                                showsVerticalScrollIndicator={false}
+                                                                renderItem={({item, index}) => (
+                                                                    <ColumnItem numColumns={2} index={index}>
+                                                                        <TableCustom
+                                                                            item={item}>{item.customer_name}</TableCustom>
+                                                                    </ColumnItem>
+                                                                )}
+                />
             }
 
 
             {
-                activeCategory === 'Cooking In Progress' && <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {cookingInProgress?.length > 0 ? (
-                            cookingInProgress.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
+                activeCategory === 'Cooking In Progress' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                                       data={cookingInProgress}
+                                                                       numColumns={2}
+                                                                       estimatedItemSize={80}
+                                                                       showsVerticalScrollIndicator={false}
+                                                                       renderItem={({item, index}) => (
+                                                                           <ColumnItem numColumns={2} index={index}>
+                                                                               <TableCustom
+                                                                                   item={item}>{item.customer_name}</TableCustom>
+                                                                           </ColumnItem>
+                                                                       )}
+                />
             }
 
             {activeCategory === 'Ready To Serve' &&
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {readyToServe?.length > 0 ? (
-                            readyToServe.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item.customer_name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
+                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                           data={readyToServe}
+                           numColumns={2}
+                           estimatedItemSize={80}
+                           showsVerticalScrollIndicator={false}
+                           renderItem={({item, index}) => (
+                               <ColumnItem numColumns={2} index={index}>
+                                   <TableCustom item={item}>{item.customer_name}</TableCustom>
+                               </ColumnItem>
+                           )}
+                />
             }
 
-        </ScrollView>
+        </View>
     );
 };
 

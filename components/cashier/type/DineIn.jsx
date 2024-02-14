@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {FlatList, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {SIZES} from '../../../constants';
 import TableCustom from "../../common/TableCustom";
-import useCustomQuery, {useFetch, useGet} from "../../../hooks/Fetch";
+import useCustomQuery, {useGet} from "../../../hooks/Fetch";
 import NoDataFound from "../../common/NoDataFound";
 import usePusher from "../../../hooks/Pusher";
 import {mainStyles} from "../../../styles";
 import {FlashList} from "@shopify/flash-list";
+import {ColumnItem} from "../../common/ColumnItem";
 
 const DineIn = () => {
     const [activeCategory, setCategory] = useState('Order Placed');
@@ -16,9 +17,18 @@ const DineIn = () => {
     const getCookingInProgress = useGet('/transactions/cooking-in-progress?is_takeaway=0');
     const getReadyToServe = useGet('/transactions/ready-to-serve?is_takeaway=0');
 
-    const { data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced } = useCustomQuery('orderPlacedDineIn', getOrderPlaced);
-    const { data: cookingInProgressData, error: cookingInProgressError, isLoading: cookingInProgressLoading, refetch: refetchCookingInProgress } = useCustomQuery('cookingInProgressDineIn', getCookingInProgress);
-    const { data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe } = useCustomQuery('readyToServeDineIn', getReadyToServe);
+    const {
+        data: orderPlacedData, error: orderPlacedError, isLoading: orderPlacedLoading, refetch: refetchOrderPlaced
+    } = useCustomQuery('orderPlacedDineIn', getOrderPlaced);
+    const {
+        data: cookingInProgressData,
+        error: cookingInProgressError,
+        isLoading: cookingInProgressLoading,
+        refetch: refetchCookingInProgress
+    } = useCustomQuery('cookingInProgressDineIn', getCookingInProgress);
+    const {
+        data: readyToServeData, error: readyToServeError, isLoading: readyToServeLoading, refetch: refetchReadyToServe
+    } = useCustomQuery('readyToServeDineIn', getReadyToServe);
 
     const orderPlaced = orderPlacedData?.transactions || [];
     const cookingInProgress = cookingInProgressData?.transactions || [];
@@ -36,102 +46,68 @@ const DineIn = () => {
         refetchOrderPlaced();
     });
 
-    return (
-        <ScrollView
-            showsVerticalScrollIndicator={false}
+    return (<View
             style={{
-                marginTop: SIZES.medium,
-                marginBottom: 60,
-                marginHorizontal: SIZES.small,
+                width: '100%', flex: 1, marginTop: SIZES.medium, marginBottom: 60,
             }}
-            horizontal={false}
         >
 
-            <View style={mainStyles.tabsContainer}>
-                <FlashList
-                    estimatedItemSize={80}
-                    data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
-                    renderItem={({item}) => (
-                        <TouchableOpacity
-                            style={mainStyles.tab(activeCategory, item)}
-                            onPress={() => setCategory(item)}
-                        >
-                            <Text style={mainStyles.tabText(activeCategory, item)}>
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={(item) => item}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                />
-            </View>
-
-            {
-                activeCategory === 'Order Placed' && <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {orderPlaced?.length > 0 ? (
-                            orderPlaced.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item?.table?.name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
-            }
+        <View style={mainStyles.tabsContainer}>
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                       estimatedItemSize={80}
+                       data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
+                       renderItem={({item}) => (<TouchableOpacity
+                           style={mainStyles.tab(activeCategory, item)}
+                           onPress={() => setCategory(item)}
+                       >
+                           <Text style={mainStyles.tabText(activeCategory, item)}>
+                               {item}
+                           </Text>
+                       </TouchableOpacity>)}
+                       keyExtractor={(item) => item}
+                       horizontal={true}
+                       showsHorizontalScrollIndicator={false}
+            />
+        </View>
 
 
-            {
-                activeCategory === 'Cooking In Progress' && <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {cookingInProgress?.length > 0 ? (
-                            cookingInProgress.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item?.table?.name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
-            }
+        {activeCategory === 'Order Placed' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                         data={orderPlaced}
+                                                         numColumns={2}
+                                                         estimatedItemSize={80}
+                                                         showsVerticalScrollIndicator={false}
+                                                         renderItem={({item, index}) => (
+                                                             <ColumnItem numColumns={2} index={index}>
+                                                                 <TableCustom
+                                                                     item={item}>{item?.table?.name}</TableCustom>
+                                                             </ColumnItem>)}
+        />}
 
-            {activeCategory === 'Ready To Serve' &&
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between'
-                    }}>
-                        {readyToServe?.length > 0 ? (
-                            readyToServe.map((item, index) => (
-                                <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                    <TableCustom item={item}>{item?.table?.name}</TableCustom>
-                                </View>
-                            ))
-                        ) : (
-                            <NoDataFound/>
-                        )}
-                    </View>
-                </ScrollView>
-            }
-        </ScrollView>
-    );
+
+        {activeCategory === 'Cooking In Progress' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                                data={cookingInProgress}
+                                                                numColumns={2}
+                                                                estimatedItemSize={80}
+                                                                showsVerticalScrollIndicator={false}
+                                                                renderItem={({item, index}) => (
+                                                                    <ColumnItem numColumns={2} index={index}>
+                                                                        <TableCustom
+                                                                            item={item}>{item?.table?.name}</TableCustom>
+                                                                    </ColumnItem>)}
+        />}
+
+        {activeCategory === 'Ready To Serve' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                           data={readyToServe}
+                                                           numColumns={2}
+                                                           estimatedItemSize={80}
+                                                           showsVerticalScrollIndicator={false}
+                                                           renderItem={({item, index}) => (
+                                                               <ColumnItem numColumns={2} index={index}>
+                                                                   <TableCustom
+                                                                       item={item}>{item?.table?.name}</TableCustom>
+                                                               </ColumnItem>)}
+        />}
+    </View>);
 };
 
 export default DineIn;

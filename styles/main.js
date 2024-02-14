@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     }),
     tabText: (activeCategory, item) => ({
         fontFamily: FONT.medium,
-        color: activeCategory === item ? COLORS.primary : COLORS.gray2,
+        color: activeCategory === item ? COLORS.primary : COLORS.gray3,
     }),
     footerContainer: {
         flex: 1,

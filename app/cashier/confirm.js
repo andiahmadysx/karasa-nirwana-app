@@ -35,12 +35,16 @@ import {useOrder} from '../../hooks/Order';
 import ProductList from '../../components/cashier/ProductList';
 import {useRouter} from 'expo-router';
 import {formatCurrency} from '../../utils/formatCurrency';
-import {usePost} from '../../hooks/Fetch';
+import useCustomQuery, {useGet, usePost} from '../../hooks/Fetch';
 import {COLORS, SIZES} from "../../constants";
 import {mainStyles} from "../../styles";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {FlashList} from "@shopify/flash-list";
+import {ColumnItem} from "../../components/common/ColumnItem";
+import CardProductMenu from "../../components/cashier/CardProductMenu";
+import NoDataFound from "../../components/common/NoDataFound";
 
 
 const Confirm = () => {
@@ -54,7 +58,11 @@ const Confirm = () => {
     const [customerName, setCustomerName] = useState('');
     const [paymentAmount, setPaymentAmount] = useState(0);
     const toast = useToast();
-
+    const {reset} = useOrder();
+    const {refetch: refetchOrderPlaced } = useCustomQuery('orderPlacedDineIn', useGet('/transactions/order-placed?is_takeaway=0'));
+    const {
+        refetch: refetchOrderPlacedTakeaway
+    } = useCustomQuery('orderPlaced', useGet('/transactions/order-placed?is_takeaway=1'));
     const calculateTotalPrice = useMemo(() => {
         return order.products.reduce((total, product) => total + product.price * product.qty, 0);
     }, [order.products]);
@@ -76,7 +84,7 @@ const Confirm = () => {
 
     // Memoized handlePaymentAmountChange
     const handlePaymentAmountChange = useCallback((amount) => {
-        const parsedAmount = parseInt(amount) || 0;
+        const parsedAmount = parseInt(amount);
         const totalOrderPrice = calculateTotalPrice;
         const changeAmount = parsedAmount - totalOrderPrice;
 
@@ -98,6 +106,10 @@ const Confirm = () => {
         const transactionsResponse = await postCreateTransactions(data);
 
         if (transactionsResponse.success) {
+
+
+            refetchOrderPlaced();
+            refetchOrderPlacedTakeaway();
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -118,10 +130,8 @@ const Confirm = () => {
                     )
                 },
             });
-
             router.push(`/cashier/transactions/${transactionsResponse.data.transaction.id}`);
         } else {
-            console.log(transactionsResponse)
             toast.show({
                 placement: "bottom",
                 duration: 3000,
@@ -148,15 +158,24 @@ const Confirm = () => {
     }, [setOrder, postCreateTransactions, order]);
 
     return (<SafeAreaView style={mainStyles.container}>
-        <FlatList
-            estimatedItemSize={80}
-            numColumns={1}
-            horizontal={false}
-            style={{height: 'fit-content', flexGrow: 0, maxHeight: 350}}
-            renderItem={({item}) => <ProductList item={item}/>}
-            data={order?.products}
-            keyExtractor={(item) => item.id.toString()}
-        />
+
+
+        <View
+            style={{
+                width: '100%',
+                flex: 1,
+                marginTop: SIZES.medium,
+            }}
+        >
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                data={order?.products}
+                numColumns={1}
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
+                // extraData={isUpdated}
+                renderItem={({item}) => <ProductList item={item}/>}
+            />
+        </View>
 
         <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
             <Text
@@ -176,8 +195,8 @@ const Confirm = () => {
                     <Controller
                         control={control}
                         name="customerName"
-                        render={({field: {value, onChange, onBlur}}) => (
-                            <InputField
+                        render={({field: {value, onChange}}) => (
+                            <InputField onBlur={() => {}}
                                 type="text"
                                 placeholder="..."
                                 value={value}

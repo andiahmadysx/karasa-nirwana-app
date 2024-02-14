@@ -10,6 +10,9 @@ import {COLORS, SIZES} from "../../constants";
 import {mainStyles} from "../../styles";
 import {useGet} from "../../hooks/Fetch";
 import {FlashList} from "@shopify/flash-list";
+import {generatePDF} from "../../utils/generatePDF";
+import {useRouter} from "expo-router";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const getInitialDate = (daysOffset) => {
     const currentDate = new Date();
@@ -66,8 +69,10 @@ const DateRangePicker = ({
     </View>
 );
 
-const TransactionItem = ({amount, description, status}) => (
-    <TouchableOpacity style={{
+const TransactionItem = ({amount, description, status, id, router}) => (
+    <TouchableOpacity onPress={() => {
+        router.navigate('/owner/receipt/' + id);
+    }} style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: SIZES.medium,
@@ -83,7 +88,7 @@ const TransactionItem = ({amount, description, status}) => (
             <View>
                 <Text style={{fontSize: SIZES.medium}}>{formatCurrency(amount)}</Text>
                 <Text
-                      style={{color: COLORS.darkGray}}>{description}</Text>
+                    style={{color: COLORS.darkGray}}>{description}</Text>
             </View>
         </View>
 
@@ -111,6 +116,8 @@ const TransactionHistory = () => {
     const [transactionData, setTransactionData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const router = useRouter();
+
 
     const getTransactionHistory = useGet(`/owners/transaction-history`);
 
@@ -183,7 +190,7 @@ const TransactionHistory = () => {
                 paddingHorizontal: SIZES.xxLarge,
             }}>
                 <TransactionInfo title="Transaction" value={transactions?.total_transactions}/>
-                <TransactionInfo title="Total Sales" value={formatCurrency(transactions?.total_sales)}/>
+                <TransactionInfo title="Total Sales" value={formatCurrency(parseInt(transactions?.total_sales))}/>
             </View>
 
             <DateRangePicker
@@ -196,42 +203,47 @@ const TransactionHistory = () => {
             />
 
 
-            <FlashList
-                renderItem={({item}) => <TransactionItem amount={parseInt(item.total_price)} description={item.invoice_number}
-                                                         status={item.status}/>}
-                data={transactionData || []}
-                estimatedItemSize={200}
-                keyExtractor={(item, index) => index.toString()}
-                onEndReached={handleEndReached}
-                onEndReachedThreshold={0.1} // Adjust as needed
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                       renderItem={({item}) => <TransactionItem router={router} id={item.id}
+                                                                amount={parseInt(item.total_price)}
+                                                                description={item.invoice_number}
+                                                                status={item.status}/>}
+                       data={transactionData || []}
+                       estimatedItemSize={200}
+                       keyExtractor={(item, index) => index.toString()}
+                       onEndReached={handleEndReached}
+                       onEndReachedThreshold={0.1} // Adjust as needed
             />
 
             <Center h={400} style={styles.dateSelectionModalCenter}>
-                <DateSelectionModal
-                    isOpen={showModalStartDate}
-                    onClose={() => setShowModalStartDate(false)}
-                    title="Select Start Date"
-                    selected={startDate}
-                    onDateChange={(date) => {
-                        handleDateChange(date, setStartDate, setShowModalStartDate)
-                        refetch(date, endDate)
-                    }}
+                <DateSelectionModal startDate={startDate}
+                                    isOpen={showModalStartDate}
+                                    onClose={() => setShowModalStartDate(false)}
+                                    title="Select Start Date"
+                                    selected={startDate}
+                                    onDateChange={(date) => {
+                                        handleDateChange(date, setStartDate, setShowModalStartDate)
+                                        refetch(date, endDate)
+                                    }}
                 />
             </Center>
 
             <Center h={400} style={styles.dateSelectionModalCenter}>
-                <DateSelectionModal
-                    isOpen={showModalEndDate}
-                    onClose={() => setShowModalEndDate(false)}
-                    title="Select End Date"
-                    selected={endDate}
-                    onDateChange={(date) => {
-                        handleDateChange(date, setEndDate, setShowModalEndDate)
-                        refetch(date, startDate);
-                    }}
+                <DateSelectionModal startDate={startDate}
+                                    isOpen={showModalEndDate}
+                                    onClose={() => setShowModalEndDate(false)}
+                                    title="Select End Date"
+                                    selected={endDate}
+                                    onDateChange={(date) => {
+                                        handleDateChange(date, setEndDate, setShowModalEndDate)
+                                        refetch(date, startDate);
+                                    }}
                 />
             </Center>
             <TouchableOpacity
+                onPress={() => {
+                    generatePDF(transactions?.transactions?.data, startDate, endDate, transactions?.total_transaction, transactions?.total_sales)
+                }}
                 style={{
                     paddingHorizontal: SIZES.xxLarge,
                     paddingVertical: SIZES.medium,

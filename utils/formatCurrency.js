@@ -1,7 +1,3 @@
-export const formatCurrency = (value) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-    }).format(value);
+export const formatCurrency = (value, isSpacing = true) => {
+    return value ? isSpacing ? 'Rp. ' + value.toLocaleString() : 'Rp.' + value.toLocaleString() : 0;
 }

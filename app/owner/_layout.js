@@ -1,9 +1,10 @@
 import React from 'react';
-import {Stack, useRouter} from "expo-router";
+import {Link, Stack, useRouter} from "expo-router";
 import {COLORS, icons, SIZES} from "../../constants";
 import {View} from "react-native";
 import Clock from "../../components/common/Clock";
 import {DrawerToggleButton} from "@react-navigation/drawer";
+import {CloseIcon, Icon} from "@gluestack-ui/themed";
 
 const Layout = () => {
     const router = useRouter();
@@ -86,6 +87,20 @@ const Layout = () => {
                     ),
             }
         }/>
+
+        <Stack.Screen name={'receipt/[id]'} options={{
+            headerBackVisible: false,
+            headerTitle: '',
+            headerStyle: {
+                backgroundColor: COLORS.bg,
+            },
+            headerShadowVisible: false,
+            headerLeft: () => <Link href={'/cashier'} style={{
+                alignItems: 'center',
+                marginLeft: SIZES.light
+            }}><Icon as={CloseIcon} m="$2" w="$6" h="$6"/>
+            </Link>
+        }}/>
 
     </Stack>
 };

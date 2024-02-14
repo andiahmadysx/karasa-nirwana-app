@@ -224,7 +224,7 @@ const Id = (props) => {
                                 control={control}
                                 name="name"
                                 render={({field}) => (
-                                    <InputField
+                                    <InputField onBlur={() => {}}
                                         type="text"
                                         placeholder="..."
                                         value={field.value}
@@ -250,7 +250,7 @@ const Id = (props) => {
                                 control={control}
                                 name="price"
                                 render={({field}) => (
-                                    <InputField
+                                    <InputField onBlur={() => {}}
                                         keyboardType={'numeric'}
                                         type="text"
                                         placeholder="..."
@@ -277,7 +277,7 @@ const Id = (props) => {
                                 control={control}
                                 name="stock"
                                 render={({field}) => (
-                                    <InputField
+                                    <InputField onBlur={() => {}}
                                         keyboardType={'numeric'}
                                         type="text"
                                         placeholder="..."

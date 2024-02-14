@@ -29,9 +29,8 @@ import {
 } from "@gluestack-ui/themed";
 import {useNotification} from "../../hooks/Notification";
 import {FlashList} from "@shopify/flash-list";
-import {router, useFocusEffect} from "expo-router";
 import {useAuth} from "../../hooks/Auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {ColumnItem} from "../../components/common/ColumnItem";
 
 const WaiterDashboard = () => {
     const [activeCategory, setCategory] = useState('Ready to Serve');
@@ -68,23 +67,23 @@ const WaiterDashboard = () => {
             setServed(data?.transactions);
         })
     }
-    useFocusEffect(() => {
-        async function fetchData() {
-            const response = await AsyncStorage.getItem('@user');
-            const userOnStorage = JSON.parse(response);
-            if (userOnStorage?.role !== 'waiter') {
-                router.navigate('/' + userOnStorage?.role);
-            }
-        }
-
-        if (!user) {
-            fetchData();
-        } else {
-            if (user.role !== 'waiter') {
-                router.navigate('/' + user.role);
-            }
-        }
-    })
+    // useFocusEffect(() => {
+    //     async function fetchData() {
+    //         const response = await AsyncStorage.getItem('@user');
+    //         const userOnStorage = JSON.parse(response);
+    //         if (userOnStorage?.role !== 'waiter') {
+    //             router.navigate('/' + userOnStorage?.role);
+    //         }
+    //     }
+    //
+    //     if (!user) {
+    //         fetchData();
+    //     } else {
+    //         if (user.role !== 'waiter') {
+    //             router.navigate('/' + user.role);
+    //         }
+    //     }
+    // })
 
 
     useEffect(() => {
@@ -142,52 +141,37 @@ const WaiterDashboard = () => {
         </View>
 
         {
-            activeCategory === 'Served' && <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between'
-                }}>
-                    {served?.length > 0 ? (
-                        served.map((item, index) => (
-                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                <TableCustom item={item} handlePress={() => {
-                                    setSelectedTransaction(item);
-                                    setShowModalTable(true);
-                                }}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
-            </ScrollView>
+            activeCategory === 'Served' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                                                      data={served}
+                                                      numColumns={2}
+                                                      estimatedItemSize={80}
+                                                      showsVerticalScrollIndicator={false}
+                                                      renderItem={({item, index}) => (
+                                                          <ColumnItem numColumns={2} index={index}>
+                                                              <TableCustom item={item} handlePress={() => {
+                                                                  setSelectedTransaction(item);
+                                                                  setShowModalTable(true);
+                                                              }}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                                                          </ColumnItem>
+                                                      )}
+            />
         }
 
         {activeCategory === 'Ready to Serve' &&
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: SIZES.small,
-                    justifyContent: 'space-between'
-                }}>
-                    {readyToServe?.length > 0 ? (
-                        readyToServe.map((item, index) => (
-                            <View key={item.id} style={{flexBasis: '46%', margin: SIZES.light}}>
-                                <TableCustom handlePress={() => {
-                                    setSelectedTransaction(item);
-                                    setShowModalTable(true);
-                                }}
-                                             item={item}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
-            </ScrollView>
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                       data={readyToServe}
+                       numColumns={2}
+                       estimatedItemSize={80}
+                       showsVerticalScrollIndicator={false}
+                       renderItem={({item, index}) => (
+                           <ColumnItem numColumns={2} index={index}>
+                               <TableCustom item={item} handlePress={() => {
+                                   setSelectedTransaction(item);
+                                   setShowModalTable(true);
+                               }}>{item?.is_takeaway ? item?.customer_name : item?.table?.name}</TableCustom>
+                           </ColumnItem>
+                       )}
+            />
         }
 
         {/* MODAL SELECT TABLE*/}

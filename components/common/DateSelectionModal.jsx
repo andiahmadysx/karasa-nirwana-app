@@ -10,7 +10,7 @@ import {
 } from "@gluestack-ui/themed";
 import {Text} from "react-native";
 import {COLORS} from "../../constants";
-import DatePicker from "react-native-modern-datepicker";
+import DatePicker, {getFormatedDate} from "react-native-modern-datepicker";
 import React from "react";
 
 const DateSelectionModal = ({
@@ -18,7 +18,7 @@ const DateSelectionModal = ({
                                 onClose,
                                 title,
                                 onDateChange,
-                                selected
+                                selected, startDate
                             }) => (
     <Modal isOpen={isOpen} onClose={onClose} size={'md'}>
         <ModalBackdrop/>
@@ -32,6 +32,8 @@ const DateSelectionModal = ({
             <ModalBody>
                 <DatePicker
                     selected={selected}
+                    maximumDate={getFormatedDate(new Date(), 'DD-MM-YYYY')}
+                    minimumDate={title === 'Select End Date' ? startDate : null}
                     mode={'calendar'}
                     options={{
                         backgroundColor: COLORS.bg,

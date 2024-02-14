@@ -1,14 +1,16 @@
 import React, {useMemo, useState} from 'react';
-import {SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {SafeAreaView, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {mainStyles, searchStyles} from '../../styles';
 import {COLORS, SIZES} from '../../constants';
-import NoDataFound from '../../components/common/NoDataFound';
 import CardUser from '../../components/admin/CardUser';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
 import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import debounce from 'lodash/debounce';
+import {FlashList} from "@shopify/flash-list";
+import {ColumnItem} from "../../components/common/ColumnItem";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const Users = () => {
     const router = useRouter();
@@ -61,50 +63,34 @@ const Users = () => {
                 </View>
             </View>
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
+
+            <View
                 style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
                     marginTop: SIZES.small,
-                    marginHorizontal: SIZES.light,
-                    flex: 1,
+                    justifyContent: 'space-between',
+                    borderRadius: SIZES.small,
                 }}
-                contentContainerStyle={{
-                    justifyContent: 'center',
-                }}
-                horizontal={false}
             >
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        marginTop: SIZES.small,
-                        justifyContent: 'space-between',
-                        borderRadius: SIZES.small,
-                    }}
-                >
-                    {filteredUsers?.length > 0 ? (
-                        filteredUsers.map((item, index) => (
-                            <View
-                                key={item.id}
-                                style={{
-                                    flexBasis: '48.5%',
-                                    marginBottom: SIZES.small + 2,
-                                    borderRadius: SIZES.small,
-                                }}
-                            >
-                                <CardUser
-                                    handlePress={() => {
-                                        handleEdit(item.id);
-                                    }}
-                                    item={item}
-                                />
-                            </View>
-                        ))
-                    ) : (
-                        <NoDataFound/>
-                    )}
-                </View>
-            </ScrollView>
+                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                           showsVerticalScrollIndicator={false}
+                           data={filteredUsers}
+                           numColumns={2}
+                           estimatedItemSize={80}
+
+                           renderItem={({item, index}) => (
+                               <ColumnItem numColumns={2} index={index}>
+                                   <CardUser
+                                       handlePress={() => {
+                                           handleEdit(item.id);
+                                       }}
+                                       item={item}
+                                   />
+                               </ColumnItem>
+                           )}
+                />
+            </View>
 
             {!filteredUsers && (
                 <TouchableOpacity

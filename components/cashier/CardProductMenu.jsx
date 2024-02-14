@@ -117,9 +117,7 @@ const CardProduct = ({ item }) => {
 
 const styles = {
     cardContainer: {
-        flexBasis: '50%',
-        marginRight: '4%',
-        marginVertical: '3%',
+        width: '100%',
         alignItems: 'start',
         borderRadius: SIZES.xxSmall,
         backgroundColor: '#fff',

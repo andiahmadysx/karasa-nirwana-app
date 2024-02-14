@@ -58,11 +58,13 @@ const Layout = () => {
                 backgroundColor: COLORS.bg,
             },
             headerShadowVisible: false,
-            headerLeft: () => <Link href={'/cashier'} style={{
-                alignItems: 'center',
-                marginLeft: SIZES.light
-            }}><Icon as={CloseIcon} m="$2" w="$6" h="$6"/>
-            </Link>
+            headerLeft: () =>  <Icon
+                as={CloseIcon}
+                m="$2"
+                w="$6"
+                h="$6"
+                onPress={() => router.navigate('cashier')} // Use navigation.navigate
+            />
         }}/>
     </Stack>
 };

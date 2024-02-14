@@ -10,6 +10,7 @@ import {mainStyles} from "../../styles";
 import {formatDate} from "../../utils/formatDate";
 import {useGet} from "../../hooks/Fetch";
 import {FlashList} from "@shopify/flash-list";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const getInitialDate = (daysOffset) => {
     const currentDate = new Date();
@@ -129,7 +130,6 @@ const OwnerDashboard = () => {
         setTotalPages(response.data.logs.last_page);
     };
 
-    console.log(totalPages)
     const refetch = async (sDate, eDate, page = 1, perPage = 15) => {
         const response = await getLogActivity({
             params: {
@@ -179,55 +179,36 @@ const OwnerDashboard = () => {
                 showModalEndDate={() => setShowModalEndDate(true)}
             />
 
-            <FlashList
-                renderItem={({item}) => <LogItem username={item.user.username} date={item.created_at}
-                                                 activity={item.activity} role={item.user.role}/>}
-                data={logs || []}
-                estimatedItemSize={200}
-                keyExtractor={(item, index) => index.toString()}
-                onEndReached={handleEndReached}
-                onEndReachedThreshold={0.1} // Adjust as needed
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                       renderItem={({item}) => <LogItem username={item.user.username} date={item.created_at}
+                                                        activity={item.activity} role={item.user.role}/>}
+                       data={logs || []}
+                       estimatedItemSize={200}
+                       keyExtractor={(item, index) => index.toString()}
+                       onEndReached={handleEndReached}
+                       onEndReachedThreshold={0.1} // Adjust as needed
             />
 
 
             <Center h={400} style={{position: 'absolute'}}>
-                <DateSelectionModal
-                    isOpen={showModalStartDate}
-                    onClose={() => setShowModalStartDate(false)}
-                    title="Select Start Date"
-                    selected={startDate}
-                    onDateChange={(date) => handleDateChange(date, setStartDate, setShowModalStartDate)}
+                <DateSelectionModal startDate={startDate}
+                                    isOpen={showModalStartDate}
+                                    onClose={() => setShowModalStartDate(false)}
+                                    title="Select Start Date"
+                                    selected={startDate}
+                                    onDateChange={(date) => handleDateChange(date, setStartDate, setShowModalStartDate)}
                 />
             </Center>
 
             <Center h={400} style={{position: 'absolute'}}>
-                <DateSelectionModal
-                    isOpen={showModalEndDate}
-                    onClose={() => setShowModalEndDate(false)}
-                    title="Select End Date"
-                    onDateChange={(date) => handleDateChange(date, setEndDate, setShowModalEndDate)}
-                    selected={endDate}
+                <DateSelectionModal startDate={startDate}
+                                    isOpen={showModalEndDate}
+                                    onClose={() => setShowModalEndDate(false)}
+                                    title="Select End Date"
+                                    onDateChange={(date) => handleDateChange(date, setEndDate, setShowModalEndDate)}
+                                    selected={endDate}
                 />
             </Center>
-
-
-            <TouchableOpacity
-                style={{
-                    paddingHorizontal: SIZES.xxLarge,
-                    paddingVertical: SIZES.medium,
-                    backgroundColor: COLORS.primary,
-                    borderRadius: SIZES.small,
-                    position: 'absolute',
-                    right: SIZES.xLarge + 4,
-                    bottom: SIZES.xxLarge,
-                }}
-            >
-                <Text style={{
-                    fontWeight: 600,
-                    fontSize: SIZES.medium,
-                    color: COLORS.white
-                }}>Export</Text>
-            </TouchableOpacity>
         </SafeAreaView>
     );
 };

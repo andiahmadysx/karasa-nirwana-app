@@ -1,40 +1,11 @@
-import * as Print from "expo-print";
-import {shareAsync} from "expo-sharing";
-import {formatCurrency} from "./formatCurrency";
-import {formatDate} from "./formatDate";
-import * as FileSystem from 'expo-file-system';
-
-export const generatePDF = async (transactions, startDate, endDate, total_transaction, total_sales) => {
-
-
-   let transactionsElem = ``;
-   transactions.forEach((trans, index) => {
-      let products = [];
-      trans.items.forEach((item) => {
-         products.push(`${item.qty} ${item.product.name}`)
-      })
-
-      transactionsElem += `<tr class="table-body">
-        <td style="font-family: sans-serif; padding-left: 8px">${index}</td>
-        <td class="left" style="font-family: sans-serif;">${trans.id}</td>
-        <td class="left" style="font-family: sans-serif;">${!trans.is_takeaway ? 'Dine-in' : 'Takeaway'}</td>
-        <td class="left" style="font-family: sans-serif;width: 15%">${!trans.is_takeaway ? trans?.table?.name : trans?.customer_name}</td>
-        <td class="products" style="font-family: sans-serif; padding-left: 8px"> ${products.join(', ')}
-        </td>
-        <td class="sub-total left green" style="font-family: sans-serif;">${formatCurrency(parseInt(trans.total_price))}</td>
-        <td class="left" style="font-family: sans-serif;">${formatDate(trans.created_at)}</td>
-    </tr>`
-   });
-
-
-   const html = `<!DOCTYPE HTML>
+<!DOCTYPE HTML>
 <html lang="id">
 <head>
     <meta content="text/html;charset=UTF-8" http-equiv="Content-Type">
-    <title>Transaction Report</title>
+    <title>Document</title>
     <style>
         @page {
-            size: 11.69in 16.54in;
+            size: 7in 9.25in;
             margin: 27mm 16mm 27mm 16mm;
         }
 
@@ -183,7 +154,7 @@ export const generatePDF = async (transactions, startDate, endDate, total_transa
     <tr>
         <td style="padding-left: 10px; padding-top: 20px">
             <h6 style="margin-bottom: 4px; font-family: sans-serif; margin-top: 0; font-weight: normal">Print Date :
-                ${formatDate(new Date())}</h6>
+                12-12-2024</h6>
 
         </td>
     </tr>
@@ -191,7 +162,7 @@ export const generatePDF = async (transactions, startDate, endDate, total_transa
     <tr>
         <td style="padding-left: 10px;">
             <h6 style="margin-bottom: 4px; font-family: sans-serif; margin-top: 0; font-weight: normal">Date Range :
-                ${startDate} - ${endDate} </h6>
+                12-12-2024 - 12-12-2024 </h6>
 
         </td>
     </tr>
@@ -199,7 +170,7 @@ export const generatePDF = async (transactions, startDate, endDate, total_transa
     <tr style=" width: 50%; gap: 24px; display: flex">
         <td style="padding-left: 10px;">
             <h6 style="margin-bottom: 4px; font-family: sans-serif; margin-top: 0; font-weight: normal">Total
-                Transaction : ${total_transaction} </h6>
+                Transaction : 12 </h6>
         </td>
     </tr>
 
@@ -217,7 +188,16 @@ export const generatePDF = async (transactions, startDate, endDate, total_transa
         <td style="font-family: sans-serif; color: #333;">Total Price</td>
         <td style="font-family: sans-serif; color: #333;">Date Created</td>
     </tr>
-    ${transactionsElem}
+    <tr>
+        <td style="font-family: sans-serif; padding-left: 8px">1</td>
+        <td class="left" style="font-family: sans-serif;">RCP-AKFJDSAL21</td>
+        <td class="left" style="font-family: sans-serif;">Dine-In</td>
+        <td class="left" style="font-family: sans-serif;width: 15%">12</td>
+        <td class="products" style="font-family: sans-serif; padding-left: 8px">x1 Pisang Goreng, x1 Rumah makan</td>
+        <td class="sub-total left green" style="font-family: sans-serif;">Rp.39.300</td>
+        <td class="left" style="font-family: sans-serif;">12 Feb 2023</td>
+    </tr>
+    <!-- here -->
 </table>
 <hr>
 <table>
@@ -226,19 +206,9 @@ export const generatePDF = async (transactions, startDate, endDate, total_transa
         <td></td>
         <td class="total" style="font-family: sans-serif; font-weight: bolder; color: #333;">Total Sales</td>
         <td class="right green total-amount" style="font-family: sans-serif; font-weight: bolder; color:#079992;">
-            ${formatCurrency(total_sales)}
+            Rp.39.300
         </td>
     </tr>
 </table>
 </body>
 </html>
-`;
-
-   const { uri } = await Print.printToFileAsync({ html });
-    try {
-        await shareAsync(uri);
-    } catch (error) {
-        console.error('Error sharing PDF:', error.message);
-    }
-
-}

@@ -12,6 +12,8 @@ import {useGet} from "../../hooks/Fetch";
 import DashboardCard from "../../components/common/DashboardCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useAuth} from "../../hooks/Auth";
+import {FlashList} from "@shopify/flash-list";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const getInitialDate = (daysOffset) => {
     const currentDate = new Date();
@@ -19,8 +21,8 @@ const getInitialDate = (daysOffset) => {
     return getFormatedDate(currentDate, 'DD-MM-YYYY');
 };
 
-const ProductItem = ({index, name, price, saledStock}) => (
-    <View style={styles.productItemContainer}>
+const ProductItem = ({index, name, price, saledStock, key}) => (
+    <View style={styles.productItemContainer} key={key}>
         <View style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -139,13 +141,15 @@ const OwnerDashboard = () => {
 
                 <View style={styles.bestSellingProductsContainer}>
                     <Text style={styles.bestSellingProductsTitle}>Best Selling Products</Text>
-                    {
-                        owners?.best_selling_products?.map((product, index) => <ProductItem key={product.id}
-                                                                                            index={index + 1}
-                                                                                            name={product.name}
-                                                                                            price={formatCurrency(product.sub_total)}
-                                                                                            saledStock={product.qty}/>)
-                    }
+                        <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                            data={owners?.best_selling_products}
+                            renderItem={({item, index}) => <ProductItem key={item.id}
+                                                                 index={index + 1}
+                                                                 name={item.name}
+                                                                 price={formatCurrency(item.sub_total)}
+                                                                 saledStock={item.qty}/>}
+                            estimatedItemSize={200}
+                            />
                 </View>
 
                 <View style={styles.insightsContainer}>
@@ -162,7 +166,7 @@ const OwnerDashboard = () => {
             </ScrollView>
 
             <Center h={400} style={styles.dateSelectionModalCenter}>
-                <DateSelectionModal
+                <DateSelectionModal startDate={startDate}
                     isOpen={showModalStartDate}
                     onClose={() => setShowModalStartDate(false)}
                     title="Select Start Date"
@@ -175,14 +179,14 @@ const OwnerDashboard = () => {
             </Center>
 
             <Center h={400} style={styles.dateSelectionModalCenter}>
-                <DateSelectionModal
+                <DateSelectionModal startDate={startDate}
                     isOpen={showModalEndDate}
                     onClose={() => setShowModalEndDate(false)}
                     title="Select End Date"
                     selected={endDate}
                     onDateChange={(date) => {
                         handleDateChange(date, setEndDate, setShowModalEndDate)
-                        fetch(date, startDate);
+                        fetch(startDate, date);
                     }}
                 />
             </Center>

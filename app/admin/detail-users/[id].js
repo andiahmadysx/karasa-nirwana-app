@@ -144,7 +144,7 @@ const Id = () => {
                     control={control}
                     name={name}
                     render={({field}) => (
-                        <InputField
+                        <InputField onBlur={() => {}}
                             type={type}
                             placeholder={placeholder}
                             value={field.value}
@@ -279,7 +279,7 @@ const Id = () => {
                                     control={control}
                                     name="newPassword"
                                     render={({field}) => (
-                                        <InputField
+                                        <InputField onBlur={() => {}}
                                             type="password"
                                             placeholder="..."
                                             value={field.value}

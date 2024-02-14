@@ -20,13 +20,10 @@ const Logout = ({setShowModal, showModal}) => {
     const toast = useToast();
     const {removeUser} = useAuth();
     const router = useRouter();
-
     const logoutPost = usePost('/auth/logout');
-
 
     const handleLogout = async () => {
         const response = await logoutPost();
-
         if (response.success) {
             removeUser();
             router.navigate('/login');
@@ -62,9 +59,7 @@ const Logout = ({setShowModal, showModal}) => {
         }}>
             <Modal
                 isOpen={showModal}
-                onClose={() => {
-                    setShowModal(false)
-                }}
+                onClose={setShowModal}
                 size={'md'}
             >
                 <ModalBackdrop />

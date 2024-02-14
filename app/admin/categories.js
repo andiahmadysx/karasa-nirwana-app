@@ -40,6 +40,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import useCustomQuery, {useDelete, useGet, usePost, useUpdate,} from '../../hooks/Fetch';
 import {FlashList} from "@shopify/flash-list";
 import ModalDelete from "../../components/common/ModalDelete";
+import NoDataFound from "../../components/common/NoDataFound";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required'),
@@ -116,33 +117,25 @@ const ManageCategories = () => {
     const renderCategoryList = () => {
         if (filteredCategories.length === 0) {
             return (
-                <Center style={{flex: 0.8}}>
-                    <Image
-                        source={{
-                            uri: 'https://bepharco.com/no-products-found.png',
-                        }}
-                        width={200}
-                        height={300}
-                    />
-                </Center>
+                <NoDataFound/>
             );
         }
 
         return (
-            <FlashList
-                numColumns={1}
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-                estimatedItemSize={80}
-                contentContainerStyle={{height: 'fit-content', flexGrow: 0}}
-                renderItem={({item}) => (
-                    <CategoryListAdmin handlePress={() => {
-                        handleEdit(item);
-                        setSelectedCategoryId(item.id);
-                    }} item={item}/>
-                )}
-                data={filteredCategories}
-                keyExtractor={(item) => item.id.toString()}
+            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                       numColumns={1}
+                       horizontal={false}
+                       showsVerticalScrollIndicator={false}
+                       estimatedItemSize={80}
+                       contentContainerStyle={{height: 'fit-content', flexGrow: 0}}
+                       renderItem={({item}) => (
+                           <CategoryListAdmin handlePress={() => {
+                               handleEdit(item);
+                               setSelectedCategoryId(item.id);
+                           }} item={item}/>
+                       )}
+                       data={filteredCategories}
+                       keyExtractor={(item) => item.id.toString()}
             />
         );
     };
@@ -268,15 +261,16 @@ const ManageCategories = () => {
                                     control={control}
                                     name="name"
                                     render={({field}) => (
-                                        <InputField
+                                        <InputField onBlur={() => {
+                                        }}
 
-                                            type="text"
-                                            placeholder="..."
-                                            value={selectedCategory}
-                                            onChange={(e) => {
-                                                field.onChange(e.nativeEvent.text);
-                                                setSelectedCategory(e.nativeEvent.text);
-                                            }}
+                                                    type="text"
+                                                    placeholder="..."
+                                                    value={selectedCategory}
+                                                    onChange={(e) => {
+                                                        field.onChange(e.nativeEvent.text);
+                                                        setSelectedCategory(e.nativeEvent.text);
+                                                    }}
                                         />
                                     )}
                                 />

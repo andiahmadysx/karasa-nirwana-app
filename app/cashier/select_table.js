@@ -9,13 +9,17 @@ import useCustomQuery, {useGet} from '../../hooks/Fetch';
 import NoDataFound from '../../components/common/NoDataFound';
 import {useOrder} from '../../hooks/Order';
 import usePusher from '../../hooks/Pusher';
+import {FlashList} from "@shopify/flash-list";
+import {ColumnItem} from "../../components/common/ColumnItem";
+import TableCustom from "../../components/common/TableCustom";
 
 const SelectTable = () => {
     const router = useRouter();
     const [selectedTable, setSelectedTable] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const {setOrder, reset} = useOrder();
+    const {setOrder} = useOrder();
     const getNotUsedTables = useGet('/tables/not-used');
+    const [isUpdated, setIsUpdated] = useState(false);
 
 
     const {
@@ -76,26 +80,27 @@ const SelectTable = () => {
                     Available tables : {notUsedTables?.length}
                 </Text>
 
-                <FlatList
+                <FlashList ListEmptyComponent={() => <NoDataFound/>}
                     data={filteredTables}
                     numColumns={2}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({item}) => {
-                        return <View style={{flex: 1, margin: 5}}>
+                    estimatedItemSize={80}
+                    showsVerticalScrollIndicator={false}
+                    extraData={isUpdated}
+                    renderItem={({item, index}) => (
+                        <ColumnItem numColumns={2} index={index}>
                             <TableCustomNotUsed
-                                handlePress={handleSelectTable}
+                                handlePress={(item) => {
+                                    handleSelectTable(item)
+                                    setIsUpdated(!isUpdated)
+                                }}
                                 item={item}
                                 isSelected={item === selectedTable}
                             >
                                 {item.name}
                             </TableCustomNotUsed>
-                        </View>
-                    }}
-                    ListEmptyComponent={<NoDataFound/>}
-                    contentContainerStyle={{
-                        marginTop: SIZES.small,
-                        marginBottom: 120,
-                    }}
+                        </ColumnItem>
+                    )}
                 />
             </View>
 
@@ -141,7 +146,9 @@ const styles = StyleSheet.create({
     tableContainer: {
         marginTop: SIZES.medium,
         marginBottom: SIZES.small,
-        marginHorizontal: SIZES.small,
+        width: '100%',
+        flex: 1,
+        gap: SIZES.large
     },
     tableCount: {
         fontSize: SIZES.medium,
