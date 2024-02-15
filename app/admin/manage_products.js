@@ -72,7 +72,9 @@ const ManageProducts = () => {
                 </View>
             </View>
 
-                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                            numColumns={1}
                            horizontal={false}
                            estimatedItemSize={80}

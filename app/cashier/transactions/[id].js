@@ -195,20 +195,21 @@ const Id = () => {
                                   justifyContent: 'space-between',
                                   marginBottom: SIZES.light
                               }}>
+                          <View style={{
+                              flexDirection: 'row',
+                              gap: SIZES.light
+                          }}>
+                              <Text style={{
+                                  color: COLORS.darkGray,
+                              }}>{item.qty}</Text>
+                              <Text numberOfLines={1} ellipsizeMode="tail" style={{
+                                  maxWidth: 160,
+                                  minWidth: 160,
+                                  color: COLORS.darkGray,
+                              }}>{item.product?.name || 'Product Name'}</Text>
+                          </View>
                             <Text style={{
                                 color: COLORS.darkGray,
-                            }}>{item.qty}</Text>
-                            <Text numberOfLines={1} ellipsizeMode="tail" style={{
-                                maxWidth: 160,
-                                minWidth: 160,
-                                color: COLORS.darkGray,
-                            }}>{item.product?.name || 'Product Name'}</Text>
-                            <Text style={{
-                                color: COLORS.darkGray,
-                                alignSelf: 'flex-end',
-                                textAlign: 'right',
-                                maxWidth: 160,
-                                minWidth: 160,
                             }}>{formatCurrency(item.sub_total)}</Text>
                         </View>
                     ))}

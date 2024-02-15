@@ -157,7 +157,9 @@ const Tables = () => {
                     justifyContent: 'center',
                     borderRadius: SIZES.small,
                 }}>
-                    <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                    <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                         data={filteredTable}
                         numColumns={2}
                         estimatedItemSize={80}

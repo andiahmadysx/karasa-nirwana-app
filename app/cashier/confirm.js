@@ -167,7 +167,9 @@ const Confirm = () => {
                 marginTop: SIZES.medium,
             }}
         >
-            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                 data={order?.products}
                 numColumns={1}
                 keyExtractor={(item, index) => index.toString()}

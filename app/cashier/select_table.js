@@ -80,7 +80,9 @@ const SelectTable = () => {
                     Available tables : {notUsedTables?.length}
                 </Text>
 
-                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                     data={filteredTables}
                     numColumns={2}
                     keyExtractor={(item, index) => index.toString()}

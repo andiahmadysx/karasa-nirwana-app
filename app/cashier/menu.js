@@ -114,7 +114,9 @@ const Menu = () => {
                     marginBottom: 60,
                 }}
             >
-                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                            data={filteredProducts}
                            numColumns={2}
                            keyExtractor={(item, index) => index.toString()}

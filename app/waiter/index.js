@@ -141,7 +141,9 @@ const WaiterDashboard = () => {
         </View>
 
         {
-            activeCategory === 'Served' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            activeCategory === 'Served' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                       data={served}
                                                       numColumns={2}
                                                       estimatedItemSize={80}
@@ -158,7 +160,9 @@ const WaiterDashboard = () => {
         }
 
         {activeCategory === 'Ready to Serve' &&
-            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                        data={readyToServe}
                        numColumns={2}
                        estimatedItemSize={80}

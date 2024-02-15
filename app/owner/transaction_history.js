@@ -203,7 +203,9 @@ const TransactionHistory = () => {
             />
 
 
-            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                        renderItem={({item}) => <TransactionItem router={router} id={item.id}
                                                                 amount={parseInt(item.total_price)}
                                                                 description={item.invoice_number}

@@ -179,7 +179,9 @@ const OwnerDashboard = () => {
                 showModalEndDate={() => setShowModalEndDate(true)}
             />
 
-            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                        renderItem={({item}) => <LogItem username={item.user.username} date={item.created_at}
                                                         activity={item.activity} role={item.user.role}/>}
                        data={logs || []}

@@ -73,7 +73,9 @@ const Users = () => {
                     borderRadius: SIZES.small,
                 }}
             >
-                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                            showsVerticalScrollIndicator={false}
                            data={filteredUsers}
                            numColumns={2}

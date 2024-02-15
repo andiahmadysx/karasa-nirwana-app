@@ -78,24 +78,6 @@ const ChefDashboard = () => {
         schedulePushNotification('New Order to Cook', 'A new order has been placed!');
     });
 
-    // useFocusEffect(() => {
-    //     async function fetchData() {
-    //         const response = await AsyncStorage.getItem('@user');
-    //         const userOnStorage = JSON.parse(response);
-    //         if (userOnStorage?.role !== 'cashier') {
-    //             router.navigate('/' + userOnStorage?.role);
-    //         }
-    //     }
-    //
-    //     if (!user) {
-    //         fetchData();
-    //     } else {
-    //         if (user.role !== 'cashier') {
-    //             router.navigate('/' + user.role);
-    //         }
-    //     }
-    // })
-    //
 
     useEffect(() => {
         initializeNotifications();
@@ -159,7 +141,9 @@ const ChefDashboard = () => {
 
         {
             activeCategory === 'Not Yet Cooked' &&
-            <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                        data={orderPlaced}
                        numColumns={2}
                        estimatedItemSize={80}
@@ -177,7 +161,9 @@ const ChefDashboard = () => {
 
 
         {
-            activeCategory === 'Cooking' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+            activeCategory === 'Cooking' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                        data={cookingInProgress}
                                                        numColumns={2}
                                                        estimatedItemSize={80}
@@ -194,7 +180,9 @@ const ChefDashboard = () => {
 
         }
 
-        {activeCategory === 'Ready to Serve' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+        {activeCategory === 'Ready to Serve' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                            data={readyToServe}
                                                            numColumns={2}
                                                            estimatedItemSize={80}

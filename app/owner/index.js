@@ -141,7 +141,9 @@ const OwnerDashboard = () => {
 
                 <View style={styles.bestSellingProductsContainer}>
                     <Text style={styles.bestSellingProductsTitle}>Best Selling Products</Text>
-                        <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                        <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                             data={owners?.best_selling_products}
                             renderItem={({item, index}) => <ProductItem key={item.id}
                                                                  index={index + 1}

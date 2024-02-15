@@ -71,7 +71,9 @@ const DineIn = () => {
         </View>
 
 
-        {activeCategory === 'Order Placed' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+        {activeCategory === 'Order Placed' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                          data={orderPlaced}
                                                          numColumns={2}
                                                          estimatedItemSize={80}
@@ -84,7 +86,9 @@ const DineIn = () => {
         />}
 
 
-        {activeCategory === 'Cooking In Progress' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+        {activeCategory === 'Cooking In Progress' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                                 data={cookingInProgress}
                                                                 numColumns={2}
                                                                 estimatedItemSize={80}
@@ -96,7 +100,9 @@ const DineIn = () => {
                                                                     </ColumnItem>)}
         />}
 
-        {activeCategory === 'Ready To Serve' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+        {activeCategory === 'Ready To Serve' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                            data={readyToServe}
                                                            numColumns={2}
                                                            estimatedItemSize={80}

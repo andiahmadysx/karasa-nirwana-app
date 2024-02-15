@@ -1,8 +1,7 @@
 import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import {useEffect} from "react";
 
-// Ensure Notifications initialization occurs once app is ready
 export const initializeNotifications = async () => {
     // Request permissions only on Android due to Expo requirements
     if (Platform.OS === 'android') {
@@ -13,13 +12,22 @@ export const initializeNotifications = async () => {
     }
 
     // Get the push token (important for scheduling or sending notifications)
-    await Notifications.getExpoPushTokenAsync();
+    const { data: token } = await Notifications.getExpoPushTokenAsync();
+    return token;
 };
+
 export const useNotification = () => {
+    useEffect(() => {
+        (async () => {
+            try {
+                await initializeNotifications();
+            } catch (error) {
+                console.error('Error initializing notifications:', error);
+            }
+        })();
+    }, []);
+
     const schedulePushNotification = async (title, body) => {
-        useEffect(() => {
-            initializeNotifications();
-        }, []);
         try {
             const trigger = { seconds: 2 }; // Adjust trigger based on your requirements
             const response = await Notifications.scheduleNotificationAsync({

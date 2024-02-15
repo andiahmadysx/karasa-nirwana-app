@@ -62,27 +62,29 @@ const Takeaway = () => {
         >
 
             <View style={mainStyles.tabsContainer}>
-                <FlashList
-                    estimatedItemSize={80}
-                    data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
-                    renderItem={({item}) => (
-                        <TouchableOpacity
-                            style={mainStyles.tab(activeCategory, item)}
-                            onPress={() => setCategory(item)}
-                        >
-                            <Text style={mainStyles.tabText(activeCategory, item)}>
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={(item) => item}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
+                <FlashList 
+                           estimatedItemSize={80}
+                           data={['Order Placed', 'Cooking In Progress', 'Ready To Serve']}
+                           renderItem={({item}) => (
+                               <TouchableOpacity
+                                   style={mainStyles.tab(activeCategory, item)}
+                                   onPress={() => setCategory(item)}
+                               >
+                                   <Text style={mainStyles.tabText(activeCategory, item)}>
+                                       {item}
+                                   </Text>
+                               </TouchableOpacity>
+                           )}
+                           keyExtractor={(item) => item}
+                           horizontal={true}
+                           showsHorizontalScrollIndicator={false}
                 />
             </View>
 
             {
-                activeCategory === 'Order Placed' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                activeCategory === 'Order Placed' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60,
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                                 data={orderPlaced}
                                                                 numColumns={2}
                                                                 estimatedItemSize={80}
@@ -98,7 +100,9 @@ const Takeaway = () => {
 
 
             {
-                activeCategory === 'Cooking In Progress' && <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                activeCategory === 'Cooking In Progress' && <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                                                                        data={cookingInProgress}
                                                                        numColumns={2}
                                                                        estimatedItemSize={80}
@@ -113,7 +117,9 @@ const Takeaway = () => {
             }
 
             {activeCategory === 'Ready To Serve' &&
-                <FlashList ListEmptyComponent={() => <NoDataFound/>}
+                <FlashList contentContainerStyle={{
+                    paddingBottom: 60
+                }} ListEmptyComponent={() => <NoDataFound/>}
                            data={readyToServe}
                            numColumns={2}
                            estimatedItemSize={80}
