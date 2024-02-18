@@ -86,14 +86,14 @@ const modalDelete = ({setShowModal, showModal, url, route, refetch, callback = (
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
-                        <Text size="sm">
+                        <Text size="md">
                             Are you sure you want to delete this item?
                         </Text>
                     </ModalBody>
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -106,7 +106,7 @@ const modalDelete = ({setShowModal, showModal, url, route, refetch, callback = (
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
 

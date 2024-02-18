@@ -308,7 +308,7 @@ const Tables = () => {
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -321,7 +321,7 @@ const Tables = () => {
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
 

@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import PushNotification from "react-native-push-notification";
 
 export const initializeNotifications = async () => {
     // Request permissions only on Android due to Expo requirements
@@ -10,38 +11,18 @@ export const initializeNotifications = async () => {
             throw new Error('Notification permissions must be granted!');
         }
     }
-
-    // Get the push token (important for scheduling or sending notifications)
-    const { data: token } = await Notifications.getExpoPushTokenAsync();
-    return token;
+    return null;
 };
 
 export const useNotification = () => {
-    useEffect(() => {
-        (async () => {
-            try {
-                await initializeNotifications();
-            } catch (error) {
-                console.error('Error initializing notifications:', error);
-            }
-        })();
-    }, []);
-
-    const schedulePushNotification = async (title, body) => {
-        try {
-            const trigger = { seconds: 2 }; // Adjust trigger based on your requirements
-            const response = await Notifications.scheduleNotificationAsync({
-                content: {
-                    title,
-                    body,
-                },
-                trigger,
-            });
-            console.log('Notification scheduled successfully:', response);
-        } catch (error) {
-            console.error('Error scheduling notification:', error);
-            // Handle errors gracefully, e.g., display an error message to the user
-        }
+    const schedulePushNotification = (title, message) => {
+        PushNotification.localNotification({
+            channelId: 'default', // Specify a channel for Android
+            title: title,
+            message: message,
+            playSound: true,
+            soundName: 'default',
+        });
     };
 
     return { schedulePushNotification };

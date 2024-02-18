@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {Stack, useRouter} from 'expo-router';
+import {FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {Stack, useFocusEffect, useRouter} from 'expo-router';
 import {COLORS, icons, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
@@ -11,6 +11,7 @@ import CardProductMenu from "../../components/cashier/CardProductMenu";
 import {ColumnItem} from "../../components/common/ColumnItem";
 import {FlashList} from "@shopify/flash-list";
 import NoDataFound from "../../components/common/NoDataFound";
+import {useAuth} from "../../hooks/Auth";
 
 const Menu = () => {
     const router = useRouter();
@@ -41,6 +42,10 @@ const Menu = () => {
     usePusher('product-channel', 'App\\Events\\ProductCreated', (response) => {
         refetchProducts();
     });
+
+    useFocusEffect(() => {
+        Keyboard.dismiss()
+    })
 
     useEffect(() => {
         if (order?.is_takeaway) {

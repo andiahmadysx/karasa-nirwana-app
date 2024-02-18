@@ -3,6 +3,7 @@ import {Image, Pressable, SafeAreaView, Text, TouchableOpacity, View} from "reac
 import {mainStyles} from "../../../styles";
 import {
     AlertCircleIcon,
+    Button,
     FormControl,
     FormControlError,
     FormControlErrorIcon,
@@ -12,6 +13,7 @@ import {
     FormControlLabelText,
     Input,
     InputField,
+    Spinner,
     Toast,
     ToastTitle,
     useToast,
@@ -25,13 +27,13 @@ import {Picker} from "@react-native-picker/picker";
 import {Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
-import useCustomQuery, {useDelete, useGet, usePostFormData} from "../../../hooks/Fetch";
+import useCustomQuery, {useGet, usePostFormData} from "../../../hooks/Fetch";
 import ModalDelete from "../../../components/common/ModalDelete";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required.'),
-    price: z.number().min(1, 'Required.'),
-    stock: z.number().min(1, 'Required.'),
+    price: z.string().min(1, 'Required.'),
+    stock: z.string().min(1, 'Required.'),
     category_id: z.string(),
 });
 
@@ -53,7 +55,8 @@ const Id = (props) => {
     const isCreateMode = id === 'create';
     const postProduct = usePostFormData('/products');
     const updateProduct = usePostFormData('/products/' + id);
-    const deleteProduct = useDelete('/products/' + id);
+
+    const [isLoading, setIsLoading] = useState(false);
 
 
     // Fetch detailProductsData only if not in create mode
@@ -87,21 +90,25 @@ const Id = (props) => {
         refetch: refetchProducts,
     } = useCustomQuery('products', useGet('/products'));
 
+
+    console.log(detailProducts)
+
     const setFormValues = useCallback(async () => {
         if (!isCreateMode) {
-            await setValue('name', detailProducts?.name);
-            await setValue('price', parseInt(detailProducts?.price));
-            await setValue('stock', parseInt(detailProducts?.stock));
-            await setValue('category_id', detailProducts?.category_id);
+            await setValue('name', detailProducts?.name || '');
+            await setValue('price', String(detailProducts?.price) || '');
+            await setValue('stock', String(detailProducts?.stock) || '');
+            await setValue('category_id', detailProducts?.category_id || '');
         } else {
-            await setValue('category_id', categories[0].id);
+            await setValue('category_id', categories[0]?.id || '');
         }
     }, [isCreateMode, detailProducts, setValue]);
+
 
     useEffect(() => {
         navigation.setOptions({headerTitle: isCreateMode ? 'Add New Product' : 'Edit Product'});
         if (!isCreateMode && detailProductsData && detailProductsData && detailProductsData.image_url) {
-            setImage({ uri: detailProductsData.image_url });
+            setImage({uri: detailProductsData.image_url});
         }
         setFormValues();
     }, [isCreateMode, setFormValues]);
@@ -224,11 +231,12 @@ const Id = (props) => {
                                 control={control}
                                 name="name"
                                 render={({field}) => (
-                                    <InputField onBlur={() => {}}
-                                        type="text"
-                                        placeholder="..."
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.nativeEvent.text)}
+                                    <InputField onBlur={() => {
+                                    }}
+                                                type="text"
+                                                placeholder="..."
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.nativeEvent.text)}
                                     />
                                 )}
                             />
@@ -250,12 +258,13 @@ const Id = (props) => {
                                 control={control}
                                 name="price"
                                 render={({field}) => (
-                                    <InputField onBlur={() => {}}
-                                        keyboardType={'numeric'}
-                                        type="text"
-                                        placeholder="..."
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
+                                    <InputField onBlur={() => {
+                                    }}
+                                                keyboardType={'numeric'}
+                                                type="text"
+                                                placeholder="..."
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
                                     />
                                 )}
                             />
@@ -277,12 +286,13 @@ const Id = (props) => {
                                 control={control}
                                 name="stock"
                                 render={({field}) => (
-                                    <InputField onBlur={() => {}}
-                                        keyboardType={'numeric'}
-                                        type="text"
-                                        placeholder="..."
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
+                                    <InputField onBlur={() => {
+                                    }}
+                                                keyboardType={'numeric'}
+                                                type="text"
+                                                placeholder="..."
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
                                     />
                                 )}
                             />
@@ -366,27 +376,48 @@ const Id = (props) => {
                 </Pressable>
             )}
 
-            <TouchableOpacity onPress={() => {
-                handleSubmit(onSubmit)()
-            }} style={{
-                backgroundColor: COLORS.primary,
-                padding: SIZES.medium,
-                justifyContent: 'center',
-                borderRadius: SIZES.small,
-                position: 'absolute',
-                bottom: SIZES.medium,
-                width: '100%',
-                flex: 1,
-                alignSelf: 'center'
-            }}>
-                <Text style={{
-                    width: '100%',
-                    textAlign: 'center',
-                    color: 'white',
-                    fontSize: SIZES.medium,
-                    fontWeight: 600,
-                }}>Save</Text>
-            </TouchableOpacity>
+            {
+                !isLoading ? <TouchableOpacity onPress={() => {
+                        handleSubmit(onSubmit)()
+                    }} style={{
+                        backgroundColor: COLORS.primary,
+                        padding: SIZES.medium,
+                        justifyContent: 'center',
+                        borderRadius: SIZES.small,
+                        position: 'absolute',
+                        bottom: SIZES.medium,
+                        width: '100%',
+                        flex: 1,
+                        alignSelf: 'center',
+                        height: SIZES.xxLarge + SIZES.large,
+
+                    }}>
+                        <Text style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            color: 'white',
+                            fontSize: SIZES.medium,
+                            fontWeight: 600,
+                        }}>Save</Text>
+                    </TouchableOpacity> :
+
+                    <Button isDisabled={true} onPress={handleSubmit(onSubmit)}
+                            style={{
+                                backgroundColor: COLORS.primary,
+                                padding: SIZES.medium,
+                                height: SIZES.xxLarge + SIZES.large,
+                                justifyContent: 'center',
+                                borderRadius: SIZES.small,
+                                position: 'absolute',
+                                bottom: SIZES.medium,
+                                width: '100%',
+                                flex: 1,
+                                alignSelf: 'center'
+                            }}>
+                        <Spinner size={'small'} color="$secondary600"/>
+                    </Button>
+            }
+
 
             {/*    MODAL DELETE CONFIRMATION */}
             <ModalDelete setShowModal={setShowModal} showModal={showModal} url={'/products/' + id}

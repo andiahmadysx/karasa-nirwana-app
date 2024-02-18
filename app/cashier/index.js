@@ -22,7 +22,6 @@ const CashierDashboard = () => {
 
 
     useFocusEffect(() => {
-
         async function fetchData() {
             const response = await AsyncStorage.getItem('@user');
             const userOnStorage = JSON.parse(response);

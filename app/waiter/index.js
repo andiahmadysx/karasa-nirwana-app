@@ -199,7 +199,7 @@ const WaiterDashboard = () => {
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
-                        <Text size="sm">
+                        <Text size="md">
                             {selectedTransaction?.status === 'ready_to_serve' ? "Have you completed serving this order? Please confirm to ensure a seamless dining experience for our customers." : "Have you successfully cleared the table for this order? Kindly confirm to ensure a clean and welcoming dining environment for our valued customers."}
                         </Text>
 
@@ -244,7 +244,7 @@ const WaiterDashboard = () => {
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -257,7 +257,7 @@ const WaiterDashboard = () => {
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
                             style={{

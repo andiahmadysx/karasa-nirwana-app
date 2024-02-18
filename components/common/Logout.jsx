@@ -71,14 +71,14 @@ const Logout = ({setShowModal, showModal}) => {
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
-                        <Text size="sm">
+                        <Text size="md">
                             Are you sure you want to log out? By confirming, you will be securely logged out of your account.
                         </Text>
                     </ModalBody>
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -91,7 +91,7 @@ const Logout = ({setShowModal, showModal}) => {
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
 

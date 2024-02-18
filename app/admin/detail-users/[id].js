@@ -29,6 +29,7 @@ import {
     RadioIcon,
     RadioIndicator,
     RadioLabel,
+    Spinner,
     Toast,
     ToastTitle,
     useToast,
@@ -54,7 +55,7 @@ const Id = () => {
     const postUser = usePost('/users');
     const updateUser = useUpdate('/users');
     const [isButtonHovered, setIsButtonHovered] = useState(false); // New state for button hover
-
+    const [isLoading, setIsLoading] = useState(false);
 
     const formSchema = z.object({
         username: z.string().min(1, 'Required.'),
@@ -98,6 +99,8 @@ const Id = () => {
 
     const onSubmit = useCallback(async (data) => {
 
+        setIsLoading(true);
+
         if (!isCreateMode && password.length > 6) {
             data.password = password;
         }
@@ -127,9 +130,11 @@ const Id = () => {
             });
 
             setShowModal(false);
+            setIsLoading(false)
         } else {
             alert('username already exist!')
             console.error(`Failed to ${isCreateMode ? 'update' : 'create'} table. Server response:`, response);
+            setIsLoading(false)
         }
     }, [isCreateMode, id, updateUser, postUser, toast]);
 
@@ -144,14 +149,15 @@ const Id = () => {
                     control={control}
                     name={name}
                     render={({field}) => (
-                        <InputField onBlur={() => {}}
-                            type={type}
-                            placeholder={placeholder}
-                            value={field.value}
-                            onChange={(e) => {
-                                field.onChange(e.nativeEvent.text)
-                                handleChange(e.nativeEvent.text);
-                            }}
+                        <InputField onBlur={() => {
+                        }}
+                                    type={type}
+                                    placeholder={placeholder}
+                                    value={field.value}
+                                    onChange={(e) => {
+                                        field.onChange(e.nativeEvent.text)
+                                        handleChange(e.nativeEvent.text);
+                                    }}
                         />
                     )}
                 />
@@ -279,14 +285,15 @@ const Id = () => {
                                     control={control}
                                     name="newPassword"
                                     render={({field}) => (
-                                        <InputField onBlur={() => {}}
-                                            type="password"
-                                            placeholder="..."
-                                            value={field.value}
-                                            onChange={(e) => {
-                                                field.onChange(e.nativeEvent.text);
-                                                setPassword(e.nativeEvent.text);
-                                            }}
+                                        <InputField onBlur={() => {
+                                        }}
+                                                    type="password"
+                                                    placeholder="..."
+                                                    value={field.value}
+                                                    onChange={(e) => {
+                                                        field.onChange(e.nativeEvent.text);
+                                                        setPassword(e.nativeEvent.text);
+                                                    }}
                                         />
                                     )}
                                 />
@@ -301,7 +308,7 @@ const Id = () => {
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -314,7 +321,7 @@ const Id = () => {
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
 
@@ -369,35 +376,54 @@ const Id = () => {
                 </Pressable>
             }
 
+            {
+                !isLoading ? <TouchableOpacity onPress={() => {
+                        if (isCreateMode && password.length < 6) {
+                            setError('password', {
+                                type: 'manual',
+                                message: 'Password is required min 6 characters.',
+                            });
+                            return; // Stop further execution
+                        }
+                        handleSubmit(onSubmit)()
+                    }} style={{
+                        backgroundColor: COLORS.primary,
+                        padding: SIZES.medium,
+                        justifyContent: 'center',
+                        borderRadius: SIZES.small,
+                        position: 'absolute',
+                        bottom: SIZES.medium,
+                        width: '100%',
+                        flex: 1,
+                        alignSelf: 'center',
+                        height: SIZES.xxLarge + SIZES.large,
+                    }}>
+                        <Text style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            color: 'white',
+                            fontSize: SIZES.medium,
+                            fontWeight: 600,
+                        }}>Save</Text>
+                    </TouchableOpacity>
+                    :
 
-            <TouchableOpacity onPress={() => {
-                if (isCreateMode && password.length < 6) {
-                    setError('password', {
-                        type: 'manual',
-                        message: 'Password is required min 6 characters.',
-                    });
-                    return; // Stop further execution
-                }
-                handleSubmit(onSubmit)()
-            }} style={{
-                backgroundColor: COLORS.primary,
-                padding: SIZES.medium,
-                justifyContent: 'center',
-                borderRadius: SIZES.small,
-                position: 'absolute',
-                bottom: SIZES.medium,
-                width: '100%',
-                flex: 1,
-                alignSelf: 'center'
-            }}>
-                <Text style={{
-                    width: '100%',
-                    textAlign: 'center',
-                    color: 'white',
-                    fontSize: SIZES.medium,
-                    fontWeight: 600,
-                }}>Save</Text>
-            </TouchableOpacity>
+                    <Button isDisabled={true} onPress={handleSubmit(onSubmit)}
+                            style={{
+                                backgroundColor: COLORS.primary,
+                                padding: SIZES.medium,
+                                height: SIZES.xxLarge + SIZES.large,
+                                justifyContent: 'center',
+                                borderRadius: SIZES.small,
+                                position: 'absolute',
+                                bottom: SIZES.medium,
+                                width: '100%',
+                                flex: 1,
+                                alignSelf: 'center'
+                            }}>
+                        <Spinner size={'small'} color="$secondary600"/>
+                    </Button>
+            }
 
 
             {/*    MODAL DELETE CONFIRMATION */}

@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {useRouter} from 'expo-router';
+import {FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {useFocusEffect, useRouter} from 'expo-router';
 import {COLORS, SIZES} from '../../constants';
 import {mainStyles, searchStyles} from '../../styles';
 import TableCustomNotUsed from '../../components/common/TableCustomNotUsed';
@@ -42,6 +42,10 @@ const SelectTable = () => {
             table.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [notUsedTables, searchTerm]);
+
+    useFocusEffect(() => {
+        Keyboard.dismiss()
+    })
 
     usePusher(
         'table-channel',

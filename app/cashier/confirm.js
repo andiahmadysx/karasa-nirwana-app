@@ -168,7 +168,7 @@ const Confirm = () => {
             }}
         >
             <FlashList contentContainerStyle={{
-                    paddingBottom: 60
+                paddingBottom: 60,
                 }} ListEmptyComponent={() => <NoDataFound/>}
                 data={order?.products}
                 numColumns={1}
@@ -181,7 +181,7 @@ const Confirm = () => {
 
         <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
             <Text
-                style={{fontSize: SIZES.medium, fontWeight: 'light', marginVertical: SIZES.medium, color: COLORS.gray}}>
+                style={{fontSize: SIZES.medium, fontWeight: 'light', marginVertical: SIZES.small, color: COLORS.gray}}>
                 {' '}
                 Total : {formatCurrency(calculateTotalPrice)}
             </Text>
@@ -220,7 +220,9 @@ const Confirm = () => {
             <Text style={{fontSize: SIZES.medium, fontWeight: 600, marginVertical: SIZES.small}}>Notes</Text>
         </View>
 
-        <View>
+        <View style={{
+            paddingBottom: 20
+        }}>
             <Textarea size="md" isReadOnly={false} isInvalid={false} isDisabled={false} w="$100"
                       style={{borderColor: COLORS.gray, marginBottom: 60}}>
                 <TextareaInput
@@ -304,7 +306,7 @@ const Confirm = () => {
                     <ModalFooter style={{justifyContent: 'center'}}>
                         <Button
                             width={'40%'}
-                            size="sm"
+                            size="md"
                             variant={'outline'}
                             borderColor={COLORS.primary}
                             borderRadius={100}
@@ -317,7 +319,7 @@ const Confirm = () => {
                         </Button>
                         <Button
                             width={'50%'}
-                            size="sm"
+                            size="md"
                             backgroundColor={COLORS.primary}
                             variant={'filled'}
                             borderColor={COLORS.primary}
@@ -372,6 +374,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        height: SIZES.large + SIZES.xxLarge,
+
     }, buttonText: {
         textAlignVertical: 'center', textAlign: 'center', fontSize: SIZES.medium, color: COLORS.primary,
     },

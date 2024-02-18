@@ -218,7 +218,7 @@ const ChefDashboard = () => {
                         </ModalCloseButton>
                     </ModalHeader>
                     <ModalBody>
-                        <Text size="sm">
+                        <Text size="md">
 
                             {selectedTransaction?.status === 'order_placed' ? "Are you sure you want to cook this order? Please review the details carefully before confirming." : "Have you completed cooking this order? Please confirm to ensure a seamless dining experience for our customers."}
 
@@ -273,7 +273,7 @@ const ChefDashboard = () => {
                     <ModalFooter>
                         <Button
                             variant="outline"
-                            size="sm"
+                            size="md"
                             action="secondary"
                             mr="$3"
                             onPress={() => {
@@ -286,7 +286,7 @@ const ChefDashboard = () => {
                             <ButtonText>Cancel</ButtonText>
                         </Button>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
                             style={{

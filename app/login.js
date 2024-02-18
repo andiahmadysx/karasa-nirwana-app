@@ -23,7 +23,7 @@ import {
 import {Image, SafeAreaView, Text} from 'react-native';
 import {mainStyles} from '../styles';
 import {COLORS, images, SIZES} from '../constants';
-import {useFocusEffect, useRouter} from 'expo-router';
+import {useRouter} from 'expo-router';
 import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
@@ -125,11 +125,12 @@ const Login = () => {
                                 control={control}
                                 name="username"
                                 render={({field}) => (
-                                    <InputField onBlur={() => {}}
-                                        type="text"
-                                        placeholder="..."
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.nativeEvent.text)}
+                                    <InputField onBlur={() => {
+                                    }}
+                                                type="text"
+                                                placeholder="..."
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.nativeEvent.text)}
                                     />
                                 )}
                             />
@@ -151,11 +152,12 @@ const Login = () => {
                                 control={control}
                                 name="password"
                                 render={({field}) => (
-                                    <InputField onBlur={() => {}}
-                                        type="password"
-                                        placeholder="..."
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.nativeEvent.text)}
+                                    <InputField onBlur={() => {
+                                    }}
+                                                type="password"
+                                                placeholder="..."
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.nativeEvent.text)}
                                     />
                                 )}
                             />

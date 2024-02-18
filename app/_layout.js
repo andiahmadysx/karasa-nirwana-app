@@ -59,7 +59,7 @@ const Layout = () => {
 
             const delay = setTimeout(() => {
                 setAppIsReady(true);
-            }, 300);
+            }, 1000);
 
             return () => clearTimeout(delay);
         }

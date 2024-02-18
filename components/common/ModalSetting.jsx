@@ -314,7 +314,7 @@ const ModalSetting = ({showModal, setShowModal}) => {
                     </ModalBody>
                     <ModalFooter>
                         <Button
-                            size="sm"
+                            size="md"
                             action="primary"
                             borderWidth="$0"
 
