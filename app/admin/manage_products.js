@@ -1,15 +1,15 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {mainStyles, searchStyles} from '../../styles';
-import {COLORS, SIZES} from '../../constants';
+import {mainStyles, searchStyles} from '../../../../../karasa-nirwana/styles';
+import {COLORS, SIZES} from '../../../../../karasa-nirwana/constants';
 import {Center, Icon, SearchIcon} from '@gluestack-ui/themed';
 import {Ionicons} from '@expo/vector-icons';
-import ProductListAdmin from '../../components/admin/ProductListAdmin';
+import ProductListAdmin from '../../../../../karasa-nirwana/components/admin/ProductListAdmin';
 import {useRouter} from 'expo-router';
-import useCustomQuery, {useGet} from '../../hooks/Fetch';
+import useCustomQuery, {useGet} from '../../../../../karasa-nirwana/hooks/Fetch';
 import {FlashList} from '@shopify/flash-list';
 import debounce from 'lodash/debounce';
-import NoDataFound from "../../components/common/NoDataFound";
+import NoDataFound from "../../../../../karasa-nirwana/components/common/NoDataFound";
 
 const ManageProducts = () => {
     const router = useRouter();

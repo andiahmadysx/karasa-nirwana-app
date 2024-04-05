@@ -63,6 +63,30 @@ const Layout = () => {
             }
         }/>
 
+        <Stack.Screen name={'product'} options={
+            {
+                header: (props) =>
+                    (
+                        <View style={{
+                            height: 100, backgroundColor: COLORS.bg,
+                            paddingHorizontal: SIZES.small,
+                            paddingRight: SIZES.xxLarge,
+                            alignItems: 'flex-end',
+                            flexDirection: 'row'
+                        }}>
+
+                            <View style={{
+                                justifyContent: 'space-between', alignItems: 'flex-end', flexDirection: 'row', flex: 1
+                            }}>
+                                <DrawerToggleButton/>
+                                <Clock/>
+                            </View>
+
+                        </View>
+                    ),
+            }
+        }/>
+
 
         <Stack.Screen name={'log_activity'} options={
             {

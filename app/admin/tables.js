@@ -1,8 +1,8 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Pressable, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
-import {mainStyles, searchStyles} from "../../styles";
-import {COLORS, SIZES} from "../../constants";
-import NoDataFound from "../../components/common/NoDataFound";
+import {mainStyles, searchStyles} from "../../../../../karasa-nirwana/styles";
+import {COLORS, SIZES} from "../../../../../karasa-nirwana/constants";
+import NoDataFound from "../../../../../karasa-nirwana/components/common/NoDataFound";
 import {
     AlertCircleIcon,
     Button,
@@ -33,15 +33,15 @@ import {
     VStack
 } from "@gluestack-ui/themed";
 import {Ionicons} from "@expo/vector-icons";
-import CardTableAdmin from "../../components/admin/CardTableAdmin";
+import CardTableAdmin from "../../../../../karasa-nirwana/components/admin/CardTableAdmin";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import useCustomQuery, {useDelete, useGet, usePost, useUpdate} from "../../hooks/Fetch";
+import useCustomQuery, {useDelete, useGet, usePost, useUpdate} from "../../../../../karasa-nirwana/hooks/Fetch";
 import debounce from "lodash/debounce";
-import ModalDelete from "../../components/common/ModalDelete";
+import ModalDelete from "../../../../../karasa-nirwana/components/common/ModalDelete";
 import {FlashList} from "@shopify/flash-list";
-import {ColumnItem} from "../../components/common/ColumnItem";
+import {ColumnItem} from "../../../../../karasa-nirwana/components/common/ColumnItem";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required'),

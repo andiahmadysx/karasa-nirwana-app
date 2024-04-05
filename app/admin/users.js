@@ -1,16 +1,16 @@
 import React, {useMemo, useState} from 'react';
 import {SafeAreaView, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {mainStyles, searchStyles} from '../../styles';
-import {COLORS, SIZES} from '../../constants';
-import CardUser from '../../components/admin/CardUser';
+import {mainStyles, searchStyles} from '../../../../../karasa-nirwana/styles';
+import {COLORS, SIZES} from '../../../../../karasa-nirwana/constants';
+import CardUser from '../../../../../karasa-nirwana/components/admin/CardUser';
 import {Icon, SearchIcon} from '@gluestack-ui/themed';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
-import useCustomQuery, {useGet} from '../../hooks/Fetch';
+import useCustomQuery, {useGet} from '../../../../../karasa-nirwana/hooks/Fetch';
 import debounce from 'lodash/debounce';
 import {FlashList} from "@shopify/flash-list";
-import {ColumnItem} from "../../components/common/ColumnItem";
-import NoDataFound from "../../components/common/NoDataFound";
+import {ColumnItem} from "../../../../../karasa-nirwana/components/common/ColumnItem";
+import NoDataFound from "../../../../../karasa-nirwana/components/common/NoDataFound";
 
 const Users = () => {
     const router = useRouter();

@@ -79,6 +79,10 @@ const CustomDrawerContent = (props) => {
                     }}/>
                     <RenderDrawerItem label={'Dashboard'} iconName={'home-outline'} screenName={'/owner'}
                                       props={props}/>
+
+                    <RenderDrawerItem label={'Data Product'} iconName={'fast-food-outline'} screenName={'/owner/product'}
+                                      props={props}/>
+
                     <RenderDrawerItem label={'Transaction History'} iconName={'time-outline'}
                                       screenName={'/owner/transaction_history'}
                                       props={props}/>

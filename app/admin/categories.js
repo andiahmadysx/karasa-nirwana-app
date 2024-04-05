@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
-import {mainStyles, searchStyles,} from '../../styles';
-import {COLORS, SIZES,} from '../../constants';
+import {mainStyles, searchStyles,} from '../../../../../karasa-nirwana/styles';
+import {COLORS, SIZES,} from '../../../../../karasa-nirwana/constants';
 import {
     AlertCircleIcon,
     Button,
@@ -33,14 +33,14 @@ import {
     VStack,
 } from '@gluestack-ui/themed';
 import {Ionicons} from '@expo/vector-icons';
-import CategoryListAdmin from '../../components/admin/CategoryListAdmin';
+import CategoryListAdmin from '../../../../../karasa-nirwana/components/admin/CategoryListAdmin';
 import {Controller, useForm} from 'react-hook-form';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
-import useCustomQuery, {useDelete, useGet, usePost, useUpdate,} from '../../hooks/Fetch';
+import useCustomQuery, {useDelete, useGet, usePost, useUpdate,} from '../../../../../karasa-nirwana/hooks/Fetch';
 import {FlashList} from "@shopify/flash-list";
-import ModalDelete from "../../components/common/ModalDelete";
-import NoDataFound from "../../components/common/NoDataFound";
+import ModalDelete from "../../../../../karasa-nirwana/components/common/ModalDelete";
+import NoDataFound from "../../../../../karasa-nirwana/components/common/NoDataFound";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required'),

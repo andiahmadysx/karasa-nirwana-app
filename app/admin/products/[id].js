@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Image, Pressable, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
-import {mainStyles} from "../../../styles";
+import {mainStyles} from "../../../../../../karasa-nirwana/styles";
 import {
     AlertCircleIcon,
     Button,
@@ -22,13 +22,13 @@ import {
 import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {COLORS, SIZES} from "../../../constants";
+import {COLORS, SIZES} from "../../../../../../karasa-nirwana/constants";
 import {Picker} from "@react-native-picker/picker";
 import {Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
-import useCustomQuery, {useGet, usePostFormData} from "../../../hooks/Fetch";
-import ModalDelete from "../../../components/common/ModalDelete";
+import useCustomQuery, {useGet, usePostFormData} from "../../../../../../karasa-nirwana/hooks/Fetch";
+import ModalDelete from "../../../../../../karasa-nirwana/components/common/ModalDelete";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required.'),
@@ -91,8 +91,6 @@ const Id = (props) => {
     } = useCustomQuery('products', useGet('/products'));
 
 
-    console.log(detailProducts)
-
     const setFormValues = useCallback(async () => {
         if (!isCreateMode) {
             await setValue('name', detailProducts?.name || '');
@@ -114,6 +112,7 @@ const Id = (props) => {
     }, [isCreateMode, setFormValues]);
 
     const onSubmit = useCallback(async (data) => {
+        setIsLoading(true);
             try {
                 if (image) {
                     const formData = new FormData();
@@ -156,6 +155,9 @@ const Id = (props) => {
                 } else {
                     alert('Please select an image');
                 }
+
+                setIsLoading(false);
+
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -264,7 +266,7 @@ const Id = (props) => {
                                                 type="text"
                                                 placeholder="..."
                                                 value={field.value}
-                                                onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
+                                                onChange={(e) => field.onChange(e.nativeEvent.text)}
                                     />
                                 )}
                             />
@@ -292,7 +294,7 @@ const Id = (props) => {
                                                 type="text"
                                                 placeholder="..."
                                                 value={field.value}
-                                                onChange={(e) => field.onChange(parseInt(e.nativeEvent.text))}
+                                                onChange={(e) => field.onChange(e.nativeEvent.text)}
                                     />
                                 )}
                             />

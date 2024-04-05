@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {Pressable, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import {
     AlertCircleIcon,
     Button,
@@ -35,26 +35,25 @@ import {
     useToast,
     VStack
 } from "@gluestack-ui/themed";
-import {Controller, useForm} from "react-hook-form";
-import {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {COLORS, SIZES} from "../../../constants";
-import {router, useLocalSearchParams, useNavigation} from "expo-router";
-import useCustomQuery, {useGet, usePost, useUpdate} from "../../../hooks/Fetch";
-import {mainStyles} from "../../../styles";
-import ModalDelete from "../../../components/common/ModalDelete";
-
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { COLORS, SIZES } from "../../../../../../karasa-nirwana/constants";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import useCustomQuery, { useGet, usePost, useUpdate } from "../../../../../../karasa-nirwana/hooks/Fetch";
+import { mainStyles } from "../../../../../../karasa-nirwana/styles";
+import ModalDelete from "../../../../../../karasa-nirwana/components/common/ModalDelete";
 
 const Id = () => {
     const navigation = useNavigation();
-    const {id} = useLocalSearchParams();
+    const { id } = useLocalSearchParams();
     const [showModal, setShowModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [password, setPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const isCreateMode = id === 'create';
     const postUser = usePost('/users');
     const updateUser = useUpdate('/users');
-    const [isButtonHovered, setIsButtonHovered] = useState(false); // New state for button hover
+    const [isButtonHovered, setIsButtonHovered] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const formSchema = z.object({
@@ -63,8 +62,7 @@ const Id = () => {
         role: z.string().min(1, 'Required.'),
     });
 
-
-    const {control, setValue, setError, handleSubmit, formState: {errors}} = useForm({
+    const { control, setValue, setError, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(formSchema),
     });
 
@@ -74,17 +72,15 @@ const Id = () => {
         data: detailUserData,
     } = isCreateMode ? {} : useCustomQuery('detailUser', useGet('/users/' + id));
 
-
     const detailUser = useMemo(() => detailUserData?.user || [], [detailUserData]);
 
-    const {refetch: refetchUsers} = useCustomQuery(
+    const { refetch: refetchUsers } = useCustomQuery(
         'users-data',
         useGet('/users')
     );
 
-
     useEffect(() => {
-        navigation.setOptions({headerTitle: isCreateMode ? 'Add New User' : 'Edit User'});
+        navigation.setOptions({ headerTitle: isCreateMode ? 'Add New User' : 'Edit User' });
 
         const setFormValues = async () => {
             if (!isCreateMode) {
@@ -98,16 +94,16 @@ const Id = () => {
     }, [isCreateMode, detailUser, setValue]);
 
     const onSubmit = useCallback(async (data) => {
-
         setIsLoading(true);
 
-        if (!isCreateMode && password.length > 6) {
-            data.password = password;
+        if (!isCreateMode && newPassword.length > 0 && newPassword.length > 6) {
+            data.password = newPassword;
         }
 
-        if (isCreateMode) {
-            data.password = password;
+        if (isCreateMode && newPassword.length > 0) {
+            data.password = newPassword;
         }
+
         const response = !isCreateMode ? await updateUser(id, data) : await postUser(data);
 
         if (response.success) {
@@ -120,9 +116,9 @@ const Id = () => {
             toast.show({
                 placement: 'bottom',
                 duration: 3000,
-                render: ({id}) => (
-                    <Toast bg="$success500" nativeID={`toast-${id}`} p="$6" style={{marginBottom: SIZES.xxLarge}}>
-                        <VStack space="xs" style={{width: '90%'}}>
+                render: ({ id }) => (
+                    <Toast bg="$success500" nativeID={`toast-${id}`} p="$6" style={{ marginBottom: SIZES.xxLarge }}>
+                        <VStack space="xs" style={{ width: '90%' }}>
                             <ToastTitle color="$textLight50">{successMessage}</ToastTitle>
                         </VStack>
                     </Toast>
@@ -130,45 +126,45 @@ const Id = () => {
             });
 
             setShowModal(false);
-            setIsLoading(false)
+            setIsLoading(false);
         } else {
-            alert('username already exist!')
+            alert('username already exist!');
             console.error(`Failed to ${isCreateMode ? 'update' : 'create'} table. Server response:`, response);
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }, [isCreateMode, id, updateUser, postUser, toast]);
+    }, [isCreateMode, id, updateUser, postUser, toast, newPassword]);
 
-    const renderFormControl = (name, label, placeholder, type = 'text', handleChange = () => {
-    }) => (
+    const renderFormControl = (name, label, placeholder, type = 'text', handleChange = () => {}) => (
         <FormControl size="md" isDisabled={false} isInvalid={!!errors[name]} isReadOnly={false} isRequired={true}>
             <FormControlLabel mb='$1'>
                 <FormControlLabelText>{label}</FormControlLabelText>
             </FormControlLabel>
-            <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
+            <Input style={{ height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small }}>
                 <Controller
                     control={control}
                     name={name}
-                    render={({field}) => (
-                        <InputField onBlur={() => {
-                        }}
-                                    type={type}
-                                    placeholder={placeholder}
-                                    value={field.value}
-                                    onChange={(e) => {
-                                        field.onChange(e.nativeEvent.text)
-                                        handleChange(e.nativeEvent.text);
-                                    }}
+                    render={({ field }) => (
+                        <InputField
+                            onBlur={() => {}}
+                            type={type}
+                            placeholder={placeholder}
+                            value={field.value}
+                            onChange={(e) => {
+                                field.onChange(e.nativeEvent.text);
+                                handleChange(e.nativeEvent.text);
+                            }}
                         />
                     )}
                 />
             </Input>
             <FormControlHelper></FormControlHelper>
             <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon}/>
+                <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>{errors[name]?.message}</FormControlErrorText>
             </FormControlError>
         </FormControl>
     );
+
     return (
         <SafeAreaView style={[mainStyles.container]}>
             <View style={{
@@ -180,7 +176,7 @@ const Id = () => {
                 <View>
                     {renderFormControl('name', 'Name', '...')}
                     {renderFormControl('username', 'Username', '...')}
-                    {isCreateMode && renderFormControl('password', 'Password', '...', 'password', setPassword)}
+                    {isCreateMode && renderFormControl('password', 'Password', '...', 'password', setNewPassword)}
                 </View>
             </View>
 
@@ -245,7 +241,7 @@ const Id = () => {
                         />
                         <FormControlHelper></FormControlHelper>
                         <FormControlError>
-                            <FormControlErrorIcon as={AlertCircleIcon}/>
+                            <FormControlErrorIcon as={AlertCircleIcon} />
                             <FormControlErrorText>{errors.role?.message}</FormControlErrorText>
                         </FormControlError>
                     </FormControl>
@@ -255,7 +251,7 @@ const Id = () => {
             <Modal
                 isOpen={showModal}
                 onClose={() => {
-                    setShowModal(false)
+                    setShowModal(false);
                 }}
                 size={'md'}
             >
@@ -280,20 +276,21 @@ const Id = () => {
                             <FormControlLabel mb='$1'>
                                 <FormControlLabelText>New Password</FormControlLabelText>
                             </FormControlLabel>
-                            <Input style={{height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small}}>
+                            <Input style={{ height: SIZES.xxLarge + SIZES.medium, borderRadius: SIZES.small }}>
                                 <Controller
                                     control={control}
                                     name="newPassword"
-                                    render={({field}) => (
-                                        <InputField onBlur={() => {
-                                        }}
-                                                    type="password"
-                                                    placeholder="..."
-                                                    value={field.value}
-                                                    onChange={(e) => {
-                                                        field.onChange(e.nativeEvent.text);
-                                                        setPassword(e.nativeEvent.text);
-                                                    }}
+                                    render={({ field }) => (
+                                        <InputField
+                                            onBlur={() => {
+                                            }}
+                                            type="password"
+                                            placeholder="..."
+                                            value={field.value}
+                                            onChange={(e) => {
+                                                field.onChange(e.nativeEvent.text);
+                                                setNewPassword(e.nativeEvent.text);
+                                            }}
                                         />
                                     )}
                                 />
@@ -312,7 +309,7 @@ const Id = () => {
                             action="secondary"
                             mr="$3"
                             onPress={() => {
-                                setShowModal(false)
+                                setShowModal(false);
                             }}
                             style={{
                                 borderRadius: SIZES.small
@@ -329,7 +326,7 @@ const Id = () => {
                                 borderRadius: SIZES.small
                             }}
                             onPress={() => {
-                                if (!isCreateMode && password.length < 6) {
+                                if (!isCreateMode && newPassword.length > 0 && newPassword.length < 6) {
                                     setError('newPassword', {
                                         type: 'manual',
                                         message: 'Password is required min 6 characters.',
@@ -353,6 +350,29 @@ const Id = () => {
                     style={{
                         borderRadius: SIZES.small,
                         height: SIZES.xxLarge + SIZES.small,
+                        backgroundColor: 'transparent',
+                        justifyContent: 'center',
+                        alignItems: 'flex-end',
+                    }}
+                    onPress={() => {
+                        setShowModal(true);
+                    }}
+                >
+                    <Text style={{
+                        color: COLORS.danger,
+                        fontSize: SIZES.medium,
+                        fontWeight: 400
+                    }}>
+                        Change Password
+                    </Text>
+                </Pressable>
+            }
+
+            {!isCreateMode &&
+                <Pressable
+                    style={{
+                        borderRadius: SIZES.small,
+                        height: SIZES.xxLarge + SIZES.small,
                         borderWidth: 1,
                         borderColor: COLORS.danger,
                         backgroundColor: isButtonHovered ? 'red' : 'transparent',
@@ -361,7 +381,7 @@ const Id = () => {
                         marginTop: SIZES.small
                     }}
                     onPress={() => {
-                        setShowDeleteModal(true)
+                        setShowDeleteModal(true);
                     }}
                     onPressIn={() => setIsButtonHovered(true)}
                     onPressOut={() => setIsButtonHovered(false)}
@@ -378,14 +398,14 @@ const Id = () => {
 
             {
                 !isLoading ? <TouchableOpacity onPress={() => {
-                        if (isCreateMode && password.length < 6) {
+                        if (isCreateMode && newPassword.length > 0 && newPassword.length < 6) {
                             setError('password', {
                                 type: 'manual',
                                 message: 'Password is required min 6 characters.',
                             });
                             return; // Stop further execution
                         }
-                        handleSubmit(onSubmit)()
+                        handleSubmit(onSubmit)();
                     }} style={{
                         backgroundColor: COLORS.primary,
                         padding: SIZES.medium,
@@ -425,7 +445,6 @@ const Id = () => {
                     </Button>
             }
 
-
             {/*    MODAL DELETE CONFIRMATION */}
             <ModalDelete setShowModal={setShowDeleteModal} showModal={showDeleteModal} url={'/users/' + id}
                          route={'/admin/users'} refetch={refetchUsers}/>
@@ -434,4 +453,3 @@ const Id = () => {
 };
 
 export default Id;
-
