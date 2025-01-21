@@ -38,11 +38,12 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { COLORS, SIZES } from "../../../../../../karasa-nirwana/constants";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import useCustomQuery, { useGet, usePost, useUpdate } from "../../../../../../karasa-nirwana/hooks/Fetch";
-import { mainStyles } from "../../../../../../karasa-nirwana/styles";
-import ModalDelete from "../../../../../../karasa-nirwana/components/common/ModalDelete";
+import useCustomQuery, { useGet, usePost, useUpdate } from "../../../hooks/Fetch";
+import { mainStyles } from "../../../styles";
+import ModalDelete from "../../../components/common/ModalDelete";
+
+import {COLORS, SIZES} from "../../../constants";
 
 const Id = () => {
     const navigation = useNavigation();

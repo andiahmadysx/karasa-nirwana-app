@@ -48,9 +48,12 @@ const Login = () => {
     const router = useRouter();
 
     const onSubmit = async (data) => {
-        setIsLoading(true);
+        setIsLoading(true)
+        console.log(data)
+
         const response = await loginPost(data);
 
+        console.log(response)
         if (response.success) {
             setIsLoading(false);
             const user = response.data.user;

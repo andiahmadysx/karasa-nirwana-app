@@ -4,7 +4,7 @@ import {useQuery} from 'react-query';
 
 
 const Axios = axios.create({
-    baseURL: 'http://' + process.env.BACKEND_HOST + '/karasa-nirwana-api/api',
+    baseURL: 'http://' + process.env.BACKEND_HOST + '-api/api',
 });
 
 export const usePost = (endpoint = '/') => {

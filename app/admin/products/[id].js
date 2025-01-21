@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Image, Pressable, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
-import {mainStyles} from "../../../../../../karasa-nirwana/styles";
+import {mainStyles} from "../../../styles";
 import {
     AlertCircleIcon,
     Button,
@@ -22,13 +22,13 @@ import {
 import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {COLORS, SIZES} from "../../../../../../karasa-nirwana/constants";
+import {COLORS, SIZES} from "../../../constants";
 import {Picker} from "@react-native-picker/picker";
 import {Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
-import useCustomQuery, {useGet, usePostFormData} from "../../../../../../karasa-nirwana/hooks/Fetch";
-import ModalDelete from "../../../../../../karasa-nirwana/components/common/ModalDelete";
+import useCustomQuery, {useGet, usePostFormData} from "../../../hooks/Fetch";
+import ModalDelete from "../../../components/common/ModalDelete";
 
 const formSchema = z.object({
     name: z.string().min(1, 'Required.'),
